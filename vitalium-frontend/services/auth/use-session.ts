@@ -1,28 +1,20 @@
-"use client"
+'use client';
 
-import { useEffect, useState } from "react"
-import { getAccessToken, getAuthUser, type AuthUser } from "@/services/auth/session"
+import { useAuth } from '@/providers/auth-provider';
 
 interface SessionState {
-  isReady: boolean
-  accessToken: string | null
-  user: AuthUser | null
+  isReady: boolean;
+  accessToken: string | null;
+  user: ReturnType<typeof useAuth>['user'];
 }
 
+/** Compatibilidade com componentes que já usam useSession */
 export function useSession(): SessionState {
-  const [state, setState] = useState<SessionState>({
-    isReady: false,
-    accessToken: null,
-    user: null,
-  })
+  const { user, accessToken, isLoadingUser } = useAuth();
 
-  useEffect(() => {
-    setState({
-      isReady: true,
-      accessToken: getAccessToken(),
-      user: getAuthUser(),
-    })
-  }, [])
-
-  return state
+  return {
+    isReady: !isLoadingUser,
+    accessToken,
+    user,
+  };
 }

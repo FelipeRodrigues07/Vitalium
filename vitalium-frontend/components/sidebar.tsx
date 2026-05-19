@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
+import { useAuth } from "@/providers/auth-provider"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -82,6 +83,13 @@ interface SidebarProps {
 
 function SidebarContent({ userRole, className }: SidebarProps) {
   const pathname = usePathname()
+  const router = useRouter()
+  const { logout } = useAuth()
+
+  const handleLogout = async () => {
+    await logout()
+    router.replace("/login")
+  }
 
   const filteredNavigation = navigation.filter(
     (item) => item.public || (item.roles && userRole && item.roles.includes(userRole)),
@@ -131,11 +139,13 @@ function SidebarContent({ userRole, className }: SidebarProps) {
             <span className="truncate">Perfil</span>
           </Link>
         </Button>
-        <Button variant="ghost" className="w-full justify-start h-9 sm:h-10 px-2 sm:px-3" asChild>
-          <Link href="/login">
-            <LogOut className="h-4 w-4 mr-2 sm:mr-3 flex-shrink-0" />
-            <span className="truncate">Sair</span>
-          </Link>
+        <Button
+          variant="ghost"
+          className="w-full justify-start h-9 sm:h-10 px-2 sm:px-3"
+          onClick={() => void handleLogout()}
+        >
+          <LogOut className="h-4 w-4 mr-2 sm:mr-3 flex-shrink-0" />
+          <span className="truncate">Sair</span>
         </Button>
       </div>
     </div>

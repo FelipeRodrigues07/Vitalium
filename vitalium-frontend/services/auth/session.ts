@@ -1,17 +1,24 @@
+import type { UserProfile } from '@/types/auth';
+
 const ACCESS_TOKEN_KEY = 'accessToken';
 const REFRESH_TOKEN_KEY = 'refreshToken';
 const AUTH_USER_KEY = 'authUser';
+
+let onSessionCleared: (() => void) | null = null;
+let onAccessTokenUpdated: ((token: string) => void) | null = null;
 
 function isBrowser(): boolean {
   return typeof window !== 'undefined';
 }
 
-export interface AuthUser {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: 'PATIENT' | 'DOCTOR' | 'NURSE' | 'CAREGIVER' | 'ADMIN';
+export type AuthUser = UserProfile;
+
+export function setOnSessionCleared(callback: (() => void) | null): void {
+  onSessionCleared = callback;
+}
+
+export function setOnAccessTokenUpdated(callback: ((token: string) => void) | null): void {
+  onAccessTokenUpdated = callback;
 }
 
 export function getAccessToken(): string | null {
@@ -22,6 +29,22 @@ export function getAccessToken(): string | null {
 export function setAccessToken(token: string): void {
   if (!isBrowser()) return;
   window.localStorage.setItem(ACCESS_TOKEN_KEY, token);
+  onAccessTokenUpdated?.(token);
+}
+
+export function getRefreshToken(): string | null {
+  if (!isBrowser()) return null;
+  return window.localStorage.getItem(REFRESH_TOKEN_KEY);
+}
+
+export function setRefreshToken(token: string): void {
+  if (!isBrowser()) return;
+  window.localStorage.setItem(REFRESH_TOKEN_KEY, token);
+}
+
+export function setAuthUser(user: AuthUser): void {
+  if (!isBrowser()) return;
+  window.localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
 }
 
 export function getAuthUser(): AuthUser | null {
@@ -59,4 +82,5 @@ export function clearAuthSession(): void {
   window.localStorage.removeItem(ACCESS_TOKEN_KEY);
   window.localStorage.removeItem(REFRESH_TOKEN_KEY);
   window.localStorage.removeItem(AUTH_USER_KEY);
+  onSessionCleared?.();
 }

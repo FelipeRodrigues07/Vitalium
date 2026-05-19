@@ -1,5 +1,10 @@
 import axios, { AxiosHeaders, type InternalAxiosRequestConfig } from 'axios';
-import { getAccessToken, clearAuthSession, setAccessToken } from '@/services/auth/session';
+import {
+  getAccessToken,
+  getRefreshToken,
+  clearAuthSession,
+  setAccessToken,
+} from '@/services/auth/session';
  
 type RetryableRequestConfig = InternalAxiosRequestConfig & {
   _retry?: boolean;
@@ -33,7 +38,7 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config as RetryableRequestConfig | undefined;
-    const refreshToken = typeof window !== 'undefined' ? window.localStorage.getItem('refreshToken') : null;
+    const refreshToken = getRefreshToken();
 
     if (
       error.response?.status === 401 &&
@@ -49,11 +54,7 @@ api.interceptors.response.use(
         const refreshResponse = await axios.post(
           `${API_BASE_URL}/auth/refresh`,
           { refreshToken },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          },
+          { headers: { 'Content-Type': 'application/json' } },
         );
 
         const newAccessToken = refreshResponse.data.accessToken;
