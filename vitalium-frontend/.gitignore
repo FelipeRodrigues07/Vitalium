@@ -10,3 +10,6 @@ node_modules/
 .env
 
 .next/
+
+# TypeScript incremental build cache
+*.tsbuildinfo
