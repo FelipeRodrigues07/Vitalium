@@ -51,7 +51,12 @@ export const authApi = {
   },
 
   logout: async (): Promise<void> => {
-    await api.post('/auth/logout');
+    try {
+      await api.post('/auth/logout');
+    } catch {
+      // Sessão local é limpa no provider; logout no servidor é best-effort
+      // (ex.: token antigo após seed ou usuário já removido).
+    }
   },
 
   getProfile: async (): Promise<UserProfile> => {

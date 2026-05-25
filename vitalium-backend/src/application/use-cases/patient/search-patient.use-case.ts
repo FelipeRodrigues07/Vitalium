@@ -2,13 +2,18 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
 import { PatientNotFoundException } from '../../../shared/execeptions/patient/patient-not-found.exception';
 import type { IPatientRepository } from '../../../domain/interfaces/repositories/patient/patient.repository.interface';
+import type { IDoctorRepository } from '../../../domain/interfaces/repositories/doctor/doctor.repository.interface';
 import type { Patient } from '../../../infrastructure/database/models/patient.models';
+import type { AuthJwtPayload } from '../../../shared/types/auth-jwt-payload.interface';
+import { Role } from '../../../shared/enums';
 
 @Injectable()
 export class SearchPatientUseCase {
   constructor(
     @Inject('IPatientRepository')
     private readonly patientRepository: IPatientRepository,
+    @Inject('IDoctorRepository')
+    private readonly doctorRepository: IDoctorRepository,
   ) {}
 
   async findById(id: string): Promise<Patient> {
@@ -39,5 +44,86 @@ export class SearchPatientUseCase {
     }
 
     return patients;
+  }
+
+  async findAllForAuthUser(
+    authUser?: AuthJwtPayload,
+    doctorId?: string,
+  ): Promise<Patient[]> {
+    if (authUser?.role === Role.DOCTOR) {
+      return this.findAllByDoctorUserId(authUser.sub);
+    }
+
+    if (doctorId) {
+      return this.findAllByDoctorId(doctorId);
+    }
+
+    return this.findAll();
+  }
+
+  async findAllByDoctorUserId(userId: string): Promise<Patient[]> {
+    if (!userId) {
+      throw new ValidationException([
+        {
+          field: 'userId',
+          value: userId,
+          constraints: ['userId é obrigatório'],
+        },
+      ]);
+    }
+
+    const doctor = await this.doctorRepository.findByUserId(userId);
+
+    if (!doctor) {
+      return [];
+    }
+
+    return this.patientRepository.findAllByDoctorId(doctor.id);
+  }
+
+  async findAllByDoctorId(doctorId: string): Promise<Patient[]> {
+    if (!doctorId) {
+      throw new ValidationException([
+        {
+          field: 'doctorId',
+          value: doctorId,
+          constraints: ['doctorId é obrigatório'],
+        },
+      ]);
+    }
+
+    const doctor = await this.doctorRepository.findById(doctorId);
+
+    if (!doctor) {
+      throw new ValidationException([
+        {
+          field: 'doctorId',
+          value: doctorId,
+          constraints: ['Médico não encontrado'],
+        },
+      ]);
+    }
+
+    return this.patientRepository.findAllByDoctorId(doctorId);
+  }
+
+  async findByUserId(userId: string): Promise<Patient> {
+    if (!userId) {
+      throw new ValidationException([
+        {
+          field: 'userId',
+          value: userId,
+          constraints: ['userId é obrigatório'],
+        },
+      ]);
+    }
+
+    const patient = await this.patientRepository.findByUserId(userId);
+
+    if (!patient) {
+      throw new PatientNotFoundException(`userId: ${userId}`);
+    }
+
+    return patient;
   }
 }

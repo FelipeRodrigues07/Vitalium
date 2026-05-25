@@ -10,4 +10,6 @@ export interface IDoctorRepository {
   findAll(): Promise<Doctor[]>;
   update(id: string, data: UpdateDoctorDTO): Promise<Doctor>;
   delete(id: string): Promise<void>;
+  findAllByUnitId(unitId: string): Promise<Doctor[]>;
+  hasActiveUnitLink(doctorId: string, unitId: string): Promise<boolean>;
 }

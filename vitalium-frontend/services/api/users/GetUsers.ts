@@ -13,6 +13,8 @@ export interface ListedUserModel {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  responsibleDoctorName?: string;
+  responsibleDoctorCrm?: string;
 }
 
 export const GetUsersService = {
