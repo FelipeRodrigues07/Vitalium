@@ -1,5 +1,5 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsString, Matches } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsEnum, IsString, Matches } from 'class-validator';
 import { CaregiverRelationship } from '../../../shared/enums/caregiver-relationship.enum';
 
 export class CreateCaregiverDTO {

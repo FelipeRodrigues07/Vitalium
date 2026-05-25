@@ -99,17 +99,18 @@ export class RabbitMQService implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
-    await this.channel.consume(queue, async (msg) => {
+    const channel = this.channel;
+    await channel.consume(queue, async (msg) => {
       if (!msg) return;
 
       try {
         const payload = JSON.parse(msg.content.toString()) as unknown;
         await handler(payload);
-        this.channel!.ack(msg);
+        channel.ack(msg);
       } catch (error) {
         this.logger.error(`Erro ao processar mensagem de ${queue}`, error);
         // Rejeita sem re-enfileirar (vai para DLQ)
-        this.channel!.nack(msg, false, false);
+        channel.nack(msg, false, false);
       }
     });
   }

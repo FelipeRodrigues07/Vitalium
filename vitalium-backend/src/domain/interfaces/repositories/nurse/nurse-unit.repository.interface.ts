@@ -1,6 +1,5 @@
 import type { NurseUnit } from '../../../../infrastructure/database/models/nouse-unit.models';
 import type { CreateNurseUnitDTO } from '../../../../presentation/dto/nurseUnitDTO/create-nurse-unit.dto';
-import type { UpdateNurseUnitDTO } from '../../../../presentation/dto/nurseUnitDTO/update-nurse-unit.dto';
 
 export interface INurseUnitRepository {
   create(dto: CreateNurseUnitDTO): Promise<NurseUnit>;

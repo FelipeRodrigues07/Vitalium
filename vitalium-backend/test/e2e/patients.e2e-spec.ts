@@ -11,7 +11,6 @@ describe('Patients API (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaProvider;
   let adminAccessToken: string;
-  let createdPatientId: string;
 
   const adminEmail = 'test-e2e-patient-admin@example.com';
   const password = 'TestPassword123!';
@@ -120,8 +119,6 @@ describe('Patients API (e2e)', () => {
 
       expect(response.body.id).toBeDefined();
       expect(response.body.createdAt).toBeDefined();
-
-      createdPatientId = response.body.id;
     });
 
     it('should return 400 for missing required fields', async () => {

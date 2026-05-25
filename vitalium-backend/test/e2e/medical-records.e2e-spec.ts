@@ -14,7 +14,6 @@ describe('Medical Records API (e2e)', () => {
   let adminAccessToken: string;
   let patientId: string;
   let doctorId: string;
-  let medicalRecordId: string;
 
   const adminEmail = 'test-e2e-medical-admin@example.com';
   const password = 'TestPassword123!';
@@ -161,7 +160,6 @@ describe('Medical Records API (e2e)', () => {
       expect(response.body.patientId).toBe(patientId);
       expect(response.body.doctorId).toBe(doctorId);
       expect(response.body.recordType).toBe(RecordType.CONSULTATION);
-      medicalRecordId = response.body.id;
     });
 
     it('should return 401 without token', async () => {

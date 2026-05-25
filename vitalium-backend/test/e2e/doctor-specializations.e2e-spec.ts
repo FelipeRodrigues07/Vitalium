@@ -12,7 +12,6 @@ describe('Doctor-Specializations API (e2e)', () => {
   let prisma: PrismaProvider;
   let createdDoctorId: string;
   let createdSpecializationId: string;
-  let createdDoctorSpecializationId: string;
   let adminAccessToken: string;
 
   const adminEmail = 'test-e2e-doctor-spec-admin@example.com';
@@ -178,8 +177,6 @@ describe('Doctor-Specializations API (e2e)', () => {
 
       expect(response.body.id).toBeDefined();
       expect(response.body.createdAt).toBeDefined();
-
-      createdDoctorSpecializationId = response.body.id;
     });
 
     it('should return 400 if doctorId is missing', async () => {

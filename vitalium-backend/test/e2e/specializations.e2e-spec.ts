@@ -10,7 +10,6 @@ import { AdminRole } from '../../src/shared/enums/admin-role.enum';
 describe('Specializations API (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaProvider;
-  let createdSpecializationId: string;
   let adminAccessToken: string;
 
   const adminEmail = 'test-e2e-specialization-admin@example.com';
@@ -118,8 +117,6 @@ describe('Specializations API (e2e)', () => {
 
       expect(response.body.id).toBeDefined();
       expect(response.body.createdAt).toBeDefined();
-
-      createdSpecializationId = response.body.id;
     });
 
     it('should return 400 if name is missing', async () => {

@@ -1,4 +1,4 @@
-import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaProvider } from '../../../infrastructure/database/prisma.provider';
 import { Role } from '../../../shared/enums/role.enum';
 import {
@@ -21,7 +21,9 @@ export class GetAdminUnitsUseCase {
 
   async execute(authUser: AuthJwtPayload): Promise<AdminUnitSummary[]> {
     if (authUser.role !== Role.ADMIN) {
-      throw new ForbiddenException('Apenas administradores podem listar unidades');
+      throw new ForbiddenException(
+        'Apenas administradores podem listar unidades',
+      );
     }
 
     if (isSuperAdmin(authUser)) {

@@ -12,7 +12,6 @@ describe('Caregivers API (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaProvider;
   let adminAccessToken: string;
-  let createdCaregiverId: string;
 
   const adminEmail = 'test-e2e-caregiver-admin@example.com';
   const password = 'TestPassword123!';
@@ -110,7 +109,6 @@ describe('Caregivers API (e2e)', () => {
       expect(response.body.id).toBeDefined();
       expect(response.body.cpf).toBe('12345678901');
       expect(response.body.relationship).toBe(CaregiverRelationship.PARENT);
-      createdCaregiverId = response.body.id;
     });
 
     it('should return 400 when CPF has wrong format', async () => {
