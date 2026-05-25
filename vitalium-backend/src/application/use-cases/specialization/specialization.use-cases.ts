@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
-import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
-import { SpecializationNotFoundException } from '../../../shared/execeptions/specialization/specialization-not-found.exception';
 import type { ISpecializationRepository } from '../../../domain/interfaces/repositories/specialization/specialization.repository.interface';
+import type { Specialization } from '../../../infrastructure/database/models/specialization.models';
 import type { CreateSpecializationDTO } from '../../../presentation/dto/specializationDTO/create-specialization.dto';
 import type { UpdateSpecializationDTO } from '../../../presentation/dto/specializationDTO/update-specialization.dto';
-import type { Specialization } from '../../../infrastructure/database/models/specialization.models';
+import { SpecializationNotFoundException } from '../../../shared/execeptions/specialization/specialization-not-found.exception';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
 
 @Injectable()
 export class CreateSpecializationUseCase {

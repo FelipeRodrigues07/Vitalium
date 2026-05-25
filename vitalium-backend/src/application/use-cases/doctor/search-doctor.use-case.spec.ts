@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { SearchDoctorUseCase } from './search-doctor.use-case';
-import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
-import { DoctorNotFoundException } from '../../../shared/execeptions/doctor/doctor-not-found.exception';
 import type { IDoctorRepository } from '../../../domain/interfaces/repositories/doctor/doctor.repository.interface';
+import { DoctorNotFoundException } from '../../../shared/execeptions/doctor/doctor-not-found.exception';
+import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
+import { SearchDoctorUseCase } from './search-doctor.use-case';
 
 describe('SearchDoctorUseCase', () => {
   let useCase: SearchDoctorUseCase;

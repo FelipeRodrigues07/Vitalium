@@ -10,34 +10,34 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { plainToInstance } from 'class-transformer';
 import { ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from '../../../shared/guards/auth.guard';
-import { RolesGuard } from '../../../shared/guards/roles.guard';
-import { Roles } from '../../../shared/decorators/roles.decorator';
-import { Role } from '../../../shared/enums';
-import {
-  ApiWardOperations,
-  ApiWardAdmissionOperations,
-} from '../../../shared/swagger/decorators/ward.decorators';
-import { WardResponseDTO } from '../../dto/wardDTO/response/ward-response.dto';
-import { WardAdmissionResponseDTO } from '../../dto/wardAdmissionDTO/response/ward-admission-response.dto';
-import { CreateWardDTO } from '../../dto/wardDTO/create-ward.dto';
-import { UpdateWardDTO } from '../../dto/wardDTO/update-ward.dto';
-import { CreateWardAdmissionDTO } from '../../dto/wardAdmissionDTO/create-ward-admission.dto';
-import { UpdateWardAdmissionDTO } from '../../dto/wardAdmissionDTO/update-ward-admission.dto';
+import { plainToInstance } from 'class-transformer';
 import {
   CreateWardUseCase,
+  DeleteWardUseCase,
   SearchWardUseCase,
   UpdateWardUseCase,
-  DeleteWardUseCase,
 } from '../../../application/use-cases/ward/ward.use-cases';
 import {
   CreateWardAdmissionUseCase,
+  DeleteWardAdmissionUseCase,
   SearchWardAdmissionUseCase,
   UpdateWardAdmissionUseCase,
-  DeleteWardAdmissionUseCase,
 } from '../../../application/use-cases/ward/ward-admission.use-cases';
+import { Roles } from '../../../shared/decorators/roles.decorator';
+import { Role } from '../../../shared/enums';
+import { AuthGuard } from '../../../shared/guards/auth.guard';
+import { RolesGuard } from '../../../shared/guards/roles.guard';
+import {
+  ApiWardAdmissionOperations,
+  ApiWardOperations,
+} from '../../../shared/swagger/decorators/ward.decorators';
+import { CreateWardAdmissionDTO } from '../../dto/wardAdmissionDTO/create-ward-admission.dto';
+import { WardAdmissionResponseDTO } from '../../dto/wardAdmissionDTO/response/ward-admission-response.dto';
+import { UpdateWardAdmissionDTO } from '../../dto/wardAdmissionDTO/update-ward-admission.dto';
+import { CreateWardDTO } from '../../dto/wardDTO/create-ward.dto';
+import { WardResponseDTO } from '../../dto/wardDTO/response/ward-response.dto';
+import { UpdateWardDTO } from '../../dto/wardDTO/update-ward.dto';
 
 @ApiTags('wards')
 @Controller('wards')

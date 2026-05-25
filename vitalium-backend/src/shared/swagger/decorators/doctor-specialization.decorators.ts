@@ -1,10 +1,10 @@
 import { applyDecorators } from '@nestjs/common';
 import {
-  ApiOperation,
-  ApiResponse,
   ApiBearerAuth,
   ApiBody,
+  ApiOperation,
   ApiParam,
+  ApiResponse,
 } from '@nestjs/swagger';
 
 export const ApiDoctorSpecializationOperations = {

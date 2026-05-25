@@ -1,18 +1,18 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsBoolean,
   IsEmail,
   IsEnum,
-  IsString,
   IsOptional,
+  IsString,
   Matches,
 } from 'class-validator';
-import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Role } from '../../../shared/enums';
 import type { Admin } from '../../../infrastructure/database/models/admin.models';
-import type { Patient } from '../../../infrastructure/database/models/patient.models';
+import type { Caregiver } from '../../../infrastructure/database/models/caregiver.models';
 import type { Doctor } from '../../../infrastructure/database/models/doctor.models';
 import type { Nurse } from '../../../infrastructure/database/models/nurse.models';
-import type { Caregiver } from '../../../infrastructure/database/models/caregiver.models';
+import type { Patient } from '../../../infrastructure/database/models/patient.models';
+import { Role } from '../../../shared/enums';
 
 export class UpdateUserDTO {
   @ApiPropertyOptional({

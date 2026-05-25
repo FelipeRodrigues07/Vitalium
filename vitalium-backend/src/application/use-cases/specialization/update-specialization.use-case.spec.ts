@@ -1,8 +1,8 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { UpdateSpecializationUseCase } from './update-specialization.use-case';
 import { NotFoundException } from '@nestjs/common';
-import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
+import { Test, TestingModule } from '@nestjs/testing';
 import type { ISpecializationRepository } from '../../../domain/interfaces/repositories/specialization/specialization.repository.interface';
+import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
+import { UpdateSpecializationUseCase } from './update-specialization.use-case';
 
 describe('UpdateSpecializationUseCase', () => {
   let useCase: UpdateSpecializationUseCase;

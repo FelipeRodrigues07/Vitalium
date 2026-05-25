@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
-import { PrescriptionNotFoundException } from '../../../shared/execeptions/prescription/prescription-not-found.exception';
 import type { IPrescriptionRepository } from '../../../domain/interfaces/repositories/prescription/prescription.repository.interface';
+import { PrescriptionNotFoundException } from '../../../shared/execeptions/prescription/prescription-not-found.exception';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
 
 @Injectable()
 export class DeletePrescriptionUseCase {

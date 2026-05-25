@@ -1,28 +1,28 @@
 ﻿import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
-import { UserModule } from './user.module';
-import { DoctorModule } from './doctor.module';
-import { PatientModule } from './patient.module';
-import { MonitoringModule } from '../shared/monitoring/monitoring.module';
 import { HealthController } from '../presentation/controllers/health.controller';
 import { ExceptionsModule } from '../shared/execeptions/exceptions.module';
-import { ConfigModule } from '@nestjs/config';
-import { UnitModule } from './units.module';
-import { DoctorUnitModule } from './doctor-unit.module';
 import { LoggingInterceptor } from '../shared/interceptors/logging.interceptor';
-import { AuthModule } from './auth.module';
+import { MonitoringModule } from '../shared/monitoring/monitoring.module';
 import { AdminModule } from './admin.module';
-import { ChatModule } from './chat.module';
-import { MedicalRecordModule } from './medical-record.module';
 import { AppointmentModule } from './appointment.module';
-import { PrescriptionModule } from './prescription.module';
-import { WardModule } from './ward.module';
+import { AuthModule } from './auth.module';
 import { CaregiverModule } from './caregiver.module';
-import { PatientDoctorModule } from './patient-doctor.module';
-import { PatientCaregiverModule } from './patient-caregiver.module';
-import { PatientUnitModule } from './patient-unit.module';
+import { ChatModule } from './chat.module';
+import { DoctorModule } from './doctor.module';
+import { DoctorUnitModule } from './doctor-unit.module';
+import { MedicalRecordModule } from './medical-record.module';
 import { NurseModule } from './nurse.module';
+import { PatientModule } from './patient.module';
+import { PatientCaregiverModule } from './patient-caregiver.module';
+import { PatientDoctorModule } from './patient-doctor.module';
+import { PatientUnitModule } from './patient-unit.module';
+import { PrescriptionModule } from './prescription.module';
 import { SpecializationModule } from './specialization.module';
+import { UnitModule } from './units.module';
+import { UserModule } from './user.module';
+import { WardModule } from './ward.module';
 
 @Module({
   imports: [

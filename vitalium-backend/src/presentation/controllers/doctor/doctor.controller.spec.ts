@@ -1,14 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DoctorController } from './doctor.controller';
 import { CreateDoctorUseCase } from '../../../application/use-cases/doctor/create-doctor.use-case';
+import { DeleteDoctorUseCase } from '../../../application/use-cases/doctor/delete-doctor.use-case';
 import { SearchDoctorUseCase } from '../../../application/use-cases/doctor/search-doctor.use-case';
 import { UpdateDoctorUseCase } from '../../../application/use-cases/doctor/update-doctor.use-case';
-import { DeleteDoctorUseCase } from '../../../application/use-cases/doctor/delete-doctor.use-case';
-import { CreateDoctorDTO } from '../../dto/doctorDTO/create-doctor.dto';
-import { DoctorNotFoundException } from '../../../shared/execeptions/doctor/doctor-not-found.exception';
 import { DoctorAlreadyExistsException } from '../../../shared/execeptions/doctor/doctor-already-exists.exception';
+import { DoctorNotFoundException } from '../../../shared/execeptions/doctor/doctor-not-found.exception';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
+import { CreateDoctorDTO } from '../../dto/doctorDTO/create-doctor.dto';
+import { DoctorController } from './doctor.controller';
 
 describe('DoctorController', () => {
   let controller: DoctorController;

@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateSpecializationUseCase } from './create-specialization.use-case';
-import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
 import type { ISpecializationRepository } from '../../../domain/interfaces/repositories/specialization/specialization.repository.interface';
+import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
+import { CreateSpecializationUseCase } from './create-specialization.use-case';
 
 describe('CreateSpecializationUseCase', () => {
   let useCase: CreateSpecializationUseCase;

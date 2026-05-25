@@ -12,22 +12,22 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import type { Request as ExpressRequest } from 'express';
-import { plainToInstance } from 'class-transformer';
-import { AuthGuard } from '../../../shared/guards/auth.guard';
-import { RolesGuard } from '../../../shared/guards/roles.guard';
-import { Roles } from '../../../shared/decorators/roles.decorator';
-import { Role } from '../../../shared/enums';
-import { ApiPatientOperations } from '../../../shared/swagger/decorators';
 import { ApiTags } from '@nestjs/swagger';
-import { PatientResponseDTO } from '../../dto/patientDTO/response/patient-response.dto';
-import { CreatePatientDTO } from '../../dto/patientDTO/create-patient.dto';
-import { UpdatePatientDTO } from '../../dto/patientDTO/update-patient.dto';
+import { plainToInstance } from 'class-transformer';
+import type { Request as ExpressRequest } from 'express';
 import { CreatePatientUseCase } from '../../../application/use-cases/patient/create-patient.use-case';
+import { DeletePatientUseCase } from '../../../application/use-cases/patient/delete-patient.use-case';
 import { SearchPatientUseCase } from '../../../application/use-cases/patient/search-patient.use-case';
 import { UpdatePatientUseCase } from '../../../application/use-cases/patient/update-patient.use-case';
-import { DeletePatientUseCase } from '../../../application/use-cases/patient/delete-patient.use-case';
+import { Roles } from '../../../shared/decorators/roles.decorator';
+import { Role } from '../../../shared/enums';
+import { AuthGuard } from '../../../shared/guards/auth.guard';
+import { RolesGuard } from '../../../shared/guards/roles.guard';
+import { ApiPatientOperations } from '../../../shared/swagger/decorators';
 import type { AuthJwtPayload } from '../../../shared/types/auth-jwt-payload.interface';
+import { CreatePatientDTO } from '../../dto/patientDTO/create-patient.dto';
+import { PatientResponseDTO } from '../../dto/patientDTO/response/patient-response.dto';
+import { UpdatePatientDTO } from '../../dto/patientDTO/update-patient.dto';
 
 interface RequestWithUser extends ExpressRequest {
   user: AuthJwtPayload;

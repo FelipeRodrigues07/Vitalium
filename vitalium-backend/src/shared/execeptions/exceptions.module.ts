@@ -1,8 +1,8 @@
-import { Module, Global } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { APP_FILTER, APP_PIPE } from '@nestjs/core';
+import { MonitoringModule } from '../monitoring/monitoring.module';
 import { GlobalExceptionFilter } from './filters/global-exception.filter';
 import { CustomValidationPipe } from './pipes/custom-validation.pipe';
-import { MonitoringModule } from '../monitoring/monitoring.module';
 
 @Global()
 @Module({

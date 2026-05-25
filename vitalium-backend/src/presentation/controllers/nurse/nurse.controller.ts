@@ -11,22 +11,22 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { plainToInstance } from 'class-transformer';
 import { ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from '../../../shared/guards/auth.guard';
-import { RolesGuard } from '../../../shared/guards/roles.guard';
-import { Roles } from '../../../shared/decorators/roles.decorator';
-import { Role } from '../../../shared/enums';
-import { ApiNurseOperations } from '../../../shared/swagger/decorators/nurse.decorators';
-import { NurseResponseDTO } from '../../dto/nurseDTO/response/nurse-response.dto';
-import { CreateNurseDTO } from '../../dto/nurseDTO/create-nurse.dto';
-import { UpdateNurseDTO } from '../../dto/nurseDTO/update-nurse.dto';
+import { plainToInstance } from 'class-transformer';
 import {
   CreateNurseUseCase,
+  DeleteNurseUseCase,
   SearchNurseUseCase,
   UpdateNurseUseCase,
-  DeleteNurseUseCase,
 } from '../../../application/use-cases/nurse/nurse.use-cases';
+import { Roles } from '../../../shared/decorators/roles.decorator';
+import { Role } from '../../../shared/enums';
+import { AuthGuard } from '../../../shared/guards/auth.guard';
+import { RolesGuard } from '../../../shared/guards/roles.guard';
+import { ApiNurseOperations } from '../../../shared/swagger/decorators/nurse.decorators';
+import { CreateNurseDTO } from '../../dto/nurseDTO/create-nurse.dto';
+import { NurseResponseDTO } from '../../dto/nurseDTO/response/nurse-response.dto';
+import { UpdateNurseDTO } from '../../dto/nurseDTO/update-nurse.dto';
 
 @ApiTags('nurses')
 @Controller('nurses')

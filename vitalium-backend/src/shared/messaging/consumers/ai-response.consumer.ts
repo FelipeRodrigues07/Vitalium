@@ -1,11 +1,11 @@
 import { Injectable, Logger, type OnModuleInit } from '@nestjs/common';
-import { RabbitMQService, QUEUES } from '../rabbitmq.service';
+import { SendMessageUseCase } from '../../../application/use-cases/chat/send-message.use-case';
+import type { MessagePayloadDTO } from '../../../presentation/dto/chatDTO/message-payload.dto';
+import { MessageChannel } from '../../enums/message-channel.enum';
+import { MessageOrigin } from '../../enums/message-origin.enum';
 import { ChatGateway } from '../../gateways/chat.gateway';
 import { ChatProducer } from '../producers/chat.producer';
-import { SendMessageUseCase } from '../../../application/use-cases/chat/send-message.use-case';
-import { MessageOrigin } from '../../enums/message-origin.enum';
-import { MessageChannel } from '../../enums/message-channel.enum';
-import type { MessagePayloadDTO } from '../../../presentation/dto/chatDTO/message-payload.dto';
+import { QUEUES, RabbitMQService } from '../rabbitmq.service';
 
 /**
  * Consumer da fila chat.from_ai.

@@ -8,19 +8,19 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import type { Request as ExpressRequest } from 'express';
+import { GetAdminUnitsUseCase } from '../../../application/use-cases/auth/get-admin-units.use-case';
 import { LoginUseCase } from '../../../application/use-cases/auth/login.use-case';
 import { LogoutUseCase } from '../../../application/use-cases/auth/logout.use-case';
-import { GetAdminUnitsUseCase } from '../../../application/use-cases/auth/get-admin-units.use-case';
 import { RefreshTokenUseCase } from '../../../application/use-cases/auth/refresh-token.use-case';
+import { AuthGuard } from '../../../shared/guards/auth.guard';
+import { ApiAuthOperations } from '../../../shared/swagger/decorators/auth.decorators';
+import type { AuthJwtPayload } from '../../../shared/types/auth-jwt-payload.interface';
 import { LoginDTO } from '../../dto/authDTO/login.dto';
 import { RefreshTokenDTO } from '../../dto/authDTO/refresh-token.dto';
 import type { AuthResponseDTO } from '../../dto/authDTO/response/auth-response.dto';
 import type { RefreshTokenResponseDTO } from '../../dto/authDTO/response/refresh-token-response.dto';
-import { ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from '../../../shared/guards/auth.guard';
-import { ApiAuthOperations } from '../../../shared/swagger/decorators/auth.decorators';
-import type { AuthJwtPayload } from '../../../shared/types/auth-jwt-payload.interface';
 
 interface RequestWithUser extends ExpressRequest {
   user: AuthJwtPayload;

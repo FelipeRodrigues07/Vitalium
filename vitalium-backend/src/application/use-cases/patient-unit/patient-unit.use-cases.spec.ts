@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import type { IPatientUnitRepository } from '../../../domain/interfaces/repositories/patient-unit/patient-unit.repository.interface';
+import { PatientUnitNotFoundException } from '../../../shared/execeptions/patient-unit/patient-unit-not-found.exception';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
 import {
   CreatePatientUnitUseCase,
+  DeletePatientUnitUseCase,
   SearchPatientUnitUseCase,
   UpdatePatientUnitUseCase,
-  DeletePatientUnitUseCase,
 } from './patient-unit.use-cases';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
-import { PatientUnitNotFoundException } from '../../../shared/execeptions/patient-unit/patient-unit-not-found.exception';
-import type { IPatientUnitRepository } from '../../../domain/interfaces/repositories/patient-unit/patient-unit.repository.interface';
 
 const mockLink = {
   id: 'link-id-1',

@@ -1,16 +1,16 @@
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  ValidationException,
-  type FieldError,
-} from '../../../shared/execeptions/system/validation.exception';
 import type { IDoctorRepository } from '../../../domain/interfaces/repositories/doctor/doctor.repository.interface';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
-import type { CreateDoctorUnitDTO } from '../../../presentation/dto/doctor-unitDTO/create-doctor-unit.dto';
 import type { IDoctorUnitRepository } from '../../../domain/interfaces/repositories/doctor-unit/doctor-unit.repository.interface';
 import type { IUnitRepository } from '../../../domain/interfaces/repositories/units/unit.repository.interface';
-import { UnitInvalidException } from '../../../shared/execeptions/units/unit-invalid.exception';
 import type { DoctorUnit } from '../../../infrastructure/database/models/doctor-unit.models';
+import type { CreateDoctorUnitDTO } from '../../../presentation/dto/doctor-unitDTO/create-doctor-unit.dto';
 import { ConflictException } from '../../../shared/execeptions/system/conflict.exception';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import {
+  type FieldError,
+  ValidationException,
+} from '../../../shared/execeptions/system/validation.exception';
+import { UnitInvalidException } from '../../../shared/execeptions/units/unit-invalid.exception';
 
 @Injectable()
 export class CreateDoctorUnitUseCase {

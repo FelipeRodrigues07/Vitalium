@@ -1,21 +1,21 @@
 import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
-import {
-  ValidationException,
-  type FieldError,
-} from '../../../shared/execeptions/system/validation.exception';
-import { ConflictException } from '../../../shared/execeptions/system/conflict.exception';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
-import type { IPatientDoctorRepository } from '../../../domain/interfaces/repositories/patient-doctor/patient-doctor.repository.interface';
-import type { IPatientRepository } from '../../../domain/interfaces/repositories/patient/patient.repository.interface';
 import type { IDoctorRepository } from '../../../domain/interfaces/repositories/doctor/doctor.repository.interface';
-import type { CreatePatientDoctorDTO } from '../../../presentation/dto/patient-doctor/create-patient-doctor.dto';
+import type { IPatientRepository } from '../../../domain/interfaces/repositories/patient/patient.repository.interface';
+import type { IPatientDoctorRepository } from '../../../domain/interfaces/repositories/patient-doctor/patient-doctor.repository.interface';
 import type { PatientDoctor } from '../../../infrastructure/database/models/patient-doctor.models';
-import type { AuthJwtPayload } from '../../../shared/types/auth-jwt-payload.interface';
+import type { CreatePatientDoctorDTO } from '../../../presentation/dto/patient-doctor/create-patient-doctor.dto';
 import {
   getScopedUnitIds,
   isSuperAdmin,
   isUnitScopedAdmin,
 } from '../../../shared/auth/auth-scope.helper';
+import { ConflictException } from '../../../shared/execeptions/system/conflict.exception';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import {
+  type FieldError,
+  ValidationException,
+} from '../../../shared/execeptions/system/validation.exception';
+import type { AuthJwtPayload } from '../../../shared/types/auth-jwt-payload.interface';
 
 @Injectable()
 export class CreatePatientDoctorUseCase {

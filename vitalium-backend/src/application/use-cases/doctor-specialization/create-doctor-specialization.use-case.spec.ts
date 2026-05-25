@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateDoctorSpecializationUseCase } from './create-doctor-specialization.use-case';
-import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
-import type { IDoctorSpecializationRepository } from '../../../domain/interfaces/repositories/doctor-specialization/doctor-specialization.repository.interface';
 import type { IDoctorRepository } from '../../../domain/interfaces/repositories/doctor/doctor.repository.interface';
+import type { IDoctorSpecializationRepository } from '../../../domain/interfaces/repositories/doctor-specialization/doctor-specialization.repository.interface';
 import type { ISpecializationRepository } from '../../../domain/interfaces/repositories/specialization/specialization.repository.interface';
+import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
+import { CreateDoctorSpecializationUseCase } from './create-doctor-specialization.use-case';
 
 describe('CreateDoctorSpecializationUseCase', () => {
   let useCase: CreateDoctorSpecializationUseCase;

@@ -1,14 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PatientDoctorController } from './patient-doctor.controller';
 import {
   CreatePatientDoctorUseCase,
+  DeletePatientDoctorUseCase,
   SearchPatientDoctorUseCase,
   UpdatePatientDoctorUseCase,
-  DeletePatientDoctorUseCase,
 } from '../../../application/use-cases/patient-doctor/patient-doctor.use-cases';
 import { PatientDoctorNotFoundException } from '../../../shared/execeptions/patient-doctor/patient-doctor-not-found.exception';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
+import { PatientDoctorController } from './patient-doctor.controller';
 
 describe('PatientDoctorController', () => {
   let controller: PatientDoctorController;

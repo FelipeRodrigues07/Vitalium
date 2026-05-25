@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import type { IAuthRepository } from '../../../domain/interfaces/repositories/auth/auth.repository.interface';
+import type {
+  AuthAdminContext,
+  IAuthRepository,
+} from '../../../domain/interfaces/repositories/auth/auth.repository.interface';
+import { AdminRole } from '../../../shared/enums/admin-role.enum';
 import { User } from '../../database/models/user.models';
 import { PrismaProvider } from '../../database/prisma.provider';
-import { AdminRole } from '../../../shared/enums/admin-role.enum';
-import type { AuthAdminContext } from '../../../domain/interfaces/repositories/auth/auth.repository.interface';
 
 @Injectable()
 export class AuthRepository implements IAuthRepository {

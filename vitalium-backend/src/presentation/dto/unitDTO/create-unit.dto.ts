@@ -1,13 +1,13 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
-  IsString,
   IsEmail,
   IsEnum,
   IsOptional,
+  IsString,
   Matches,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
 import { UnitType } from '../../../shared/enums/unit.enum';
-import { Transform } from 'class-transformer';
 
 export class CreateUnitDTO {
   @ApiProperty({ example: 'Hospital São Paulo' })

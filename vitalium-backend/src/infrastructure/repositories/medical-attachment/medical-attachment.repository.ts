@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { PrismaProvider } from '../../database/prisma.provider';
 import type { IMedicalAttachmentRepository } from '../../../domain/interfaces/repositories/medical-attachment/medical-attachment.repository.interface';
 import type { CreateMedicalAttachmentDTO } from '../../../presentation/dto/medicalAttachmentDTO/create-medical-attachment.dto';
 import { MedicalAttachment } from '../../database/models/medical-attachment.models';
+import { PrismaProvider } from '../../database/prisma.provider';
 
 @Injectable()
-export class MedicalAttachmentRepository implements IMedicalAttachmentRepository {
+export class MedicalAttachmentRepository
+  implements IMedicalAttachmentRepository
+{
   constructor(private readonly prisma: PrismaProvider) {}
 
   async create(dto: CreateMedicalAttachmentDTO): Promise<MedicalAttachment> {

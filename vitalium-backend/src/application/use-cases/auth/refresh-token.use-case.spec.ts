@@ -1,9 +1,9 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { JwtService } from '@nestjs/jwt';
 import { UnauthorizedException } from '@nestjs/common';
-import { RefreshTokenUseCase } from './refresh-token.use-case';
-import { Role } from '../../../shared/enums/role.enum';
+import { JwtService } from '@nestjs/jwt';
+import { Test, TestingModule } from '@nestjs/testing';
 import type { IAuthRepository } from '../../../domain/interfaces/repositories/auth/auth.repository.interface';
+import { Role } from '../../../shared/enums/role.enum';
+import { RefreshTokenUseCase } from './refresh-token.use-case';
 
 describe('RefreshTokenUseCase', () => {
   let useCase: RefreshTokenUseCase;

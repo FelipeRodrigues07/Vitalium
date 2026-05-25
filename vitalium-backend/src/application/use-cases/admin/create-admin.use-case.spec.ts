@@ -1,14 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateAdminUseCase } from './create-admin.use-case';
-import { PrismaProvider } from '../../../infrastructure/database/prisma.provider';
-import { Role } from '../../../shared/enums/role.enum';
-import { AdminRole } from '../../../shared/enums/admin-role.enum';
-import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
-import { AdminAlreadyExistsException } from '../../../shared/execeptions/admin/admin-already-exists.exception';
-import { UserNotFoundException } from '../../../shared/execeptions/user/user-not-found.exception';
 import type { IAdminRepository } from '../../../domain/interfaces/repositories/admin/admin.repository.interface';
 import type { IUserRepository } from '../../../domain/interfaces/repositories/user/user.repository.interface';
+import { PrismaProvider } from '../../../infrastructure/database/prisma.provider';
+import { AdminRole } from '../../../shared/enums/admin-role.enum';
+import { Role } from '../../../shared/enums/role.enum';
+import { AdminAlreadyExistsException } from '../../../shared/execeptions/admin/admin-already-exists.exception';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
+import { UserNotFoundException } from '../../../shared/execeptions/user/user-not-found.exception';
+import { CreateAdminUseCase } from './create-admin.use-case';
 
 describe('CreateAdminUseCase', () => {
   let useCase: CreateAdminUseCase;

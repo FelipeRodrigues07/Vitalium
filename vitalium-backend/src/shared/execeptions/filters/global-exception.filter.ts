@@ -1,16 +1,16 @@
 import {
-  ExceptionFilter,
-  Catch,
   ArgumentsHost,
+  Catch,
+  ExceptionFilter,
   HttpException,
   HttpStatus,
-  Logger,
   Injectable,
+  Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { BaseException } from '../base/base.exception';
-import { SystemHealthService } from '../../monitoring/system-health.service';
 import { LoggingPersistenceService } from '../../monitoring/logging-persistence.service';
+import { SystemHealthService } from '../../monitoring/system-health.service';
+import { BaseException } from '../base/base.exception';
 
 @Catch()
 @Injectable()

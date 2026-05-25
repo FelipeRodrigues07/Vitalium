@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { PrismaProvider } from '../../database/prisma.provider';
 import type { IPatientCaregiverRepository } from '../../../domain/interfaces/repositories/patient-caregiver/patient-caregiver.repository.interface';
 import type { CreatePatientCaregiverDTO } from '../../../presentation/dto/patientCaregiverDTO/create-patient-caregiver.dto';
 import { PatientCaregiver } from '../../database/models/patient-caregiver.models';
+import { PrismaProvider } from '../../database/prisma.provider';
 
 const includeRelations = {
   patient: {

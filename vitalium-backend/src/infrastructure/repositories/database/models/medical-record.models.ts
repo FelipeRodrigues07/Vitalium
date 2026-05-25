@@ -1,7 +1,7 @@
-import type { Patient } from './patient.models';
+import type { RecordType } from '../../../../shared/enums';
 import type { Doctor } from './doctor.models';
 import type { MedicalAttachment } from './medical-attachment.models';
-import type { RecordType } from '../../../../shared/enums';
+import type { Patient } from './patient.models';
 
 export class MedicalRecord {
   id: string;

@@ -1,9 +1,9 @@
-import { Test, type TestingModule } from '@nestjs/testing';
 import { type INestApplication, ValidationPipe } from '@nestjs/common';
-import * as request from 'supertest';
+import { Test, type TestingModule } from '@nestjs/testing';
 import * as bcrypt from 'bcrypt';
-import { AppModule } from '../../src/modules/app.module';
+import * as request from 'supertest';
 import { PrismaProvider } from '../../src/infrastructure/database/prisma.provider';
+import { AppModule } from '../../src/modules/app.module';
 import { Role } from '../../src/shared/enums/role.enum';
 
 describe('Auth API (e2e)', () => {

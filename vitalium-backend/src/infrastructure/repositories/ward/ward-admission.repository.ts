@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { PrismaProvider } from '../../database/prisma.provider';
 import type { IWardAdmissionRepository } from '../../../domain/interfaces/repositories/ward/ward-admission.repository.interface';
 import type { CreateWardAdmissionDTO } from '../../../presentation/dto/wardAdmissionDTO/create-ward-admission.dto';
 import type { UpdateWardAdmissionDTO } from '../../../presentation/dto/wardAdmissionDTO/update-ward-admission.dto';
 import { WardAdmission } from '../../database/models/ward-admission.models';
+import { PrismaProvider } from '../../database/prisma.provider';
 
 const includeRelations = {
   patient: {

@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import type { IConversationRepository } from '../../../domain/interfaces/repositories/chat/conversation.repository.interface';
 import type { CreateConversationDTO } from '../../../presentation/dto/chatDTO/create-conversation.dto';
+import type { ConversationStatus } from '../../../shared/enums/conversation-status.enum';
 import { Conversation } from '../../database/models/conversation.models';
 import { PrismaProvider } from '../../database/prisma.provider';
-import type { ConversationStatus } from '../../../shared/enums/conversation-status.enum';
 
 @Injectable()
 export class ConversationRepository implements IConversationRepository {

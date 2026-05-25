@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import type { IPrescriptionRepository } from '../../../domain/interfaces/repositories/prescription/prescription.repository.interface';
+import { PrescriptionNotFoundException } from '../../../shared/execeptions/prescription/prescription-not-found.exception';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
 import { CreatePrescriptionUseCase } from './create-prescription.use-case';
+import { DeletePrescriptionUseCase } from './delete-prescription.use-case';
 import { SearchPrescriptionUseCase } from './search-prescription.use-case';
 import { UpdatePrescriptionUseCase } from './update-prescription.use-case';
-import { DeletePrescriptionUseCase } from './delete-prescription.use-case';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
-import { PrescriptionNotFoundException } from '../../../shared/execeptions/prescription/prescription-not-found.exception';
-import type { IPrescriptionRepository } from '../../../domain/interfaces/repositories/prescription/prescription.repository.interface';
 
 const mockPrescription = {
   id: 'prescription-id-1',

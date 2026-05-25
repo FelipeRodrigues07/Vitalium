@@ -1,12 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { IUnitRepository } from '../../../domain/interfaces/repositories/units/unit.repository.interface';
+import { Unit } from '../../../infrastructure/database/models/unit.models';
 import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
 import {
   FieldError,
   ValidationException,
 } from '../../../shared/execeptions/system/validation.exception';
-import type { IUnitRepository } from '../../../domain/interfaces/repositories/units/unit.repository.interface';
 import { UnitNotFoundException } from '../../../shared/execeptions/units/unit-not-found.exception';
-import { Unit } from '../../../infrastructure/database/models/unit.models';
 
 @Injectable()
 export class SearchUnitUseCase {

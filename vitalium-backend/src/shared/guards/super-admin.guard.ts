@@ -5,8 +5,8 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { SUPER_ADMIN_ONLY_KEY } from '../decorators/super-admin.decorator';
 import { isSuperAdmin } from '../auth/auth-scope.helper';
+import { SUPER_ADMIN_ONLY_KEY } from '../decorators/super-admin.decorator';
 import type { AuthJwtPayload } from '../types/auth-jwt-payload.interface';
 
 @Injectable()

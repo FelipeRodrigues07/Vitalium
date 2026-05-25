@@ -1,13 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  ValidationException,
-  type FieldError,
-} from '../../../shared/execeptions/system/validation.exception';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
-import { DoctorNotFoundException } from '../../../shared/execeptions/doctor/doctor-not-found.exception';
-import type { Doctor } from '../../../infrastructure/database/models/doctor.models';
 import type { IDoctorRepository } from '../../../domain/interfaces/repositories/doctor/doctor.repository.interface';
+import type { Doctor } from '../../../infrastructure/database/models/doctor.models';
 import type { UpdateDoctorDTO } from '../../../presentation/dto/doctorDTO/update-doctor.dto';
+import { DoctorNotFoundException } from '../../../shared/execeptions/doctor/doctor-not-found.exception';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import {
+  type FieldError,
+  ValidationException,
+} from '../../../shared/execeptions/system/validation.exception';
 
 @Injectable()
 export class UpdateDoctorUseCase {

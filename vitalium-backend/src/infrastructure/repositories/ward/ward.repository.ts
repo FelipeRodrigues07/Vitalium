@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { PrismaProvider } from '../../database/prisma.provider';
 import type { IWardRepository } from '../../../domain/interfaces/repositories/ward/ward.repository.interface';
 import type { CreateWardDTO } from '../../../presentation/dto/wardDTO/create-ward.dto';
 import type { UpdateWardDTO } from '../../../presentation/dto/wardDTO/update-ward.dto';
 import { Ward } from '../../database/models/ward.models';
+import { PrismaProvider } from '../../database/prisma.provider';
 
 @Injectable()
 export class WardRepository implements IWardRepository {

@@ -1,14 +1,14 @@
+import { ConflictException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserController } from './user.controller';
 import { CreateUserUseCase } from '../../../application/use-cases/user/create-user.use-case';
+import { DeleteUserUseCase } from '../../../application/use-cases/user/delete-user.use-case';
 import { SearchUserUseCase } from '../../../application/use-cases/user/search-user.use-case';
 import { UpdateUserUseCase } from '../../../application/use-cases/user/update-user.use-case';
-import { DeleteUserUseCase } from '../../../application/use-cases/user/delete-user.use-case';
-import { CreateUserDTO } from '../../dto/userDTO/create-user.dto';
 import { Role } from '../../../shared/enums/role.enum';
-import { ConflictException } from '@nestjs/common';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
+import { CreateUserDTO } from '../../dto/userDTO/create-user.dto';
+import { UserController } from './user.controller';
 
 describe('UserController', () => {
   let controller: UserController;

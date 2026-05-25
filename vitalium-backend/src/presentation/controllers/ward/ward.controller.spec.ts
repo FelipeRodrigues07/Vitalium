@@ -1,23 +1,23 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { WardController, WardAdmissionController } from './ward.controller';
 import {
   CreateWardUseCase,
+  DeleteWardUseCase,
   SearchWardUseCase,
   UpdateWardUseCase,
-  DeleteWardUseCase,
 } from '../../../application/use-cases/ward/ward.use-cases';
 import {
   CreateWardAdmissionUseCase,
+  DeleteWardAdmissionUseCase,
   SearchWardAdmissionUseCase,
   UpdateWardAdmissionUseCase,
-  DeleteWardAdmissionUseCase,
 } from '../../../application/use-cases/ward/ward-admission.use-cases';
-import { WardNotFoundException } from '../../../shared/execeptions/ward/ward-not-found.exception';
+import { AdmissionStatus } from '../../../shared/enums/admission-status.enum';
+import { WardType } from '../../../shared/enums/ward-type.enum';
 import { WardAdmissionNotFoundException } from '../../../shared/execeptions/ward/ward-admission-not-found.exception';
+import { WardNotFoundException } from '../../../shared/execeptions/ward/ward-not-found.exception';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
-import { WardType } from '../../../shared/enums/ward-type.enum';
-import { AdmissionStatus } from '../../../shared/enums/admission-status.enum';
+import { WardAdmissionController, WardController } from './ward.controller';
 
 describe('WardController', () => {
   let controller: WardController;

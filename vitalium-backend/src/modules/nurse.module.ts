@@ -1,21 +1,21 @@
 import { Module } from '@nestjs/common';
+import {
+  CreateNurseUseCase,
+  DeleteNurseUseCase,
+  SearchNurseUseCase,
+  UpdateNurseUseCase,
+} from '../application/use-cases/nurse/nurse.use-cases';
+import {
+  CreateNurseUnitUseCase,
+  DeleteNurseUnitUseCase,
+  SearchNurseUnitUseCase,
+  UpdateNurseUnitUseCase,
+} from '../application/use-cases/nurse/nurse-unit.use-cases';
 import { PrismaModule } from '../infrastructure/database/prisma.module';
 import { NurseRepository } from '../infrastructure/repositories/nurse/nurse.repository';
 import { NurseUnitRepository } from '../infrastructure/repositories/nurse/nurse-unit.repository';
 import { NurseController } from '../presentation/controllers/nurse/nurse.controller';
 import { NurseUnitController } from '../presentation/controllers/nurse/nurse-unit.controller';
-import {
-  CreateNurseUseCase,
-  SearchNurseUseCase,
-  UpdateNurseUseCase,
-  DeleteNurseUseCase,
-} from '../application/use-cases/nurse/nurse.use-cases';
-import {
-  CreateNurseUnitUseCase,
-  SearchNurseUnitUseCase,
-  UpdateNurseUnitUseCase,
-  DeleteNurseUnitUseCase,
-} from '../application/use-cases/nurse/nurse-unit.use-cases';
 
 @Module({
   imports: [PrismaModule],

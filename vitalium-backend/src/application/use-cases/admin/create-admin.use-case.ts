@@ -1,18 +1,18 @@
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  ValidationException,
-  type FieldError,
-} from '../../../shared/execeptions/system/validation.exception';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
 import type { IAdminRepository } from '../../../domain/interfaces/repositories/admin/admin.repository.interface';
 import type { IUserRepository } from '../../../domain/interfaces/repositories/user/user.repository.interface';
-import type { CreateAdminDTO } from '../../../presentation/dto/adminDTO/create-admin.dto';
 import type { Admin } from '../../../infrastructure/database/models/admin.models';
+import { PrismaProvider } from '../../../infrastructure/database/prisma.provider';
+import type { CreateAdminDTO } from '../../../presentation/dto/adminDTO/create-admin.dto';
+import { AdminRole } from '../../../shared/enums/admin-role.enum';
 import { Role } from '../../../shared/enums/role.enum';
 import { AdminAlreadyExistsException } from '../../../shared/execeptions/admin/admin-already-exists.exception';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import {
+  type FieldError,
+  ValidationException,
+} from '../../../shared/execeptions/system/validation.exception';
 import { UserNotFoundException } from '../../../shared/execeptions/user/user-not-found.exception';
-import { AdminRole } from '../../../shared/enums/admin-role.enum';
-import { PrismaProvider } from '../../../infrastructure/database/prisma.provider';
 
 @Injectable()
 export class CreateAdminUseCase {

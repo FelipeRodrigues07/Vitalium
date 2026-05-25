@@ -9,20 +9,20 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { plainToInstance } from 'class-transformer';
 import { ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from '../../../shared/guards/auth.guard';
-import { RolesGuard } from '../../../shared/guards/roles.guard';
-import { Roles } from '../../../shared/decorators/roles.decorator';
-import { Role } from '../../../shared/enums';
-import { ApiMedicalAttachmentOperations } from '../../../shared/swagger/decorators/medical-attachment.decorators';
-import { MedicalAttachmentResponseDTO } from '../../dto/medicalAttachmentDTO/response/medical-attachment-response.dto';
-import { CreateMedicalAttachmentBodyDTO } from '../../dto/medicalAttachmentDTO/create-medical-attachment-body.dto';
+import { plainToInstance } from 'class-transformer';
 import {
   CreateMedicalAttachmentUseCase,
-  SearchMedicalAttachmentUseCase,
   DeleteMedicalAttachmentUseCase,
+  SearchMedicalAttachmentUseCase,
 } from '../../../application/use-cases/medical-attachment/medical-attachment.use-cases';
+import { Roles } from '../../../shared/decorators/roles.decorator';
+import { Role } from '../../../shared/enums';
+import { AuthGuard } from '../../../shared/guards/auth.guard';
+import { RolesGuard } from '../../../shared/guards/roles.guard';
+import { ApiMedicalAttachmentOperations } from '../../../shared/swagger/decorators/medical-attachment.decorators';
+import { CreateMedicalAttachmentBodyDTO } from '../../dto/medicalAttachmentDTO/create-medical-attachment-body.dto';
+import { MedicalAttachmentResponseDTO } from '../../dto/medicalAttachmentDTO/response/medical-attachment-response.dto';
 
 @ApiTags('medical-records')
 @Controller('medical-records/:recordId/attachments')

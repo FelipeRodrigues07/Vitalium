@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
-import { WardNotFoundException } from '../../../shared/execeptions/ward/ward-not-found.exception';
 import type { IWardRepository } from '../../../domain/interfaces/repositories/ward/ward.repository.interface';
+import type { Ward } from '../../../infrastructure/database/models/ward.models';
 import type { CreateWardDTO } from '../../../presentation/dto/wardDTO/create-ward.dto';
 import type { UpdateWardDTO } from '../../../presentation/dto/wardDTO/update-ward.dto';
-import type { Ward } from '../../../infrastructure/database/models/ward.models';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import { WardNotFoundException } from '../../../shared/execeptions/ward/ward-not-found.exception';
 
 @Injectable()
 export class CreateWardUseCase {

@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DeletePatientUseCase } from './delete-patient.use-case';
-import { PatientNotFoundException } from '../../../shared/execeptions/patient/patient-not-found.exception';
 import type { IPatientRepository } from '../../../domain/interfaces/repositories/patient/patient.repository.interface';
+import { PatientNotFoundException } from '../../../shared/execeptions/patient/patient-not-found.exception';
+import { DeletePatientUseCase } from './delete-patient.use-case';
 
 describe('DeletePatientUseCase', () => {
   let useCase: DeletePatientUseCase;

@@ -10,20 +10,20 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { plainToInstance } from 'class-transformer';
 import { ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from '../../../shared/guards/auth.guard';
-import { RolesGuard } from '../../../shared/guards/roles.guard';
-import { Roles } from '../../../shared/decorators/roles.decorator';
-import { Role } from '../../../shared/enums';
-import { ApiMedicalRecordOperations } from '../../../shared/swagger/decorators/medical-record.decorators';
-import { MedicalRecordResponseDTO } from '../../dto/medicalRecordDTO/response/medical-record-response.dto';
-import { CreateMedicalRecordDTO } from '../../dto/medicalRecordDTO/create-medical-record.dto';
-import { UpdateMedicalRecordDTO } from '../../dto/medicalRecordDTO/update-medical-record.dto';
+import { plainToInstance } from 'class-transformer';
 import { CreateMedicalRecordUseCase } from '../../../application/use-cases/medical-record/create-medical-record.use-case';
+import { DeleteMedicalRecordUseCase } from '../../../application/use-cases/medical-record/delete-medical-record.use-case';
 import { SearchMedicalRecordUseCase } from '../../../application/use-cases/medical-record/search-medical-record.use-case';
 import { UpdateMedicalRecordUseCase } from '../../../application/use-cases/medical-record/update-medical-record.use-case';
-import { DeleteMedicalRecordUseCase } from '../../../application/use-cases/medical-record/delete-medical-record.use-case';
+import { Roles } from '../../../shared/decorators/roles.decorator';
+import { Role } from '../../../shared/enums';
+import { AuthGuard } from '../../../shared/guards/auth.guard';
+import { RolesGuard } from '../../../shared/guards/roles.guard';
+import { ApiMedicalRecordOperations } from '../../../shared/swagger/decorators/medical-record.decorators';
+import { CreateMedicalRecordDTO } from '../../dto/medicalRecordDTO/create-medical-record.dto';
+import { MedicalRecordResponseDTO } from '../../dto/medicalRecordDTO/response/medical-record-response.dto';
+import { UpdateMedicalRecordDTO } from '../../dto/medicalRecordDTO/update-medical-record.dto';
 
 @ApiTags('medical-records')
 @Controller('medical-records')

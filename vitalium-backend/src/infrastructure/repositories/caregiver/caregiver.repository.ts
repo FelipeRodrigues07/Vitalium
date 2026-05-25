@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { PrismaProvider } from '../../database/prisma.provider';
 import type { ICaregiverRepository } from '../../../domain/interfaces/repositories/caregiver/caregiver.repository.interface';
 import type { CreateCaregiverDTO } from '../../../presentation/dto/caregiverDTO/create-caregiver.dto';
 import type { UpdateCaregiverDTO } from '../../../presentation/dto/caregiverDTO/update-caregiver.dto';
 import { Caregiver } from '../../database/models/caregiver.models';
+import { PrismaProvider } from '../../database/prisma.provider';
 
 const includeRelations = {
   user: {

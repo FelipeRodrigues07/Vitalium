@@ -1,5 +1,5 @@
-import { Expose, Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Expose, Transform } from 'class-transformer';
 import type { MessageChannel } from '../../../../shared/enums/message-channel.enum';
 import type { MessageOrigin } from '../../../../shared/enums/message-origin.enum';
 import type { MessageStatus } from '../../../../shared/enums/message-status.enum';

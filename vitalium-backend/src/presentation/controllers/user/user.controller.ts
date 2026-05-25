@@ -12,22 +12,22 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import type { Request as ExpressRequest } from 'express';
+import { ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
-import { CreateUserDTO } from '../../dto/userDTO/create-user.dto';
-import { UserResponseDTO } from '../../dto/userDTO/response/user-response.dto';
-import { ApiUserOperations } from '../../../shared/swagger/decorators';
+import type { Request as ExpressRequest } from 'express';
 import { CreateUserUseCase } from '../../../application/use-cases/user/create-user.use-case';
-import { UpdateUserDTO } from '../../dto/userDTO/update-user.dtp';
-import { AuthGuard } from '../../../shared/guards/auth.guard';
-import { RolesGuard } from '../../../shared/guards/roles.guard';
+import { DeleteUserUseCase } from '../../../application/use-cases/user/delete-user.use-case';
 import { SearchUserUseCase } from '../../../application/use-cases/user/search-user.use-case';
 import { UpdateUserUseCase } from '../../../application/use-cases/user/update-user.use-case';
-import { DeleteUserUseCase } from '../../../application/use-cases/user/delete-user.use-case';
 import { Roles } from '../../../shared/decorators/roles.decorator';
 import { Role } from '../../../shared/enums';
-import { ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '../../../shared/guards/auth.guard';
+import { RolesGuard } from '../../../shared/guards/roles.guard';
+import { ApiUserOperations } from '../../../shared/swagger/decorators';
 import type { AuthJwtPayload } from '../../../shared/types/auth-jwt-payload.interface';
+import { CreateUserDTO } from '../../dto/userDTO/create-user.dto';
+import { UserResponseDTO } from '../../dto/userDTO/response/user-response.dto';
+import { UpdateUserDTO } from '../../dto/userDTO/update-user.dtp';
 
 interface RequestWithUser extends ExpressRequest {
   user: AuthJwtPayload;

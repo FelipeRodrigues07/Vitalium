@@ -1,14 +1,14 @@
 import { Inject, Injectable, Logger, type OnModuleInit } from '@nestjs/common';
-import { RabbitMQService, QUEUES } from '../rabbitmq.service';
+import { CreateConversationUseCase } from '../../../application/use-cases/chat/create-conversation.use-case';
+import { SendMessageUseCase } from '../../../application/use-cases/chat/send-message.use-case';
+import type { IConversationRepository } from '../../../domain/interfaces/repositories/chat/conversation.repository.interface';
+import type { IPatientRepository } from '../../../domain/interfaces/repositories/patient/patient.repository.interface';
+import type { MessagePayloadDTO } from '../../../presentation/dto/chatDTO/message-payload.dto';
+import { MessageChannel } from '../../enums/message-channel.enum';
+import { MessageOrigin } from '../../enums/message-origin.enum';
 import { ChatGateway } from '../../gateways/chat.gateway';
 import { ChatProducer } from '../producers/chat.producer';
-import { SendMessageUseCase } from '../../../application/use-cases/chat/send-message.use-case';
-import { CreateConversationUseCase } from '../../../application/use-cases/chat/create-conversation.use-case';
-import { MessageOrigin } from '../../enums/message-origin.enum';
-import { MessageChannel } from '../../enums/message-channel.enum';
-import type { MessagePayloadDTO } from '../../../presentation/dto/chatDTO/message-payload.dto';
-import type { IPatientRepository } from '../../../domain/interfaces/repositories/patient/patient.repository.interface';
-import type { IConversationRepository } from '../../../domain/interfaces/repositories/chat/conversation.repository.interface';
+import { QUEUES, RabbitMQService } from '../rabbitmq.service';
 
 /**
  * Consumer da fila whatsapp.incoming.

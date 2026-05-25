@@ -1,17 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CaregiverController } from './caregiver.controller';
 import {
   CreateCaregiverUseCase,
-  SearchCaregiverUseCase,
-  UpdateCaregiverUseCase,
   DeleteCaregiverUseCase,
   LinkCaregiverUseCase,
+  SearchCaregiverUseCase,
+  UpdateCaregiverUseCase,
 } from '../../../application/use-cases/caregiver/caregiver.use-cases';
-import { CaregiverNotFoundException } from '../../../shared/execeptions/caregiver/caregiver-not-found.exception';
+import { CaregiverRelationship } from '../../../shared/enums/caregiver-relationship.enum';
 import { CaregiverAlreadyExistsException } from '../../../shared/execeptions/caregiver/caregiver-already-exists.exception';
+import { CaregiverNotFoundException } from '../../../shared/execeptions/caregiver/caregiver-not-found.exception';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
-import { CaregiverRelationship } from '../../../shared/enums/caregiver-relationship.enum';
+import { CaregiverController } from './caregiver.controller';
 
 describe('CaregiverController', () => {
   let controller: CaregiverController;

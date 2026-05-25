@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreatePatientUseCase } from './create-patient.use-case';
-import { Role } from '../../../shared/enums/role.enum';
-import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
-import { PatientAlreadyExistsException } from '../../../shared/execeptions/patient/patient-already-exists.exception';
-import { UserNotFoundException } from '../../../shared/execeptions/user/user-not-found.exception';
 import type { IPatientRepository } from '../../../domain/interfaces/repositories/patient/patient.repository.interface';
 import type { IUserRepository } from '../../../domain/interfaces/repositories/user/user.repository.interface';
+import { Role } from '../../../shared/enums/role.enum';
+import { PatientAlreadyExistsException } from '../../../shared/execeptions/patient/patient-already-exists.exception';
+import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
+import { UserNotFoundException } from '../../../shared/execeptions/user/user-not-found.exception';
+import { CreatePatientUseCase } from './create-patient.use-case';
 
 describe('CreatePatientUseCase', () => {
   let useCase: CreatePatientUseCase;

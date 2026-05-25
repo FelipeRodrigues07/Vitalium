@@ -1,23 +1,23 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import type { IWardRepository } from '../../../domain/interfaces/repositories/ward/ward.repository.interface';
+import type { IWardAdmissionRepository } from '../../../domain/interfaces/repositories/ward/ward-admission.repository.interface';
+import { AdmissionStatus } from '../../../shared/enums/admission-status.enum';
+import { WardType } from '../../../shared/enums/ward-type.enum';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import { WardAdmissionNotFoundException } from '../../../shared/execeptions/ward/ward-admission-not-found.exception';
+import { WardNotFoundException } from '../../../shared/execeptions/ward/ward-not-found.exception';
 import {
   CreateWardUseCase,
+  DeleteWardUseCase,
   SearchWardUseCase,
   UpdateWardUseCase,
-  DeleteWardUseCase,
 } from './ward.use-cases';
 import {
   CreateWardAdmissionUseCase,
+  DeleteWardAdmissionUseCase,
   SearchWardAdmissionUseCase,
   UpdateWardAdmissionUseCase,
-  DeleteWardAdmissionUseCase,
 } from './ward-admission.use-cases';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
-import { WardNotFoundException } from '../../../shared/execeptions/ward/ward-not-found.exception';
-import { WardAdmissionNotFoundException } from '../../../shared/execeptions/ward/ward-admission-not-found.exception';
-import type { IWardRepository } from '../../../domain/interfaces/repositories/ward/ward.repository.interface';
-import type { IWardAdmissionRepository } from '../../../domain/interfaces/repositories/ward/ward-admission.repository.interface';
-import { WardType } from '../../../shared/enums/ward-type.enum';
-import { AdmissionStatus } from '../../../shared/enums/admission-status.enum';
 
 const mockWard = {
   id: 'ward-id-1',

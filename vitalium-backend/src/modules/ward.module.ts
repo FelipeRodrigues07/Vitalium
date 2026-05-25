@@ -1,23 +1,23 @@
 import { Module } from '@nestjs/common';
-import { PrismaModule } from '../infrastructure/database/prisma.module';
-import {
-  WardController,
-  WardAdmissionController,
-} from '../presentation/controllers/ward/ward.controller';
 import {
   CreateWardUseCase,
+  DeleteWardUseCase,
   SearchWardUseCase,
   UpdateWardUseCase,
-  DeleteWardUseCase,
 } from '../application/use-cases/ward/ward.use-cases';
 import {
   CreateWardAdmissionUseCase,
+  DeleteWardAdmissionUseCase,
   SearchWardAdmissionUseCase,
   UpdateWardAdmissionUseCase,
-  DeleteWardAdmissionUseCase,
 } from '../application/use-cases/ward/ward-admission.use-cases';
+import { PrismaModule } from '../infrastructure/database/prisma.module';
 import { WardRepository } from '../infrastructure/repositories/ward/ward.repository';
 import { WardAdmissionRepository } from '../infrastructure/repositories/ward/ward-admission.repository';
+import {
+  WardAdmissionController,
+  WardController,
+} from '../presentation/controllers/ward/ward.controller';
 
 @Module({
   imports: [PrismaModule],

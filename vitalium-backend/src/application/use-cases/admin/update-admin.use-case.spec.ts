@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UpdateAdminUseCase } from './update-admin.use-case';
+import type { IAdminRepository } from '../../../domain/interfaces/repositories/admin/admin.repository.interface';
 import { AdminRole } from '../../../shared/enums/admin-role.enum';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
 import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
 import { UnitNotFoundException } from '../../../shared/execeptions/units/unit-not-found.exception';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
-import type { IAdminRepository } from '../../../domain/interfaces/repositories/admin/admin.repository.interface';
+import { UpdateAdminUseCase } from './update-admin.use-case';
 
 describe('UpdateAdminUseCase', () => {
   let useCase: UpdateAdminUseCase;

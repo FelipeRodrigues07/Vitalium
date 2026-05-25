@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsBoolean, IsEnum, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsEnum,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { AdminRole } from '../../../shared/enums/admin-role.enum';
 
 export class CreateAdminDTO {

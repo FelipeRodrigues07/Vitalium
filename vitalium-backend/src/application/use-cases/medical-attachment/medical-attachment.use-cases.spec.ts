@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import type { IMedicalAttachmentRepository } from '../../../domain/interfaces/repositories/medical-attachment/medical-attachment.repository.interface';
+import { MedicalAttachmentNotFoundException } from '../../../shared/execeptions/medical-attachment/medical-attachment-not-found.exception';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
 import {
   CreateMedicalAttachmentUseCase,
-  SearchMedicalAttachmentUseCase,
   DeleteMedicalAttachmentUseCase,
+  SearchMedicalAttachmentUseCase,
 } from './medical-attachment.use-cases';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
-import { MedicalAttachmentNotFoundException } from '../../../shared/execeptions/medical-attachment/medical-attachment-not-found.exception';
-import type { IMedicalAttachmentRepository } from '../../../domain/interfaces/repositories/medical-attachment/medical-attachment.repository.interface';
 
 const mockAttachment = {
   id: 'attachment-id-1',

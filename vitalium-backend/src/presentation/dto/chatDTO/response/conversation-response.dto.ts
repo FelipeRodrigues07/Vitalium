@@ -1,7 +1,7 @@
-import { Expose, Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import type { MessageChannel } from '../../../../shared/enums/message-channel.enum';
+import { Expose, Transform } from 'class-transformer';
 import type { ConversationStatus } from '../../../../shared/enums/conversation-status.enum';
+import type { MessageChannel } from '../../../../shared/enums/message-channel.enum';
 
 export class ConversationResponseDTO {
   @ApiProperty()

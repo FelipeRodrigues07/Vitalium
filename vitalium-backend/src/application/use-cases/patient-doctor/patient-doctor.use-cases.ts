@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
-import { PatientDoctorNotFoundException } from '../../../shared/execeptions/patient-doctor/patient-doctor-not-found.exception';
 import type { IPatientDoctorRepository } from '../../../domain/interfaces/repositories/patient-doctor/patient-doctor.repository.interface';
+import type { PatientDoctor } from '../../../infrastructure/database/models/patient-doctor.models';
 import type { CreatePatientDoctorDTO } from '../../../presentation/dto/patientDoctorDTO/create-patient-doctor.dto';
 import type { UpdatePatientDoctorDTO } from '../../../presentation/dto/patientDoctorDTO/update-patient-doctor.dto';
-import type { PatientDoctor } from '../../../infrastructure/database/models/patient-doctor.models';
+import { PatientDoctorNotFoundException } from '../../../shared/execeptions/patient-doctor/patient-doctor-not-found.exception';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
 
 @Injectable()
 export class CreatePatientDoctorUseCase {

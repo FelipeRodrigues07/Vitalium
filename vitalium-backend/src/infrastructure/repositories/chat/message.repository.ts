@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import type { IMessageRepository } from '../../../domain/interfaces/repositories/chat/message.repository.interface';
 import type { SendMessageDTO } from '../../../presentation/dto/chatDTO/send-message.dto';
-import { Message } from '../../database/models/message.models';
-import { PrismaProvider } from '../../database/prisma.provider';
 import { MessageChannel } from '../../../shared/enums/message-channel.enum';
 import type { MessageStatus } from '../../../shared/enums/message-status.enum';
+import { Message } from '../../database/models/message.models';
+import { PrismaProvider } from '../../database/prisma.provider';
 
 @Injectable()
 export class MessageRepository implements IMessageRepository {

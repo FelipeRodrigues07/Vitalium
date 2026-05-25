@@ -1,12 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { IUnitRepository } from '../../../domain/interfaces/repositories/units/unit.repository.interface';
+import type { Unit } from '../../../infrastructure/database/models/unit.models';
+import type { UpdateUnitDTO } from '../../../presentation/dto/unitDTO/update-unit.dto';
 import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
 import {
   FieldError,
   ValidationException,
 } from '../../../shared/execeptions/system/validation.exception';
-import type { Unit } from '../../../infrastructure/database/models/unit.models';
-import type { IUnitRepository } from '../../../domain/interfaces/repositories/units/unit.repository.interface';
-import type { UpdateUnitDTO } from '../../../presentation/dto/unitDTO/update-unit.dto';
 import { UnitNotFoundException } from '../../../shared/execeptions/units/unit-not-found.exception';
 
 @Injectable()

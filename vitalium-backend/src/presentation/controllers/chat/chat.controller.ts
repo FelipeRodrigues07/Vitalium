@@ -7,25 +7,25 @@ import {
   Param,
   Post,
   Query,
-  UseGuards,
   Request,
+  UseGuards,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
-import { AuthGuard } from '../../../shared/guards/auth.guard';
-import { CreateConversationDTO } from '../../dto/chatDTO/create-conversation.dto';
-import { SendMessageDTO } from '../../dto/chatDTO/send-message.dto';
-import { ConversationResponseDTO } from '../../dto/chatDTO/response/conversation-response.dto';
-import { MessageResponseDTO } from '../../dto/chatDTO/response/message-response.dto';
 import { CreateConversationUseCase } from '../../../application/use-cases/chat/create-conversation.use-case';
-import { SendMessageUseCase } from '../../../application/use-cases/chat/send-message.use-case';
 import { GetConversationUseCase } from '../../../application/use-cases/chat/get-conversation.use-case';
 import { ListConversationsUseCase } from '../../../application/use-cases/chat/list-conversations.use-case';
-import { ChatGateway } from '../../../shared/gateways/chat.gateway';
-import { ChatProducer } from '../../../shared/messaging/producers/chat.producer';
+import { SendMessageUseCase } from '../../../application/use-cases/chat/send-message.use-case';
 import { ConversationStatus } from '../../../shared/enums/conversation-status.enum';
 import { MessageOrigin } from '../../../shared/enums/message-origin.enum';
+import { ChatGateway } from '../../../shared/gateways/chat.gateway';
+import { AuthGuard } from '../../../shared/guards/auth.guard';
+import { ChatProducer } from '../../../shared/messaging/producers/chat.producer';
 import { ApiChatOperations } from '../../../shared/swagger/decorators/chat.decorators';
-import { ApiTags } from '@nestjs/swagger';
+import { CreateConversationDTO } from '../../dto/chatDTO/create-conversation.dto';
+import { ConversationResponseDTO } from '../../dto/chatDTO/response/conversation-response.dto';
+import { MessageResponseDTO } from '../../dto/chatDTO/response/message-response.dto';
+import { SendMessageDTO } from '../../dto/chatDTO/send-message.dto';
 
 interface AuthenticatedRequest extends Request {
   user: { sub: string; role: string };

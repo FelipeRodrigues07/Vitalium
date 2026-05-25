@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
-import { PrismaModule } from '../infrastructure/database/prisma.module';
-import { PatientUnitController } from '../presentation/controllers/patient-unit/patient-unit.controller';
 import {
   CreatePatientUnitUseCase,
+  DeletePatientUnitUseCase,
   SearchPatientUnitUseCase,
   UpdatePatientUnitUseCase,
-  DeletePatientUnitUseCase,
 } from '../application/use-cases/patient-unit/patient-unit.use-cases';
+import { PrismaModule } from '../infrastructure/database/prisma.module';
 import { PatientUnitRepository } from '../infrastructure/repositories/patient-unit/patient-unit.repository';
+import { PatientUnitController } from '../presentation/controllers/patient-unit/patient-unit.controller';
 
 @Module({
   imports: [PrismaModule],

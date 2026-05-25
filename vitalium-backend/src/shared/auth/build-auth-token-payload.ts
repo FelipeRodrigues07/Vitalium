@@ -1,6 +1,6 @@
-import { Role } from '../enums/role.enum';
 import type { AuthAdminContext } from '../../domain/interfaces/repositories/auth/auth.repository.interface';
 import type { User } from '../../infrastructure/database/models/user.models';
+import { Role } from '../enums/role.enum';
 import type { AuthJwtPayload } from '../types/auth-jwt-payload.interface';
 
 export function buildAuthTokenPayload(

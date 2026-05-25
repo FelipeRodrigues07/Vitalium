@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DeleteUserUseCase } from './delete-user.use-case';
-import { Role } from '../../../shared/enums/role.enum';
-import { UserNotFoundException } from '../../../shared/execeptions/user/user-not-found.exception';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
 import type { IUserRepository } from '../../../domain/interfaces/repositories/user/user.repository.interface';
+import { Role } from '../../../shared/enums/role.enum';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import { UserNotFoundException } from '../../../shared/execeptions/user/user-not-found.exception';
+import { DeleteUserUseCase } from './delete-user.use-case';
 
 describe('DeleteUserUseCase', () => {
   let useCase: DeleteUserUseCase;

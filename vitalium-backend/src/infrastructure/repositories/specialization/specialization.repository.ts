@@ -1,10 +1,10 @@
 ﻿import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { PrismaProvider } from '../../database/prisma.provider';
 import type { ISpecializationRepository } from '../../../domain/interfaces/repositories/specialization/specialization.repository.interface';
 import type { CreateSpecializationDTO } from '../../../presentation/dto/specializationDTO/create-specialization.dto';
 import type { UpdateSpecializationDTO } from '../../../presentation/dto/specializationDTO/update-specialization.dto';
 import { Specialization } from '../../database/models/specialization.models';
+import { PrismaProvider } from '../../database/prisma.provider';
 
 @Injectable()
 export class SpecializationRepository implements ISpecializationRepository {

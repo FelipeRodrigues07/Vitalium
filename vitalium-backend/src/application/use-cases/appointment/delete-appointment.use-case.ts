@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
-import { AppointmentNotFoundException } from '../../../shared/execeptions/appointment/appointment-not-found.exception';
 import type { IAppointmentRepository } from '../../../domain/interfaces/repositories/appointment/appointment.repository.interface';
+import { AppointmentNotFoundException } from '../../../shared/execeptions/appointment/appointment-not-found.exception';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
 
 @Injectable()
 export class DeleteAppointmentUseCase {

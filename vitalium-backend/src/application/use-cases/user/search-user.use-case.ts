@@ -1,17 +1,17 @@
 import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/user.repository.interface';
-import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
-import { UserNotFoundException } from '../../../shared/execeptions/user/user-not-found.exception';
-import { User } from '../../../infrastructure/database/models/user.models';
-import type { Patient } from '../../../infrastructure/database/models/patient.models';
 import type { Doctor } from '../../../infrastructure/database/models/doctor.models';
-import type { AuthJwtPayload } from '../../../shared/types/auth-jwt-payload.interface';
-import { Role } from '../../../shared/enums';
+import type { Patient } from '../../../infrastructure/database/models/patient.models';
+import { User } from '../../../infrastructure/database/models/user.models';
 import {
   getScopedUnitIds,
   isSuperAdmin,
   isUnitScopedAdmin,
 } from '../../../shared/auth/auth-scope.helper';
+import { Role } from '../../../shared/enums';
+import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
+import { UserNotFoundException } from '../../../shared/execeptions/user/user-not-found.exception';
+import type { AuthJwtPayload } from '../../../shared/types/auth-jwt-payload.interface';
 @Injectable()
 export class SearchUserUseCase {
   constructor(
@@ -101,10 +101,7 @@ export class SearchUserUseCase {
     return this.attachResponsibleDoctors(users);
   }
 
-  private attachResponsibleDoctors(
-    users: User[],
-    unitIds?: string[],
-  ): User[] {
+  private attachResponsibleDoctors(users: User[], unitIds?: string[]): User[] {
     for (const user of users) {
       if (user.role !== Role.PATIENT || !user.patient) {
         continue;

@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PatientController } from './patient.controller';
 import { CreatePatientUseCase } from '../../../application/use-cases/patient/create-patient.use-case';
+import { DeletePatientUseCase } from '../../../application/use-cases/patient/delete-patient.use-case';
 import { SearchPatientUseCase } from '../../../application/use-cases/patient/search-patient.use-case';
 import { UpdatePatientUseCase } from '../../../application/use-cases/patient/update-patient.use-case';
-import { DeletePatientUseCase } from '../../../application/use-cases/patient/delete-patient.use-case';
-import { PatientNotFoundException } from '../../../shared/execeptions/patient/patient-not-found.exception';
 import { PatientAlreadyExistsException } from '../../../shared/execeptions/patient/patient-already-exists.exception';
+import { PatientNotFoundException } from '../../../shared/execeptions/patient/patient-not-found.exception';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
+import { PatientController } from './patient.controller';
 
 describe('PatientController', () => {
   let controller: PatientController;

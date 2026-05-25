@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { IUserRepository } from '../../../domain/interfaces/repositories/user/user.repository.interface';
-import { UserNotFoundException } from '../../../shared/execeptions/user/user-not-found.exception';
 import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import { UserNotFoundException } from '../../../shared/execeptions/user/user-not-found.exception';
 
 @Injectable()
 export class DeleteUserUseCase {

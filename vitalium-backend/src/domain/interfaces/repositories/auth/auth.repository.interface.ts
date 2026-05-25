@@ -1,5 +1,5 @@
-import type { AdminRole } from '../../../../shared/enums/admin-role.enum';
 import type { User } from '../../../../infrastructure/database/models/user.models';
+import type { AdminRole } from '../../../../shared/enums/admin-role.enum';
 
 export interface AuthAdminContext {
   adminId: string;

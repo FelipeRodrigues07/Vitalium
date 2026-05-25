@@ -1,14 +1,14 @@
+import { Logger } from '@nestjs/common';
 import {
-  WebSocketGateway,
-  WebSocketServer,
-  SubscribeMessage,
-  MessageBody,
   ConnectedSocket,
+  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { Logger } from '@nestjs/common';
 import type { Message } from '../../infrastructure/database/models/message.models';
 
 /**

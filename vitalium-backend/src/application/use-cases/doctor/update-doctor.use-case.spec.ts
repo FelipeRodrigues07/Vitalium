@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UpdateDoctorUseCase } from './update-doctor.use-case';
-import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
-import { DoctorNotFoundException } from '../../../shared/execeptions/doctor/doctor-not-found.exception';
 import type { IDoctorRepository } from '../../../domain/interfaces/repositories/doctor/doctor.repository.interface';
+import { DoctorNotFoundException } from '../../../shared/execeptions/doctor/doctor-not-found.exception';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
+import { UpdateDoctorUseCase } from './update-doctor.use-case';
 
 describe('UpdateDoctorUseCase', () => {
   let useCase: UpdateDoctorUseCase;

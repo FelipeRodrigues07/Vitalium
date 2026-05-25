@@ -1,5 +1,5 @@
 // src/infrastructure/database/prisma.module.ts
-import { Module, Global } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { PrismaProvider } from './prisma.provider';
 
 @Global()

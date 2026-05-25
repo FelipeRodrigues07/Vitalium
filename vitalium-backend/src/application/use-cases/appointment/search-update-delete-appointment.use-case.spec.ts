@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { SearchAppointmentUseCase } from './search-appointment.use-case';
-import { UpdateAppointmentUseCase } from './update-appointment.use-case';
-import { DeleteAppointmentUseCase } from './delete-appointment.use-case';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
-import { AppointmentNotFoundException } from '../../../shared/execeptions/appointment/appointment-not-found.exception';
 import type { IAppointmentRepository } from '../../../domain/interfaces/repositories/appointment/appointment.repository.interface';
 import { AppointmentStatus } from '../../../shared/enums/appointment-status.enum';
 import { AppointmentType } from '../../../shared/enums/appointment-type.enum';
+import { AppointmentNotFoundException } from '../../../shared/execeptions/appointment/appointment-not-found.exception';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import { DeleteAppointmentUseCase } from './delete-appointment.use-case';
+import { SearchAppointmentUseCase } from './search-appointment.use-case';
+import { UpdateAppointmentUseCase } from './update-appointment.use-case';
 
 const mockAppointment = {
   id: 'appointment-id-1',

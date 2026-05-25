@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
-import { AuthModule } from './auth.module';
-import { PrismaModule } from '../infrastructure/database/prisma.module';
-import { AdminController } from '../presentation/controllers/admin/admin.controller';
 import { CreateAdminUseCase } from '../application/use-cases/admin/create-admin.use-case';
+import { DeleteAdminUseCase } from '../application/use-cases/admin/delete-admin.use-case';
 import { SearchAdminUseCase } from '../application/use-cases/admin/search-admin.use-case';
 import { UpdateAdminUseCase } from '../application/use-cases/admin/update-admin.use-case';
-import { DeleteAdminUseCase } from '../application/use-cases/admin/delete-admin.use-case';
+import { PrismaModule } from '../infrastructure/database/prisma.module';
 import { AdminRepository } from '../infrastructure/repositories/admin/admin.repository';
 import { UserDataRepository } from '../infrastructure/repositories/user/user-data.repository';
+import { AdminController } from '../presentation/controllers/admin/admin.controller';
+import { AuthModule } from './auth.module';
 
 @Module({
   imports: [PrismaModule, AuthModule],

@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
 import type { IMedicalRecordRepository } from '../../../domain/interfaces/repositories/medical-record/medical-record.repository.interface';
-import type { CreateMedicalRecordDTO } from '../../../presentation/dto/medicalRecordDTO/create-medical-record.dto';
 import type { MedicalRecord } from '../../../infrastructure/database/models/medical-record.models';
+import type { CreateMedicalRecordDTO } from '../../../presentation/dto/medicalRecordDTO/create-medical-record.dto';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
 
 @Injectable()
 export class CreateMedicalRecordUseCase {

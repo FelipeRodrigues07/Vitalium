@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DeleteDoctorUnitUseCase } from './delete-doctor-unit.use-case';
-import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
-import { UnitNotFoundException } from '../../../shared/execeptions/units/unit-not-found.exception';
 import type { IDoctorUnitRepository } from '../../../domain/interfaces/repositories/doctor-unit/doctor-unit.repository.interface';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
+import { UnitNotFoundException } from '../../../shared/execeptions/units/unit-not-found.exception';
+import { DeleteDoctorUnitUseCase } from './delete-doctor-unit.use-case';
 
 describe('DeleteDoctorUnitUseCase', () => {
   let useCase: DeleteDoctorUnitUseCase;

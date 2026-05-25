@@ -1,14 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { SpecializationController } from './specialization.controller';
 import {
   CreateSpecializationUseCase,
+  DeleteSpecializationUseCase,
   SearchSpecializationUseCase,
   UpdateSpecializationUseCase,
-  DeleteSpecializationUseCase,
 } from '../../../application/use-cases/specialization/specialization.use-cases';
 import { SpecializationNotFoundException } from '../../../shared/execeptions/specialization/specialization-not-found.exception';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
+import { SpecializationController } from './specialization.controller';
 
 describe('SpecializationController', () => {
   let controller: SpecializationController;

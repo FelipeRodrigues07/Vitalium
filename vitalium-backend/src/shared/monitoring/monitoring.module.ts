@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
+import { PrismaModule } from '../../infrastructure/database/prisma.module';
+import { LoggingPersistenceService } from './logging-persistence.service';
 import { MetricsCollectorService } from './metrics-collector.service';
 import { SystemHealthService } from './system-health.service';
-import { LoggingPersistenceService } from './logging-persistence.service';
-import { PrismaModule } from '../../infrastructure/database/prisma.module';
 
 @Module({
   imports: [PrismaModule],

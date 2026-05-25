@@ -1,14 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PatientCaregiverController } from './patient-caregiver.controller';
 import {
   CreatePatientCaregiverUseCase,
-  SearchPatientCaregiverUseCase,
   DeactivatePatientCaregiverUseCase,
   DeletePatientCaregiverUseCase,
+  SearchPatientCaregiverUseCase,
 } from '../../../application/use-cases/patient-caregiver/patient-caregiver.use-cases';
 import { PatientCaregiverNotFoundException } from '../../../shared/execeptions/patient-caregiver/patient-caregiver-not-found.exception';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
+import { PatientCaregiverController } from './patient-caregiver.controller';
 
 describe('PatientCaregiverController', () => {
   let controller: PatientCaregiverController;

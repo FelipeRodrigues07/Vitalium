@@ -1,10 +1,10 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { CreateUserUseCase } from './create-user.use-case';
 import { ConflictException } from '@nestjs/common';
-import { Role } from '../../../shared/enums/role.enum';
-import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import { Test, TestingModule } from '@nestjs/testing';
 import type { IUserRepository } from '../../../domain/interfaces/repositories/user/user.repository.interface';
+import { Role } from '../../../shared/enums/role.enum';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
+import { CreateUserUseCase } from './create-user.use-case';
 
 describe('CreateUserUseCase', () => {
   let useCase: CreateUserUseCase;

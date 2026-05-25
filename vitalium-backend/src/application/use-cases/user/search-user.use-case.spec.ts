@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { SearchUserUseCase } from './search-user.use-case';
+import type { IUserRepository } from '../../../domain/interfaces/repositories/user/user.repository.interface';
 import { Role } from '../../../shared/enums/role.enum';
 import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
 import { UserNotFoundException } from '../../../shared/execeptions/user/user-not-found.exception';
-import type { IUserRepository } from '../../../domain/interfaces/repositories/user/user.repository.interface';
+import { SearchUserUseCase } from './search-user.use-case';
 
 describe('SearchUserUseCase', () => {
   let useCase: SearchUserUseCase;

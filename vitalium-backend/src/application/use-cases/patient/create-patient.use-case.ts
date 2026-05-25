@@ -1,18 +1,18 @@
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  ValidationException,
-  type FieldError,
-} from '../../../shared/execeptions/system/validation.exception';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
-import { PatientAlreadyExistsException } from '../../../shared/execeptions/patient/patient-already-exists.exception';
-import { UserNotFoundException } from '../../../shared/execeptions/user/user-not-found.exception';
 import type { IPatientRepository } from '../../../domain/interfaces/repositories/patient/patient.repository.interface';
-import type { IUserRepository } from '../../../domain/interfaces/repositories/user/user.repository.interface';
 import type { IUnitRepository } from '../../../domain/interfaces/repositories/units/unit.repository.interface';
-import { UnitInvalidException } from '../../../shared/execeptions/units/unit-invalid.exception';
-import type { CreatePatientDTO } from '../../../presentation/dto/patientDTO/create-patient.dto';
+import type { IUserRepository } from '../../../domain/interfaces/repositories/user/user.repository.interface';
 import type { Patient } from '../../../infrastructure/database/models/patient.models';
+import type { CreatePatientDTO } from '../../../presentation/dto/patientDTO/create-patient.dto';
 import { Role } from '../../../shared/enums/role.enum';
+import { PatientAlreadyExistsException } from '../../../shared/execeptions/patient/patient-already-exists.exception';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import {
+  type FieldError,
+  ValidationException,
+} from '../../../shared/execeptions/system/validation.exception';
+import { UnitInvalidException } from '../../../shared/execeptions/units/unit-invalid.exception';
+import { UserNotFoundException } from '../../../shared/execeptions/user/user-not-found.exception';
 
 @Injectable()
 export class CreatePatientUseCase {
@@ -81,7 +81,9 @@ export class CreatePatientUseCase {
       }
 
       if (createPatientDTO.unitId) {
-        const unit = await this.unitRepository.findById(createPatientDTO.unitId);
+        const unit = await this.unitRepository.findById(
+          createPatientDTO.unitId,
+        );
         if (!unit) {
           throw new UnitInvalidException(createPatientDTO.unitId);
         }

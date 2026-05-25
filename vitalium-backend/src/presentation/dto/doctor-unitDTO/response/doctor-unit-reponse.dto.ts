@@ -1,5 +1,5 @@
-import { Expose } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+import { Expose } from 'class-transformer';
 import type { Doctor } from '../../../../infrastructure/database/models/doctor.models';
 import type { Unit } from '../../../../infrastructure/database/models/unit.models';
 

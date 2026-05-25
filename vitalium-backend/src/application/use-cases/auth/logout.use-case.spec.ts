@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { LogoutUseCase } from './logout.use-case';
 import type { IAuthRepository } from '../../../domain/interfaces/repositories/auth/auth.repository.interface';
+import { LogoutUseCase } from './logout.use-case';
 
 describe('LogoutUseCase', () => {
   let useCase: LogoutUseCase;
@@ -36,7 +36,9 @@ describe('LogoutUseCase', () => {
 
       await useCase.execute('user-id-1');
 
-      expect(authRepository.clearRefreshToken).toHaveBeenCalledWith('user-id-1');
+      expect(authRepository.clearRefreshToken).toHaveBeenCalledWith(
+        'user-id-1',
+      );
     });
 
     it('should complete without error for valid userId', async () => {

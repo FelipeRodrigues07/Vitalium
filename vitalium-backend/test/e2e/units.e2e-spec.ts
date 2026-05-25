@@ -1,12 +1,12 @@
-import { Test, type TestingModule } from '@nestjs/testing';
 import { type INestApplication, ValidationPipe } from '@nestjs/common';
-import * as request from 'supertest';
+import { Test, type TestingModule } from '@nestjs/testing';
 import * as bcrypt from 'bcrypt';
-import { AppModule } from '../../src/modules/app.module';
+import * as request from 'supertest';
 import { PrismaProvider } from '../../src/infrastructure/database/prisma.provider';
-import { UnitType } from '../../src/shared/enums/unit.enum';
-import { Role } from '../../src/shared/enums/role.enum';
+import { AppModule } from '../../src/modules/app.module';
 import { AdminRole } from '../../src/shared/enums/admin-role.enum';
+import { Role } from '../../src/shared/enums/role.enum';
+import { UnitType } from '../../src/shared/enums/unit.enum';
 
 describe('Units API (e2e)', () => {
   let app: INestApplication;

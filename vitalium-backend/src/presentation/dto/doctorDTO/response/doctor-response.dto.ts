@@ -1,7 +1,7 @@
-import { Expose, Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { UserResponseDTO } from '../../userDTO/response/user-response.dto';
+import { Expose, Type } from 'class-transformer';
 import { ResponseUnitDTO } from '../../unitDTO/response/unit-response.dto';
+import { UserResponseDTO } from '../../userDTO/response/user-response.dto';
 
 export class DoctorResponseDTO {
   @ApiProperty({

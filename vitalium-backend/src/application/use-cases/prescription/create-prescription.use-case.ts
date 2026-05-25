@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
 import type { IPrescriptionRepository } from '../../../domain/interfaces/repositories/prescription/prescription.repository.interface';
-import type { CreatePrescriptionDTO } from '../../../presentation/dto/prescriptionDTO/create-prescription.dto';
 import type { Prescription } from '../../../infrastructure/database/models/prescription.models';
+import type { CreatePrescriptionDTO } from '../../../presentation/dto/prescriptionDTO/create-prescription.dto';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
 
 @Injectable()
 export class CreatePrescriptionUseCase {

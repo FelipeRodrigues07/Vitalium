@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  ValidationException,
-  type FieldError,
-} from '../../../shared/execeptions/system/validation.exception';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
 import type { IAdminRepository } from '../../../domain/interfaces/repositories/admin/admin.repository.interface';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import {
+  type FieldError,
+  ValidationException,
+} from '../../../shared/execeptions/system/validation.exception';
 import { UnitNotFoundException } from '../../../shared/execeptions/units/unit-not-found.exception';
 
 @Injectable()

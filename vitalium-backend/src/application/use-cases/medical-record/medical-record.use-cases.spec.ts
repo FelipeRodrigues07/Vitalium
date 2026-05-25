@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateMedicalRecordUseCase } from './create-medical-record.use-case';
-import { SearchMedicalRecordUseCase } from './search-medical-record.use-case';
-import { UpdateMedicalRecordUseCase } from './update-medical-record.use-case';
-import { DeleteMedicalRecordUseCase } from './delete-medical-record.use-case';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
-import { MedicalRecordNotFoundException } from '../../../shared/execeptions/medical-record/medical-record-not-found.exception';
 import type { IMedicalRecordRepository } from '../../../domain/interfaces/repositories/medical-record/medical-record.repository.interface';
 import { RecordType } from '../../../shared/enums/record-type.enum';
+import { MedicalRecordNotFoundException } from '../../../shared/execeptions/medical-record/medical-record-not-found.exception';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import { CreateMedicalRecordUseCase } from './create-medical-record.use-case';
+import { DeleteMedicalRecordUseCase } from './delete-medical-record.use-case';
+import { SearchMedicalRecordUseCase } from './search-medical-record.use-case';
+import { UpdateMedicalRecordUseCase } from './update-medical-record.use-case';
 
 const mockMedicalRecord = {
   id: 'record-id-1',

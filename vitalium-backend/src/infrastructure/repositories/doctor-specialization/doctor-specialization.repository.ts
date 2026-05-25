@@ -6,7 +6,9 @@ import { DoctorSpecialization } from '../../database/models/doctor-specializatio
 import { PrismaProvider } from '../../database/prisma.provider';
 
 @Injectable()
-export class DoctorSpecializationRepository implements IDoctorSpecializationRepository {
+export class DoctorSpecializationRepository
+  implements IDoctorSpecializationRepository
+{
   constructor(private readonly prisma: PrismaProvider) {}
 
   async create(

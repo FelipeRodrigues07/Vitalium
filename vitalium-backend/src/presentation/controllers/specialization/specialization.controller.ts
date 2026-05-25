@@ -11,22 +11,22 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { plainToInstance } from 'class-transformer';
 import { ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from '../../../shared/guards/auth.guard';
-import { RolesGuard } from '../../../shared/guards/roles.guard';
-import { Roles } from '../../../shared/decorators/roles.decorator';
-import { Role } from '../../../shared/enums';
-import { ApiSpecializationOperations } from '../../../shared/swagger/decorators/specialization.decorators';
-import { SpecializationResponseDTO } from '../../dto/specializationDTO/response/specialization-response.dto';
-import { CreateSpecializationDTO } from '../../dto/specializationDTO/create-specialization.dto';
-import { UpdateSpecializationDTO } from '../../dto/specializationDTO/update-specialization.dto';
+import { plainToInstance } from 'class-transformer';
 import {
   CreateSpecializationUseCase,
+  DeleteSpecializationUseCase,
   SearchSpecializationUseCase,
   UpdateSpecializationUseCase,
-  DeleteSpecializationUseCase,
 } from '../../../application/use-cases/specialization/specialization.use-cases';
+import { Roles } from '../../../shared/decorators/roles.decorator';
+import { Role } from '../../../shared/enums';
+import { AuthGuard } from '../../../shared/guards/auth.guard';
+import { RolesGuard } from '../../../shared/guards/roles.guard';
+import { ApiSpecializationOperations } from '../../../shared/swagger/decorators/specialization.decorators';
+import { CreateSpecializationDTO } from '../../dto/specializationDTO/create-specialization.dto';
+import { SpecializationResponseDTO } from '../../dto/specializationDTO/response/specialization-response.dto';
+import { UpdateSpecializationDTO } from '../../dto/specializationDTO/update-specialization.dto';
 
 @ApiTags('specializations')
 @Controller('specializations')

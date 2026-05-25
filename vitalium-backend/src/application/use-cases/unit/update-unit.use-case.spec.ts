@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UpdateUnitUseCase } from './update-unit.use-case';
+import type { IUnitRepository } from '../../../domain/interfaces/repositories/units/unit.repository.interface';
 import { UnitType } from '../../../shared/enums/unit.enum';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
 import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
 import { UnitNotFoundException } from '../../../shared/execeptions/units/unit-not-found.exception';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
-import type { IUnitRepository } from '../../../domain/interfaces/repositories/units/unit.repository.interface';
+import { UpdateUnitUseCase } from './update-unit.use-case';
 
 describe('UpdateUnitUseCase', () => {
   let useCase: UpdateUnitUseCase;

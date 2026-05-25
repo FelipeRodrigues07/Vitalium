@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { NurseController } from './nurse.controller';
 import {
   CreateNurseUseCase,
+  DeleteNurseUseCase,
   SearchNurseUseCase,
   UpdateNurseUseCase,
-  DeleteNurseUseCase,
 } from '../../../application/use-cases/nurse/nurse.use-cases';
-import { NurseNotFoundException } from '../../../shared/execeptions/nurse/nurse-not-found.exception';
 import { NurseAlreadyExistsException } from '../../../shared/execeptions/nurse/nurse-already-exists.exception';
+import { NurseNotFoundException } from '../../../shared/execeptions/nurse/nurse-not-found.exception';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
+import { NurseController } from './nurse.controller';
 
 describe('NurseController', () => {
   let controller: NurseController;

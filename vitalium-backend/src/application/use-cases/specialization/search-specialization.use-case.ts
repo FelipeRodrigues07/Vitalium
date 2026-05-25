@@ -1,8 +1,7 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type { ISpecializationRepository } from '../../../domain/interfaces/repositories/specialization/specialization.repository.interface';
 import type { Specialization } from '../../../infrastructure/database/models/specialization.models';
-import { NotFoundException } from '@nestjs/common';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
 
 @Injectable()
 export class SearchSpecializationUseCase {

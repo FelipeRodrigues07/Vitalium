@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { MedicalRecordController } from './medical-record.controller';
 import { CreateMedicalRecordUseCase } from '../../../application/use-cases/medical-record/create-medical-record.use-case';
+import { DeleteMedicalRecordUseCase } from '../../../application/use-cases/medical-record/delete-medical-record.use-case';
 import { SearchMedicalRecordUseCase } from '../../../application/use-cases/medical-record/search-medical-record.use-case';
 import { UpdateMedicalRecordUseCase } from '../../../application/use-cases/medical-record/update-medical-record.use-case';
-import { DeleteMedicalRecordUseCase } from '../../../application/use-cases/medical-record/delete-medical-record.use-case';
+import { RecordType } from '../../../shared/enums/record-type.enum';
 import { MedicalRecordNotFoundException } from '../../../shared/execeptions/medical-record/medical-record-not-found.exception';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
-import { RecordType } from '../../../shared/enums/record-type.enum';
+import { MedicalRecordController } from './medical-record.controller';
 
 describe('MedicalRecordController', () => {
   let controller: MedicalRecordController;

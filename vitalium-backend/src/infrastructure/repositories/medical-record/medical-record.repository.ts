@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { PrismaProvider } from '../../database/prisma.provider';
 import type { IMedicalRecordRepository } from '../../../domain/interfaces/repositories/medical-record/medical-record.repository.interface';
 import type { CreateMedicalRecordDTO } from '../../../presentation/dto/medicalRecordDTO/create-medical-record.dto';
 import type { UpdateMedicalRecordDTO } from '../../../presentation/dto/medicalRecordDTO/update-medical-record.dto';
 import { MedicalRecord } from '../../database/models/medical-record.models';
+import { PrismaProvider } from '../../database/prisma.provider';
 
 const includeRelations = {
   patient: {

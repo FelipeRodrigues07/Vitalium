@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrescriptionController } from './prescription.controller';
 import { CreatePrescriptionUseCase } from '../../../application/use-cases/prescription/create-prescription.use-case';
+import { DeletePrescriptionUseCase } from '../../../application/use-cases/prescription/delete-prescription.use-case';
 import { SearchPrescriptionUseCase } from '../../../application/use-cases/prescription/search-prescription.use-case';
 import { UpdatePrescriptionUseCase } from '../../../application/use-cases/prescription/update-prescription.use-case';
-import { DeletePrescriptionUseCase } from '../../../application/use-cases/prescription/delete-prescription.use-case';
 import { PrescriptionNotFoundException } from '../../../shared/execeptions/prescription/prescription-not-found.exception';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
+import { PrescriptionController } from './prescription.controller';
 
 describe('PrescriptionController', () => {
   let controller: PrescriptionController;

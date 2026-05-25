@@ -1,7 +1,7 @@
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import type { IConversationRepository } from '../../../domain/interfaces/repositories/chat/conversation.repository.interface';
-import type { CreateConversationDTO } from '../../../presentation/dto/chatDTO/create-conversation.dto';
 import type { Conversation } from '../../../infrastructure/database/models/conversation.models';
+import type { CreateConversationDTO } from '../../../presentation/dto/chatDTO/create-conversation.dto';
 
 @Injectable()
 export class CreateConversationUseCase {

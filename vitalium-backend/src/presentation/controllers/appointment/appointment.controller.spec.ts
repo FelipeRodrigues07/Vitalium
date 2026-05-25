@@ -1,14 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppointmentController } from './appointment.controller';
 import { CreateAppointmentUseCase } from '../../../application/use-cases/appointment/create-appointment.use-case';
+import { DeleteAppointmentUseCase } from '../../../application/use-cases/appointment/delete-appointment.use-case';
 import { SearchAppointmentUseCase } from '../../../application/use-cases/appointment/search-appointment.use-case';
 import { UpdateAppointmentUseCase } from '../../../application/use-cases/appointment/update-appointment.use-case';
-import { DeleteAppointmentUseCase } from '../../../application/use-cases/appointment/delete-appointment.use-case';
+import { AppointmentStatus } from '../../../shared/enums/appointment-status.enum';
+import { AppointmentType } from '../../../shared/enums/appointment-type.enum';
 import { AppointmentNotFoundException } from '../../../shared/execeptions/appointment/appointment-not-found.exception';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
-import { AppointmentStatus } from '../../../shared/enums/appointment-status.enum';
-import { AppointmentType } from '../../../shared/enums/appointment-type.enum';
+import { AppointmentController } from './appointment.controller';
 
 describe('AppointmentController', () => {
   let controller: AppointmentController;

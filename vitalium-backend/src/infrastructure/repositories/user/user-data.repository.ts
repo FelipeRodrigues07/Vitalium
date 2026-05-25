@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { plainToInstance } from 'class-transformer';
 import type { IUserRepository } from '../../../domain/interfaces/repositories/user/user.repository.interface';
 import type { CreateUserDTO } from '../../../presentation/dto/userDTO/create-user.dto';
-import { plainToInstance } from 'class-transformer';
 import type { UpdateUserDTO } from '../../../presentation/dto/userDTO/update-user.dtp';
 import { User } from '../../database/models/user.models';
 import { PrismaProvider } from '../../database/prisma.provider'; // ← faltando

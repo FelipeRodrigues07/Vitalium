@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
+import type { IDoctorSpecializationRepository } from '../../../domain/interfaces/repositories/specialization/doctor-specialization.repository.interface';
+import type { DoctorSpecialization } from '../../../infrastructure/database/models/doctor-specialization.models';
+import type { CreateDoctorSpecializationDTO } from '../../../presentation/dto/doctorSpecializationDTO/create-doctor-specialization.dto';
+import { DoctorSpecializationNotFoundException } from '../../../shared/execeptions/specialization/doctor-specialization-not-found.exception';
 import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
 import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
-import { DoctorSpecializationNotFoundException } from '../../../shared/execeptions/specialization/doctor-specialization-not-found.exception';
-import type { IDoctorSpecializationRepository } from '../../../domain/interfaces/repositories/specialization/doctor-specialization.repository.interface';
-import type { CreateDoctorSpecializationDTO } from '../../../presentation/dto/doctorSpecializationDTO/create-doctor-specialization.dto';
-import type { DoctorSpecialization } from '../../../infrastructure/database/models/doctor-specialization.models';
 
 @Injectable()
 export class CreateDoctorSpecializationUseCase {

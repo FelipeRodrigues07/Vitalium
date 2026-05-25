@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { PrismaProvider } from '../../database/prisma.provider';
 import type { IAdminRepository } from '../../../domain/interfaces/repositories/admin/admin.repository.interface';
-import { Admin } from '../../database/models/admin.models';
 import type { CreateAdminDTO } from '../../../presentation/dto/adminDTO/create-admin.dto';
 import type { UpdateAdminDTO } from '../../../presentation/dto/adminDTO/update-admin.dto';
+import { Admin } from '../../database/models/admin.models';
+import { PrismaProvider } from '../../database/prisma.provider';
 
 @Injectable()
 export class AdminRepository implements IAdminRepository {

@@ -10,21 +10,21 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { plainToInstance } from 'class-transformer';
 import { ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from '../../../shared/guards/auth.guard';
-import { RolesGuard } from '../../../shared/guards/roles.guard';
-import { Roles } from '../../../shared/decorators/roles.decorator';
-import { Role } from '../../../shared/enums';
-import { ApiPatientCaregiverOperations } from '../../../shared/swagger/decorators/patient-caregiver.decorators';
-import { PatientCaregiverResponseDTO } from '../../dto/patientCaregiverDTO/response/patient-caregiver-response.dto';
-import { CreatePatientCaregiverDTO } from '../../dto/patientCaregiverDTO/create-patient-caregiver.dto';
+import { plainToInstance } from 'class-transformer';
 import {
   CreatePatientCaregiverUseCase,
-  SearchPatientCaregiverUseCase,
   DeactivatePatientCaregiverUseCase,
   DeletePatientCaregiverUseCase,
+  SearchPatientCaregiverUseCase,
 } from '../../../application/use-cases/patient-caregiver/patient-caregiver.use-cases';
+import { Roles } from '../../../shared/decorators/roles.decorator';
+import { Role } from '../../../shared/enums';
+import { AuthGuard } from '../../../shared/guards/auth.guard';
+import { RolesGuard } from '../../../shared/guards/roles.guard';
+import { ApiPatientCaregiverOperations } from '../../../shared/swagger/decorators/patient-caregiver.decorators';
+import { CreatePatientCaregiverDTO } from '../../dto/patientCaregiverDTO/create-patient-caregiver.dto';
+import { PatientCaregiverResponseDTO } from '../../dto/patientCaregiverDTO/response/patient-caregiver-response.dto';
 
 @ApiTags('patient-caregivers')
 @Controller('patient-caregivers')

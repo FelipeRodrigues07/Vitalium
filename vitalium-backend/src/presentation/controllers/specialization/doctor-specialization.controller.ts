@@ -9,20 +9,20 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { plainToInstance } from 'class-transformer';
 import { ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from '../../../shared/guards/auth.guard';
-import { RolesGuard } from '../../../shared/guards/roles.guard';
-import { Roles } from '../../../shared/decorators/roles.decorator';
-import { Role } from '../../../shared/enums';
-import { ApiDoctorSpecializationOperations } from '../../../shared/swagger/decorators/specialization.decorators';
-import { DoctorSpecializationResponseDTO } from '../../dto/doctorSpecializationDTO/response/doctor-specialization-response.dto';
-import { CreateDoctorSpecializationDTO } from '../../dto/doctorSpecializationDTO/create-doctor-specialization.dto';
+import { plainToInstance } from 'class-transformer';
 import {
   CreateDoctorSpecializationUseCase,
-  SearchDoctorSpecializationUseCase,
   DeleteDoctorSpecializationUseCase,
+  SearchDoctorSpecializationUseCase,
 } from '../../../application/use-cases/specialization/doctor-specialization.use-cases';
+import { Roles } from '../../../shared/decorators/roles.decorator';
+import { Role } from '../../../shared/enums';
+import { AuthGuard } from '../../../shared/guards/auth.guard';
+import { RolesGuard } from '../../../shared/guards/roles.guard';
+import { ApiDoctorSpecializationOperations } from '../../../shared/swagger/decorators/specialization.decorators';
+import { CreateDoctorSpecializationDTO } from '../../dto/doctorSpecializationDTO/create-doctor-specialization.dto';
+import { DoctorSpecializationResponseDTO } from '../../dto/doctorSpecializationDTO/response/doctor-specialization-response.dto';
 
 @ApiTags('doctor-specializations')
 @Controller('doctor-specializations')

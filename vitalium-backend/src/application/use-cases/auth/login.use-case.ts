@@ -43,7 +43,9 @@ export class LoginUseCase {
     let adminContext = null;
 
     if (user.role === Role.ADMIN) {
-      adminContext = await this.authRepository.findAdminContextByUserId(user.id);
+      adminContext = await this.authRepository.findAdminContextByUserId(
+        user.id,
+      );
 
       if (!adminContext) {
         throw new UnauthorizedException(
@@ -54,7 +56,9 @@ export class LoginUseCase {
 
     const tokenPayload = buildAuthTokenPayload(user, adminContext);
 
-    const accessToken = this.jwtService.sign(tokenPayload, { expiresIn: '60m' });
+    const accessToken = this.jwtService.sign(tokenPayload, {
+      expiresIn: '60m',
+    });
 
     const refreshToken = this.jwtService.sign(
       { sub: user.id, type: 'refresh' },

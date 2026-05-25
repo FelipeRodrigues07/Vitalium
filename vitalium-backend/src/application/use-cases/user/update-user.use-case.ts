@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/user.repository.interface';
+import { User } from '../../../infrastructure/database/models/user.models';
 import { UpdateUserDTO } from '../../../presentation/dto/userDTO/update-user.dtp';
 import { UserNotFoundException } from '../../../shared/execeptions/user/user-not-found.exception';
-import { User } from '../../../infrastructure/database/models/user.models';
 
 @Injectable()
 export class UpdateUserUseCase {

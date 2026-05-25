@@ -1,5 +1,5 @@
-import { IsEnum, IsOptional, IsString } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
 import { MessageChannel } from '../../../shared/enums/message-channel.enum';
 import { MessageOrigin } from '../../../shared/enums/message-origin.enum';
 

@@ -10,20 +10,20 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { plainToInstance } from 'class-transformer';
 import { ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from '../../../shared/guards/auth.guard';
-import { RolesGuard } from '../../../shared/guards/roles.guard';
-import { Roles } from '../../../shared/decorators/roles.decorator';
-import { Role } from '../../../shared/enums';
-import { ApiAppointmentOperations } from '../../../shared/swagger/decorators/appointment.decorators';
-import { AppointmentResponseDTO } from '../../dto/appointmentDTO/response/appointment-response.dto';
-import { CreateAppointmentDTO } from '../../dto/appointmentDTO/create-appointment.dto';
-import { UpdateAppointmentDTO } from '../../dto/appointmentDTO/update-appointment.dto';
+import { plainToInstance } from 'class-transformer';
 import { CreateAppointmentUseCase } from '../../../application/use-cases/appointment/create-appointment.use-case';
+import { DeleteAppointmentUseCase } from '../../../application/use-cases/appointment/delete-appointment.use-case';
 import { SearchAppointmentUseCase } from '../../../application/use-cases/appointment/search-appointment.use-case';
 import { UpdateAppointmentUseCase } from '../../../application/use-cases/appointment/update-appointment.use-case';
-import { DeleteAppointmentUseCase } from '../../../application/use-cases/appointment/delete-appointment.use-case';
+import { Roles } from '../../../shared/decorators/roles.decorator';
+import { Role } from '../../../shared/enums';
+import { AuthGuard } from '../../../shared/guards/auth.guard';
+import { RolesGuard } from '../../../shared/guards/roles.guard';
+import { ApiAppointmentOperations } from '../../../shared/swagger/decorators/appointment.decorators';
+import { CreateAppointmentDTO } from '../../dto/appointmentDTO/create-appointment.dto';
+import { AppointmentResponseDTO } from '../../dto/appointmentDTO/response/appointment-response.dto';
+import { UpdateAppointmentDTO } from '../../dto/appointmentDTO/update-appointment.dto';
 
 @ApiTags('appointments')
 @Controller('appointments')

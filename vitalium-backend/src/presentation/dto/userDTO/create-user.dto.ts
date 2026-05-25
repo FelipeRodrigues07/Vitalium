@@ -1,12 +1,12 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsBoolean,
   IsEmail,
-  IsString,
-  IsOptional,
   IsEnum,
+  IsOptional,
+  IsString,
   Matches,
 } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import type { Admin } from '../../../infrastructure/database/models/admin.models';
 import type { Caregiver } from '../../../infrastructure/database/models/caregiver.models';
 import type { Doctor } from '../../../infrastructure/database/models/doctor.models';

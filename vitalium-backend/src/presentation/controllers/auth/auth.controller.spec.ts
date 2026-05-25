@@ -1,12 +1,12 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { UnauthorizedException } from '@nestjs/common';
-import { AuthController } from './auth.controller';
-import { LoginUseCase } from '../../../application/use-cases/auth/login.use-case';
-import { RefreshTokenUseCase } from '../../../application/use-cases/auth/refresh-token.use-case';
-import { LogoutUseCase } from '../../../application/use-cases/auth/logout.use-case';
+import { Test, TestingModule } from '@nestjs/testing';
 import { GetAdminUnitsUseCase } from '../../../application/use-cases/auth/get-admin-units.use-case';
-import { AuthGuard } from '../../../shared/guards/auth.guard';
+import { LoginUseCase } from '../../../application/use-cases/auth/login.use-case';
+import { LogoutUseCase } from '../../../application/use-cases/auth/logout.use-case';
+import { RefreshTokenUseCase } from '../../../application/use-cases/auth/refresh-token.use-case';
 import { Role } from '../../../shared/enums/role.enum';
+import { AuthGuard } from '../../../shared/guards/auth.guard';
+import { AuthController } from './auth.controller';
 
 describe('AuthController', () => {
   let controller: AuthController;

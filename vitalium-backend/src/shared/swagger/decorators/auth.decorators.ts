@@ -1,10 +1,10 @@
 import { applyDecorators } from '@nestjs/common';
 import {
+  ApiBearerAuth,
+  ApiBody,
   ApiOperation,
   ApiResponse,
   ApiTags,
-  ApiBearerAuth,
-  ApiBody,
 } from '@nestjs/swagger';
 import {
   authJwtProfileProperties,

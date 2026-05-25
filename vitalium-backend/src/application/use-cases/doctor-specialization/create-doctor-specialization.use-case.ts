@@ -1,14 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  ValidationException,
-  type FieldError,
-} from '../../../shared/execeptions/system/validation.exception';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import type { IDoctorRepository } from '../../../domain/interfaces/repositories/doctor/doctor.repository.interface';
 import type { IDoctorSpecializationRepository } from '../../../domain/interfaces/repositories/doctor-specialization/doctor-specialization.repository.interface';
 import type { ISpecializationRepository } from '../../../domain/interfaces/repositories/specialization/specialization.repository.interface';
-import type { IDoctorRepository } from '../../../domain/interfaces/repositories/doctor/doctor.repository.interface';
-import type { CreateDoctorSpecializationDTO } from '../../../presentation/dto/doctor-specializationDTO/create-doctor-specialization.dto';
 import type { DoctorSpecialization } from '../../../infrastructure/database/models/doctor-specialization.models';
+import type { CreateDoctorSpecializationDTO } from '../../../presentation/dto/doctor-specializationDTO/create-doctor-specialization.dto';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import {
+  type FieldError,
+  ValidationException,
+} from '../../../shared/execeptions/system/validation.exception';
 
 @Injectable()
 export class CreateDoctorSpecializationUseCase {

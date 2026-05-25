@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
-import { CaregiverNotFoundException } from '../../../shared/execeptions/caregiver/caregiver-not-found.exception';
-import { CaregiverAlreadyExistsException } from '../../../shared/execeptions/caregiver/caregiver-already-exists.exception';
 import type { ICaregiverRepository } from '../../../domain/interfaces/repositories/caregiver/caregiver.repository.interface';
+import type { Caregiver } from '../../../infrastructure/database/models/caregiver.models';
 import type { CreateCaregiverDTO } from '../../../presentation/dto/caregiverDTO/create-caregiver.dto';
 import type { UpdateCaregiverDTO } from '../../../presentation/dto/caregiverDTO/update-caregiver.dto';
-import type { Caregiver } from '../../../infrastructure/database/models/caregiver.models';
+import { CaregiverAlreadyExistsException } from '../../../shared/execeptions/caregiver/caregiver-already-exists.exception';
+import { CaregiverNotFoundException } from '../../../shared/execeptions/caregiver/caregiver-not-found.exception';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
 
 @Injectable()
 export class CreateCaregiverUseCase {

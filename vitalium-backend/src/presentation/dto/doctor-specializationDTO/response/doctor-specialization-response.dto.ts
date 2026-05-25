@@ -1,7 +1,7 @@
-import { Expose, Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { SpecializationResponseDTO } from '../../specializationDTO/response/specialization-response.dto';
+import { Expose, Type } from 'class-transformer';
 import { DoctorResponseDTO } from '../../doctorDTO/response/doctor-response.dto';
+import { SpecializationResponseDTO } from '../../specializationDTO/response/specialization-response.dto';
 
 export class DoctorSpecializationResponseDTO {
   @ApiProperty({

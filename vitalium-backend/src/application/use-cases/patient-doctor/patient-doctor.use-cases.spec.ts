@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import type { IPatientDoctorRepository } from '../../../domain/interfaces/repositories/patient-doctor/patient-doctor.repository.interface';
+import { PatientDoctorNotFoundException } from '../../../shared/execeptions/patient-doctor/patient-doctor-not-found.exception';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
 import {
   CreatePatientDoctorUseCase,
+  DeletePatientDoctorUseCase,
   SearchPatientDoctorUseCase,
   UpdatePatientDoctorUseCase,
-  DeletePatientDoctorUseCase,
 } from './patient-doctor.use-cases';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
-import { PatientDoctorNotFoundException } from '../../../shared/execeptions/patient-doctor/patient-doctor-not-found.exception';
-import type { IPatientDoctorRepository } from '../../../domain/interfaces/repositories/patient-doctor/patient-doctor.repository.interface';
 
 const mockPatientDoctor = {
   id: 'pd-id-1',

@@ -1,8 +1,8 @@
 import {
   Injectable,
   Logger,
-  type OnModuleInit,
   type OnModuleDestroy,
+  type OnModuleInit,
 } from '@nestjs/common';
 import * as amqplib from 'amqplib';
 

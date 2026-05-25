@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
-import { MedicalAttachmentNotFoundException } from '../../../shared/execeptions/medical-attachment/medical-attachment-not-found.exception';
 import type { IMedicalAttachmentRepository } from '../../../domain/interfaces/repositories/medical-attachment/medical-attachment.repository.interface';
-import type { CreateMedicalAttachmentDTO } from '../../../presentation/dto/medicalAttachmentDTO/create-medical-attachment.dto';
 import type { MedicalAttachment } from '../../../infrastructure/database/models/medical-attachment.models';
+import type { CreateMedicalAttachmentDTO } from '../../../presentation/dto/medicalAttachmentDTO/create-medical-attachment.dto';
+import { MedicalAttachmentNotFoundException } from '../../../shared/execeptions/medical-attachment/medical-attachment-not-found.exception';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
 
 @Injectable()
 export class CreateMedicalAttachmentUseCase {

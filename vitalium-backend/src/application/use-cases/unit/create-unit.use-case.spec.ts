@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateUnitUseCase } from './create-unit.use-case';
-import { UnitType } from '../../../shared/enums/unit.enum';
-import { UnitAlreadyExistsException } from '../../../shared/execeptions/units/unit-already-exists.exception';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
 import type { IUnitRepository } from '../../../domain/interfaces/repositories/units/unit.repository.interface';
+import { UnitType } from '../../../shared/enums/unit.enum';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import { UnitAlreadyExistsException } from '../../../shared/execeptions/units/unit-already-exists.exception';
+import { CreateUnitUseCase } from './create-unit.use-case';
 
 describe('CreateUnitUseCase', () => {
   let useCase: CreateUnitUseCase;

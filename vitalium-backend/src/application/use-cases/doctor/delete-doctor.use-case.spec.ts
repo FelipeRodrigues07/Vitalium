@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DeleteDoctorUseCase } from './delete-doctor.use-case';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
-import { DoctorNotFoundException } from '../../../shared/execeptions/doctor/doctor-not-found.exception';
 import type { IDoctorRepository } from '../../../domain/interfaces/repositories/doctor/doctor.repository.interface';
+import { DoctorNotFoundException } from '../../../shared/execeptions/doctor/doctor-not-found.exception';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import { DeleteDoctorUseCase } from './delete-doctor.use-case';
 
 describe('DeleteDoctorUseCase', () => {
   let useCase: DeleteDoctorUseCase;

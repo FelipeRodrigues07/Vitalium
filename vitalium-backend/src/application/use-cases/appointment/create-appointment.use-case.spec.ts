@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateAppointmentUseCase } from './create-appointment.use-case';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
 import type { IAppointmentRepository } from '../../../domain/interfaces/repositories/appointment/appointment.repository.interface';
 import { AppointmentStatus } from '../../../shared/enums/appointment-status.enum';
 import { AppointmentType } from '../../../shared/enums/appointment-type.enum';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import { CreateAppointmentUseCase } from './create-appointment.use-case';
 
 describe('CreateAppointmentUseCase', () => {
   let useCase: CreateAppointmentUseCase;

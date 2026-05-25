@@ -1,5 +1,5 @@
-import type { Admin } from './admin.models';
 import type { Role } from '../../../shared/enums';
+import type { Admin } from './admin.models';
 import type { Caregiver } from './caregiver.models';
 import type { Doctor } from './doctor.models';
 import type { Nurse } from './nurse.models';

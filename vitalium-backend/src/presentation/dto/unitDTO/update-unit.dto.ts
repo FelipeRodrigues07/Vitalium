@@ -1,12 +1,12 @@
-import {
-  IsString,
-  IsEmail,
-  IsOptional,
-  IsBoolean,
-  Matches,
-} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
+import {
+  IsBoolean,
+  IsEmail,
+  IsOptional,
+  IsString,
+  Matches,
+} from 'class-validator';
 
 export class UpdateUnitDTO {
   @ApiProperty({ example: 'Hospital São Paulo', required: false })

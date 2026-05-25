@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateDoctorUseCase } from './create-doctor.use-case';
-import { Role } from '../../../shared/enums/role.enum';
-import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
-import { DoctorAlreadyExistsException } from '../../../shared/execeptions/doctor/doctor-already-exists.exception';
-import { UserNotFoundException } from '../../../shared/execeptions/user/user-not-found.exception';
 import type { IDoctorRepository } from '../../../domain/interfaces/repositories/doctor/doctor.repository.interface';
 import type { IUserRepository } from '../../../domain/interfaces/repositories/user/user.repository.interface';
+import { Role } from '../../../shared/enums/role.enum';
+import { DoctorAlreadyExistsException } from '../../../shared/execeptions/doctor/doctor-already-exists.exception';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
+import { UserNotFoundException } from '../../../shared/execeptions/user/user-not-found.exception';
+import { CreateDoctorUseCase } from './create-doctor.use-case';
 
 describe('CreateDoctorUseCase', () => {
   let useCase: CreateDoctorUseCase;

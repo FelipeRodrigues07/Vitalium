@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { BloodType, Gender } from '@prisma/client';
 import {
   IsDateString,
   IsEnum,
@@ -6,7 +7,6 @@ import {
   IsString,
   Matches,
 } from 'class-validator';
-import { Gender, BloodType } from '@prisma/client';
 
 export class CreatePatientDTO {
   @ApiProperty({

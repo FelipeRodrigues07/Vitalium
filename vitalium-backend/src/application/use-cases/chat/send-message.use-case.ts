@@ -1,8 +1,8 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type { IConversationRepository } from '../../../domain/interfaces/repositories/chat/conversation.repository.interface';
 import type { IMessageRepository } from '../../../domain/interfaces/repositories/chat/message.repository.interface';
-import type { SendMessageDTO } from '../../../presentation/dto/chatDTO/send-message.dto';
 import type { Message } from '../../../infrastructure/database/models/message.models';
+import type { SendMessageDTO } from '../../../presentation/dto/chatDTO/send-message.dto';
 import { MessageChannel } from '../../../shared/enums/message-channel.enum';
 
 @Injectable()

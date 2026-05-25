@@ -1,15 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  ValidationException,
-  type FieldError,
-} from '../../../shared/execeptions/system/validation.exception';
 import type { IDoctorRepository } from '../../../domain/interfaces/repositories/doctor/doctor.repository.interface';
 import type { IUserRepository } from '../../../domain/interfaces/repositories/user/user.repository.interface';
-import type { CreateDoctorDTO } from '../../../presentation/dto/doctorDTO/create-doctor.dto';
 import type { Doctor } from '../../../infrastructure/database/models/doctor.models';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import type { CreateDoctorDTO } from '../../../presentation/dto/doctorDTO/create-doctor.dto';
 import { Role } from '../../../shared/enums/role.enum';
 import { DoctorAlreadyExistsException } from '../../../shared/execeptions/doctor/doctor-already-exists.exception';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import {
+  type FieldError,
+  ValidationException,
+} from '../../../shared/execeptions/system/validation.exception';
 import { UserNotFoundException } from '../../../shared/execeptions/user/user-not-found.exception';
 
 @Injectable()

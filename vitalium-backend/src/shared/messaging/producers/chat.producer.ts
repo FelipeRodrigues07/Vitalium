@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { RabbitMQService, QUEUES } from '../rabbitmq.service';
 import type { MessagePayloadDTO } from '../../../presentation/dto/chatDTO/message-payload.dto';
+import { QUEUES, RabbitMQService } from '../rabbitmq.service';
 
 /**
  * Producer responsável por publicar mensagens de chat nas filas do RabbitMQ.

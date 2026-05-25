@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
-import { PatientNotFoundException } from '../../../shared/execeptions/patient/patient-not-found.exception';
-import type { IPatientRepository } from '../../../domain/interfaces/repositories/patient/patient.repository.interface';
 import type { IDoctorRepository } from '../../../domain/interfaces/repositories/doctor/doctor.repository.interface';
+import type { IPatientRepository } from '../../../domain/interfaces/repositories/patient/patient.repository.interface';
 import type { Patient } from '../../../infrastructure/database/models/patient.models';
-import type { AuthJwtPayload } from '../../../shared/types/auth-jwt-payload.interface';
 import { Role } from '../../../shared/enums';
+import { PatientNotFoundException } from '../../../shared/execeptions/patient/patient-not-found.exception';
+import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
+import type { AuthJwtPayload } from '../../../shared/types/auth-jwt-payload.interface';
 
 @Injectable()
 export class SearchPatientUseCase {

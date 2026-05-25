@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
-import { AdminRole } from '../../../../shared/enums/admin-role.enum';
 import type { Role } from '../../../../shared/enums';
+import { AdminRole } from '../../../../shared/enums/admin-role.enum';
 
 export class AuthUserDTO {
   @ApiProperty({ example: 'cld1234abc' })
@@ -37,7 +37,8 @@ export class AuthUserDTO {
   @ApiProperty({
     required: false,
     enum: AdminRole,
-    description: 'Subtipo do admin: SUPER_ADMIN, HOSPITAL_ADMIN ou CLINIC_ADMIN',
+    description:
+      'Subtipo do admin: SUPER_ADMIN, HOSPITAL_ADMIN ou CLINIC_ADMIN',
   })
   @Expose()
   adminRole?: AdminRole;

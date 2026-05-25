@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
-import { NurseNotFoundException } from '../../../shared/execeptions/nurse/nurse-not-found.exception';
-import { NurseAlreadyExistsException } from '../../../shared/execeptions/nurse/nurse-already-exists.exception';
 import type { INurseRepository } from '../../../domain/interfaces/repositories/nurse/nurse.repository.interface';
+import type { Nurse } from '../../../infrastructure/database/models/nurse.models';
 import type { CreateNurseDTO } from '../../../presentation/dto/nurseDTO/create-nurse.dto';
 import type { UpdateNurseDTO } from '../../../presentation/dto/nurseDTO/update-nurse.dto';
-import type { Nurse } from '../../../infrastructure/database/models/nurse.models';
+import { NurseAlreadyExistsException } from '../../../shared/execeptions/nurse/nurse-already-exists.exception';
+import { NurseNotFoundException } from '../../../shared/execeptions/nurse/nurse-not-found.exception';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
 
 @Injectable()
 export class CreateNurseUseCase {

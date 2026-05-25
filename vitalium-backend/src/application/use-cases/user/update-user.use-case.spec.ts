@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UpdateUserUseCase } from './update-user.use-case';
+import type { IUserRepository } from '../../../domain/interfaces/repositories/user/user.repository.interface';
 import { Role } from '../../../shared/enums/role.enum';
 import { UserNotFoundException } from '../../../shared/execeptions/user/user-not-found.exception';
-import type { IUserRepository } from '../../../domain/interfaces/repositories/user/user.repository.interface';
+import { UpdateUserUseCase } from './update-user.use-case';
 
 describe('UpdateUserUseCase', () => {
   let useCase: UpdateUserUseCase;

@@ -1,7 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { SearchSpecializationUseCase } from './search-specialization.use-case';
 import { NotFoundException } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
 import type { ISpecializationRepository } from '../../../domain/interfaces/repositories/specialization/specialization.repository.interface';
+import { SearchSpecializationUseCase } from './search-specialization.use-case';
 
 describe('SearchSpecializationUseCase', () => {
   let useCase: SearchSpecializationUseCase;

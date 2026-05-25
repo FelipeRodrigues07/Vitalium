@@ -1,7 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { DeleteDoctorSpecializationUseCase } from './delete-doctor-specialization.use-case';
 import { NotFoundException } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
 import type { IDoctorSpecializationRepository } from '../../../domain/interfaces/repositories/doctor-specialization/doctor-specialization.repository.interface';
+import { DeleteDoctorSpecializationUseCase } from './delete-doctor-specialization.use-case';
 
 describe('DeleteDoctorSpecializationUseCase', () => {
   let useCase: DeleteDoctorSpecializationUseCase;

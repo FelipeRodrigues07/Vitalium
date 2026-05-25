@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DoctorSpecializationController } from './doctor-specialization.controller';
 import { CreateDoctorSpecializationUseCase } from '../../../application/use-cases/doctor-specialization/create-doctor-specialization.use-case';
-import { SearchDoctorSpecializationUseCase } from '../../../application/use-cases/doctor-specialization/search-doctor-specialization.use-case';
 import { DeleteDoctorSpecializationUseCase } from '../../../application/use-cases/doctor-specialization/delete-doctor-specialization.use-case';
+import { SearchDoctorSpecializationUseCase } from '../../../application/use-cases/doctor-specialization/search-doctor-specialization.use-case';
 import { DoctorSpecializationNotFoundException } from '../../../shared/execeptions/specialization/doctor-specialization-not-found.exception';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
+import { DoctorSpecializationController } from './doctor-specialization.controller';
 
 describe('DoctorSpecializationController', () => {
   let controller: DoctorSpecializationController;

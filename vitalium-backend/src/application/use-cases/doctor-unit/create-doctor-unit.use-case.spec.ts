@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateDoctorUnitUseCase } from './create-doctor-unit.use-case';
-import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
-import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
-import { UnitInvalidException } from '../../../shared/execeptions/units/unit-invalid.exception';
-import { ConflictException } from '../../../shared/execeptions/system/conflict.exception';
 import type { IDoctorRepository } from '../../../domain/interfaces/repositories/doctor/doctor.repository.interface';
 import type { IDoctorUnitRepository } from '../../../domain/interfaces/repositories/doctor-unit/doctor-unit.repository.interface';
 import type { IUnitRepository } from '../../../domain/interfaces/repositories/units/unit.repository.interface';
 import { UnitType } from '../../../shared/enums/unit.enum';
+import { ConflictException } from '../../../shared/execeptions/system/conflict.exception';
+import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
+import { UnitInvalidException } from '../../../shared/execeptions/units/unit-invalid.exception';
+import { CreateDoctorUnitUseCase } from './create-doctor-unit.use-case';
 
 describe('CreateDoctorUnitUseCase', () => {
   let useCase: CreateDoctorUnitUseCase;

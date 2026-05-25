@@ -1,5 +1,5 @@
-import { Expose, Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+import { Expose, Type } from 'class-transformer';
 import { AdminRole } from '../../../../shared/enums/admin-role.enum';
 import { UserResponseDTO } from '../../userDTO/response/user-response.dto';
 

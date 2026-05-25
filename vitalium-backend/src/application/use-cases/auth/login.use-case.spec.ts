@@ -1,10 +1,10 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { JwtService } from '@nestjs/jwt';
 import { UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { Test, TestingModule } from '@nestjs/testing';
 import * as bcrypt from 'bcrypt';
-import { LoginUseCase } from './login.use-case';
-import { Role } from '../../../shared/enums/role.enum';
 import type { IAuthRepository } from '../../../domain/interfaces/repositories/auth/auth.repository.interface';
+import { Role } from '../../../shared/enums/role.enum';
+import { LoginUseCase } from './login.use-case';
 
 jest.mock('bcrypt');
 

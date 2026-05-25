@@ -1,11 +1,11 @@
 import { applyDecorators } from '@nestjs/common';
 import {
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
   ApiBearerAuth,
   ApiBody,
+  ApiOperation,
   ApiParam,
+  ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
 
 export const ApiCaregiverOperations = {

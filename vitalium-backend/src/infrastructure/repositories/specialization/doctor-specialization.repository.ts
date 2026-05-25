@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { PrismaProvider } from '../../database/prisma.provider';
 import type { IDoctorSpecializationRepository } from '../../../domain/interfaces/repositories/specialization/doctor-specialization.repository.interface';
 import type { CreateDoctorSpecializationDTO } from '../../../presentation/dto/doctorSpecializationDTO/create-doctor-specialization.dto';
 import { DoctorSpecialization } from '../../database/models/doctor-specialization.models';
+import { PrismaProvider } from '../../database/prisma.provider';
 
 const includeRelations = {
   doctor: {
@@ -15,7 +15,9 @@ const includeRelations = {
 };
 
 @Injectable()
-export class DoctorSpecializationRepository implements IDoctorSpecializationRepository {
+export class DoctorSpecializationRepository
+  implements IDoctorSpecializationRepository
+{
   constructor(private readonly prisma: PrismaProvider) {}
 
   async create(
