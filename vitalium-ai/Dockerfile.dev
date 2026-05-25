@@ -1,0 +1,28 @@
+# Development Dockerfile (hot reload com volumes)
+FROM python:3.11-slim
+
+WORKDIR /app
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+# Instala dependências do sistema
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copia requirements
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Instala watchdog para hot reload (dev)
+RUN pip install watchdog[watchmedo]
+
+# Cria usuário
+RUN useradd -m -u 1000 aiservice && \
+    chown -R aiservice:aiservice /app
+
+USER aiservice
+
+# Comando com hot reload
+CMD ["watchmedo", "auto-restart", "--directory=.", "--pattern=*.py", "--recursive", "--", "python", "main.py"]
