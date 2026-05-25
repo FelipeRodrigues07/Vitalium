@@ -35,8 +35,6 @@ import { mapToDashboardUser, type DashboardUser, type DashboardUserStatus } from
 
 
 interface DashboardUserExtended extends DashboardUser {
-  registrationDate: string
-  verified: boolean
   specialty?: string
   crm?: string
   patientsCount?: number
@@ -53,10 +51,7 @@ export function UserManagement({ searchQuery }: any) {
   const [loadError, setLoadError] = useState<string | null>(null)
   const [isSubmittingAction, setIsSubmittingAction] = useState(false)
 
-  const { isReady, accessToken, user, activeUnitId } = useSession()
-
-  const { isReady, accessToken, user: currentUser } = useSession()
-
+  const { isReady, accessToken, user: currentUser, activeUnitId } = useSession()
 
   const fetchUsers = useCallback(async () => {
     if (!accessToken || currentUser?.role !== "ADMIN") {
@@ -64,7 +59,7 @@ export function UserManagement({ searchQuery }: any) {
       return
     }
 
-    if (isUnitScopedAdmin(user) && !activeUnitId) {
+    if (isUnitScopedAdmin(currentUser) && !activeUnitId) {
       setIsLoadingUsers(false)
       return
     }
@@ -74,29 +69,16 @@ export function UserManagement({ searchQuery }: any) {
       setLoadError(null)
 
       const response = await GetUsersService.getUsers(
-        isUnitScopedAdmin(user) ? activeUnitId ?? undefined : undefined,
+        isUnitScopedAdmin(currentUser) ? activeUnitId ?? undefined : undefined,
       )
       setUsers(response.map(mapToDashboardUser))
-
-      const response = await GetUsersService.getUsers()
-      setUsers(
-        response.map((user) => ({
-          ...mapToDashboardUser(user),
-          registrationDate: user.createdAt,
-          verified: user.isActive,
-        })),
-      )
-
     } catch (error) {
       console.error("Falha ao carregar usuários:", error)
       setLoadError("Não foi possível carregar os usuários.")
     } finally {
       setIsLoadingUsers(false)
     }
-
-  }, [accessToken, user, activeUnitId])
-
-  }, [accessToken, currentUser])
+  }, [accessToken, currentUser, activeUnitId])
 
 
   useEffect(() => {
@@ -293,7 +275,7 @@ export function UserManagement({ searchQuery }: any) {
                   <div>
                     <div className="flex items-center space-x-2 mb-1">
                       <h3 className="text-lg font-semibold text-foreground">{user.name}</h3>
-                      {user.verified && <Shield className="w-4 h-4 text-green-500" />}
+                      {user.status === "active" && <Shield className="w-4 h-4 text-green-500" />}
                     </div>
                     <p className="text-sm text-muted-foreground mb-1">{user.email}</p>
                     <div className="flex items-center space-x-2">
@@ -354,7 +336,7 @@ export function UserManagement({ searchQuery }: any) {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Cadastro</p>
-                  <p className="text-sm font-medium">{new Date(user.registrationDate).toLocaleDateString("pt-BR")}</p>
+                  <p className="text-sm font-medium">{new Date(user.createdAt).toLocaleDateString("pt-BR")}</p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Último acesso</p>
@@ -430,36 +412,4 @@ export function UserManagement({ searchQuery }: any) {
     </div>
   )
 }
-
-
-function mapToDashboardUser(user: ListedUserModel): DashboardUser {
-  return {
-    id: user.id,
-    name: `${user.firstName} ${user.lastName}`.trim(),
-    email: user.email,
-    phone: user.phone ?? "-",
-    role: mapRole(user.role),
-    status: user.isActive ? "active" : "inactive",
-    lastLogin: null,
-    registrationDate: user.createdAt,
-    verified: user.isActive,
-  }
-}
-
-function mapRole(role: ListedUserModel["role"]): DashboardUser["role"] {
-  switch (role) {
-    case "DOCTOR":
-      return "doctor"
-    case "PATIENT":
-      return "patient"
-    case "NURSE":
-      return "nurse"
-    case "ADMIN":
-      return "admin"
-    case "CAREGIVER":
-    default:
-      return "caregiver"
-  }
-}
-=======
 
