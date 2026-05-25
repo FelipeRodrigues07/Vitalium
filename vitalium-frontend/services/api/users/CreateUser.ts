@@ -5,7 +5,7 @@ export interface CreateUserPayload {
     lastName: string;
     email: string;
     phone: string;
-    role: 'DOCTOR' | 'PATIENT' | 'NURSE' | 'SECRETARY' | 'ADMIN';
+    role: 'DOCTOR' | 'PATIENT' | 'NURSE' | 'CAREGIVER' | 'ADMIN';
     password: string;
     isActive: boolean;
 }

@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
+import { AdminRole } from '../../../../shared/enums/admin-role.enum';
 import type { Role } from '../../../../shared/enums';
 
 export class AuthUserDTO {
@@ -25,6 +26,30 @@ export class AuthUserDTO {
   })
   @Expose()
   role: Role;
+
+  @ApiProperty({
+    required: false,
+    description: 'ID do perfil admin (quando role é ADMIN)',
+  })
+  @Expose()
+  adminId?: string;
+
+  @ApiProperty({
+    required: false,
+    enum: AdminRole,
+    description: 'Subtipo do admin: SUPER_ADMIN, HOSPITAL_ADMIN ou CLINIC_ADMIN',
+  })
+  @Expose()
+  adminRole?: AdminRole;
+
+  @ApiProperty({
+    required: false,
+    type: [String],
+    description:
+      'Unidades do admin. Vazio para SUPER_ADMIN (acesso global). Preenchido para admin de hospital/clínica.',
+  })
+  @Expose()
+  unitIds?: string[];
 }
 
 export class AuthResponseDTO {

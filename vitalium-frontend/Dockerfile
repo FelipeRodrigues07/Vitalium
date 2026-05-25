@@ -4,7 +4,7 @@
 FROM node:22-slim AS deps
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
-RUN corepack enable pnpm && pnpm install --no-frozen-lockfile
+RUN corepack enable pnpm && pnpm install --no-frozen-lockfile --ignore-scripts
 
 # Stage 2: Build
 FROM node:22-slim AS builder

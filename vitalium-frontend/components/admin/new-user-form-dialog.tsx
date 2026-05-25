@@ -4,11 +4,10 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectTrigger,
@@ -19,6 +18,22 @@ import {
 
 import { CreateUserService, CreateUserPayload } from '@/services/api/users/CreateUser';
 import { CreateDoctorService, CreateDoctorPayload } from '@/services/api/doctors/CreateDoctor';
+import { CreateDoctorUnitService } from '@/services/api/doctor-units/CreateDoctorUnit';
+import { CreatePatientService } from '@/services/api/patients/CreatePatient';
+import { GetSpecializationsService } from '@/services/api/specializations/GetSpecializations';
+import { CreateDoctorSpecializationService } from '@/services/api/doctor-specializations/CreateDoctorSpecialization';
+import { useSession } from '@/services/auth/use-session';
+
+function normalizePhone(phone: string): string {
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length === 11) {
+    return digits;
+  }
+  if (digits.length === 13 && digits.startsWith('55')) {
+    return digits.slice(2);
+  }
+  return digits;
+}
 
 
 interface FormData {
@@ -27,11 +42,13 @@ interface FormData {
   phone: string;
   email: string;
   password: string;
-  role: 'DOCTOR' | 'PATIENT' | 'NURSE' | 'SECRETARY' | 'ADMIN' | '';
-  specialty: string;
+  role: 'DOCTOR' | 'PATIENT' | 'NURSE' | 'CAREGIVER' | 'ADMIN' | '';
+  cpf: string;
+  birthDate: string;
+  gender: 'MALE' | 'FEMALE' | 'OTHER';
+  specializationId: string;
   crm: string;
   consultationPrice: number;
-  bio: string;
 }
 
 const initialFormData: FormData = {
@@ -41,10 +58,12 @@ const initialFormData: FormData = {
   email: '',
   password: '',
   role: '',
-  specialty: '',
+  specializationId: '',
   crm: '',
   consultationPrice: 0,
-  bio: '',
+  cpf: '',
+  birthDate: '',
+  gender: 'MALE',
 };
 
 interface NewUserFormProps {
@@ -56,8 +75,14 @@ interface NewUserFormProps {
 export function NewUserForm({ onClose, onUserCreated }: NewUserFormProps) {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [specializations, setSpecializations] = useState<
+    { id: string; name: string }[]
+  >([]);
+  const { activeUnitId } = useSession();
 
   const isDoctor = formData.role === 'DOCTOR';
+  const isPatient = formData.role === 'PATIENT';
+  const linkUnitId = activeUnitId ?? undefined;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value, type } = e.target;
@@ -66,8 +91,27 @@ export function NewUserForm({ onClose, onUserCreated }: NewUserFormProps) {
     setFormData(prev => ({ ...prev, [id]: newValue }));
   };
 
+  useEffect(() => {
+    if (!isDoctor) {
+      return;
+    }
+
+    GetSpecializationsService.getSpecializations()
+      .then((items) => {
+        setSpecializations(
+          items
+            .filter((item) => item.isActive)
+            .map((item) => ({
+              id: item.id,
+              name: item.name,
+            })),
+        );
+      })
+      .catch((error) => console.error('Falha ao carregar especialidades:', error));
+  }, [isDoctor]);
+
   const handleRoleChange = (value: string) => {
-    const validRoles = ['DOCTOR', 'PATIENT', 'NURSE', 'SECRETARY', 'ADMIN', ''];
+    const validRoles = ['DOCTOR', 'PATIENT', 'NURSE', 'CAREGIVER', 'ADMIN', ''];
     const newRole = validRoles.includes(value as FormData['role']) ? value as FormData['role'] : '';
 
     setFormData(prev => ({ ...prev, role: newRole }));
@@ -78,27 +122,93 @@ export function NewUserForm({ onClose, onUserCreated }: NewUserFormProps) {
     setIsSubmitting(true);
 
     try {
+      const phone = normalizePhone(formData.phone);
+      if (phone.length !== 11) {
+        alert('Telefone deve ter 11 dígitos (ex.: 62999999999).');
+        return;
+      }
+
+      if (isDoctor) {
+        if (!formData.crm.trim()) {
+          alert('Informe o CRM.');
+          return;
+        }
+        if (linkUnitId && formData.consultationPrice <= 0) {
+          alert('Informe o preço da consulta (maior que zero) para vincular à unidade.');
+          return;
+        }
+      }
+
+      if (isPatient) {
+        const cpfDigits = formData.cpf.replace(/\D/g, '');
+        if (cpfDigits.length !== 11) {
+          alert('CPF deve conter exatamente 11 dígitos.');
+          return;
+        }
+        if (!formData.birthDate) {
+          alert('Informe a data de nascimento.');
+          return;
+        }
+      }
+
       const userPayload: CreateUserPayload = {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phone: formData.phone,
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        email: formData.email.trim(),
+        phone,
         role: formData.role as CreateUserPayload['role'],
         password: formData.password,
         isActive: true,
       };
 
       const createdUser = await CreateUserService.createUser(userPayload);
+
       if (isDoctor) {
-        const doctorPayload: CreateDoctorPayload = {
+        const doctor = await CreateDoctorService.createDoctor({
           userId: createdUser.id,
-          crm: formData.crm,
+          crm: formData.crm.trim(),
           crmState: true,
           isActive: true,
-        };
+        } satisfies CreateDoctorPayload);
 
-        await CreateDoctorService.createDoctor(doctorPayload);
-        alert(`Médico ${createdUser.firstName} criado com sucesso!`);
+        if (formData.specializationId) {
+          await CreateDoctorSpecializationService.create({
+            doctorId: doctor.id,
+            specializationId: formData.specializationId,
+          });
+        }
+
+        if (linkUnitId) {
+          await CreateDoctorUnitService.createDoctorUnit({
+            doctorId: doctor.id,
+            unitId: linkUnitId,
+            consultationPrice: formData.consultationPrice,
+            isPrimary: true,
+            isActive: true,
+          });
+        }
+
+        alert(
+          linkUnitId
+            ? `Médico ${createdUser.firstName} criado e vinculado à unidade ativa.`
+            : `Médico ${createdUser.firstName} criado. Vincule-o a uma unidade para aparecer na listagem.`,
+        );
+      } else if (isPatient) {
+        const cpfDigits = formData.cpf.replace(/\D/g, '');
+
+        await CreatePatientService.createPatient({
+          userId: createdUser.id,
+          cpf: cpfDigits,
+          birthDate: formData.birthDate,
+          gender: formData.gender,
+          unitId: linkUnitId,
+          isPrimary: true,
+        });
+        alert(
+          linkUnitId
+            ? `Paciente ${createdUser.firstName} criado e vinculado à unidade ativa.`
+            : `Paciente ${createdUser.firstName} criado. Vincule-o a uma unidade para aparecer na listagem.`,
+        );
       } else {
         alert(`Usuário ${createdUser.firstName} (${createdUser.role}) criado com sucesso!`);
       }
@@ -116,12 +226,15 @@ export function NewUserForm({ onClose, onUserCreated }: NewUserFormProps) {
     }
   };
 
-
   return (
     <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
       <DialogHeader>
         <DialogTitle>Adicionar Novo Usuário</DialogTitle>
-        <DialogDescription>Crie uma nova conta de usuário na plataforma</DialogDescription>
+        <DialogDescription>
+          {linkUnitId
+            ? 'O perfil será vinculado à unidade selecionada no topo da tela.'
+            : 'Crie uma nova conta. Médicos e pacientes precisam de vínculo com unidade para aparecer na lista.'}
+        </DialogDescription>
       </DialogHeader>
 
       <form onSubmit={handleCreateUser}>
@@ -147,13 +260,22 @@ export function NewUserForm({ onClose, onUserCreated }: NewUserFormProps) {
               value={formData.password}
               onChange={handleChange}
               required
+              minLength={8}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="phone">Telefone</Label>
-              <Input id="phone" placeholder="Digite o telefone" value={formData.phone} onChange={handleChange} required />
+              <Input
+                id="phone"
+                placeholder="62999999999 (11 dígitos)"
+                value={formData.phone}
+                onChange={handleChange}
+                required
+                minLength={11}
+                maxLength={13}
+              />
             </div>
 
             <div className="space-y-2">
@@ -172,11 +294,62 @@ export function NewUserForm({ onClose, onUserCreated }: NewUserFormProps) {
                 <SelectItem value="DOCTOR">Médico</SelectItem>
                 <SelectItem value="PATIENT">Paciente</SelectItem>
                 <SelectItem value="NURSE">Enfermeira</SelectItem>
-                <SelectItem value="SECRETARY">Secretária</SelectItem>
+                <SelectItem value="CAREGIVER">Cuidador</SelectItem>
                 <SelectItem value="ADMIN">Administrador</SelectItem>
               </SelectContent>
             </Select>
           </div>
+
+          {isPatient && (
+            <div className="space-y-4 border-t pt-4">
+              <h4 className="text-sm font-semibold">Dados do paciente</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="cpf">CPF</Label>
+                  <Input
+                    id="cpf"
+                    placeholder="Somente 11 dígitos"
+                    value={formData.cpf}
+                    onChange={handleChange}
+                    required={isPatient}
+                    minLength={11}
+                    maxLength={14}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="birthDate">Data de nascimento</Label>
+                  <Input
+                    id="birthDate"
+                    type="date"
+                    value={formData.birthDate}
+                    onChange={handleChange}
+                    required={isPatient}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="gender">Gênero</Label>
+                <Select
+                  value={formData.gender}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      gender: value as FormData['gender'],
+                    }))
+                  }
+                >
+                  <SelectTrigger id="gender">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="MALE">Masculino</SelectItem>
+                    <SelectItem value="FEMALE">Feminino</SelectItem>
+                    <SelectItem value="OTHER">Outro</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
 
           {isDoctor && (
             <div className="space-y-4 border-t pt-4">
@@ -193,30 +366,41 @@ export function NewUserForm({ onClose, onUserCreated }: NewUserFormProps) {
                   <Input
                     id="consultationPrice"
                     type="number"
+                    min={1}
+                    step="0.01"
                     placeholder="Ex: 150"
-                    value={formData.consultationPrice}
+                    value={formData.consultationPrice || ''}
                     onChange={handleChange}
-                    required={isDoctor}
+                    required={isDoctor && !!linkUnitId}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="specialty">Especialidade</Label>
-                  <Input id="specialty" placeholder="Ex: Cardiologia" value={formData.specialty} onChange={handleChange} required={isDoctor} />
+                  <Label htmlFor="specializationId">Especialidade</Label>
+                  <Select
+                    value={formData.specializationId}
+                    onValueChange={(value) =>
+                      setFormData((prev) => ({ ...prev, specializationId: value }))
+                    }
+                  >
+                    <SelectTrigger id="specializationId">
+                      <SelectValue placeholder="Selecione (opcional)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {specializations.map((spec) => (
+                        <SelectItem key={spec.id} value={spec.id}>
+                          {spec.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="bio">Bio</Label>
-                <Textarea
-                  id="bio"
-                  placeholder="Descreva sua experiência, qualificações e áreas de foco."
-                  rows={4}
-                  value={formData.bio}
-                  onChange={handleChange}
-                  required={isDoctor}
-                />
-              </div>
+              {linkUnitId && (
+                <p className="text-xs text-muted-foreground">
+                  Preço da consulta é salvo no vínculo com a unidade ativa.
+                </p>
+              )}
             </div>
           )}
 

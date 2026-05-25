@@ -9,6 +9,9 @@ import { Button } from "@/components/ui/button"
 import { Bell, Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { useSession } from "@/services/auth/use-session"
+import { UnitContextBar } from "@/components/admin/unit-context-bar"
+import { getPostLoginPath } from "@/lib/auth-routes"
+import { needsUnitSelection, isUnitScopedAdmin } from "@/lib/admin-auth"
 
 interface AppLayoutProps {
   children: React.ReactNode
@@ -36,7 +39,7 @@ function getRoleHomePath(role?: string | null) {
 export function AppLayout({ children, userRole, showSidebar = true }: AppLayoutProps) {
   const router = useRouter()
   const pathname = usePathname()
-  const { isReady, accessToken, user } = useSession()
+  const { isReady, accessToken, user, activeUnitId } = useSession()
   const normalizedUserRole = normalizeRole(user?.role)
   const normalizedRequiredRole = normalizeRole(userRole)
 
@@ -51,9 +54,29 @@ export function AppLayout({ children, userRole, showSidebar = true }: AppLayoutP
     }
 
     if (normalizedRequiredRole && normalizedUserRole !== normalizedRequiredRole) {
-      router.replace(getRoleHomePath(user.role))
+      router.replace(getPostLoginPath(user, activeUnitId))
+      return
     }
-  }, [accessToken, isReady, normalizedRequiredRole, normalizedUserRole, pathname, router, showSidebar, user])
+
+    if (
+      normalizedRequiredRole === "admin" &&
+      isUnitScopedAdmin(user) &&
+      needsUnitSelection(user, activeUnitId) &&
+      pathname !== "/work/select-unit"
+    ) {
+      router.replace("/work/select-unit")
+    }
+  }, [
+    accessToken,
+    activeUnitId,
+    isReady,
+    normalizedRequiredRole,
+    normalizedUserRole,
+    pathname,
+    router,
+    showSidebar,
+    user,
+  ])
 
   if (!showSidebar) {
     return <>{children}</>
@@ -89,7 +112,8 @@ export function AppLayout({ children, userRole, showSidebar = true }: AppLayoutP
               </div>
             </div>
 
-            <div className="flex items-center gap-1 sm:gap-2">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <UnitContextBar />
               <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10">
                 <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
                 <span className="sr-only">Notificações</span>

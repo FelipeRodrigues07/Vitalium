@@ -6,6 +6,10 @@ import {
   ApiBearerAuth,
   ApiBody,
 } from '@nestjs/swagger';
+import {
+  authJwtProfileProperties,
+  authUserResponseProperties,
+} from '../schemas/auth-user.schema';
 
 export const ApiAuthOperations = {
   login: () =>
@@ -14,7 +18,7 @@ export const ApiAuthOperations = {
       ApiOperation({
         summary: 'Login',
         description:
-          'Autentica o usuário e retorna access token e refresh token',
+          'Autentica o usuário e retorna access token e refresh token. Para ADMIN, inclui adminRole e unitIds no token e no objeto user.',
       }),
       ApiBody({
         description: 'Credenciais do usuário',
@@ -45,16 +49,7 @@ export const ApiAuthOperations = {
             refreshToken: { type: 'string', example: 'eyJhbGci...' },
             user: {
               type: 'object',
-              properties: {
-                id: { type: 'string' },
-                email: { type: 'string' },
-                firstName: { type: 'string' },
-                lastName: { type: 'string' },
-                role: {
-                  type: 'string',
-                  enum: ['PATIENT', 'DOCTOR', 'NURSE', 'CAREGIVER', 'ADMIN'],
-                },
-              },
+              properties: authUserResponseProperties,
             },
           },
         },
@@ -114,20 +109,15 @@ export const ApiAuthOperations = {
       ApiBearerAuth('JWT-auth'),
       ApiOperation({
         summary: 'Perfil do usuário autenticado',
-        description: 'Retorna os dados do usuário extraídos do token JWT',
+        description:
+          'Retorna o payload do JWT (inclui adminRole e unitIds quando role é ADMIN)',
       }),
       ApiResponse({
         status: 200,
         description: 'Dados do usuário autenticado',
         schema: {
           type: 'object',
-          properties: {
-            sub: { type: 'string' },
-            email: { type: 'string' },
-            firstName: { type: 'string' },
-            lastName: { type: 'string' },
-            role: { type: 'string' },
-          },
+          properties: authJwtProfileProperties,
         },
       }),
       ApiResponse({ status: 401, description: 'Não autorizado' }),

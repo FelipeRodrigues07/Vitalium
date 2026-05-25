@@ -8,6 +8,8 @@ import { PatientAlreadyExistsException } from '../../../shared/execeptions/patie
 import { UserNotFoundException } from '../../../shared/execeptions/user/user-not-found.exception';
 import type { IPatientRepository } from '../../../domain/interfaces/repositories/patient/patient.repository.interface';
 import type { IUserRepository } from '../../../domain/interfaces/repositories/user/user.repository.interface';
+import type { IUnitRepository } from '../../../domain/interfaces/repositories/units/unit.repository.interface';
+import { UnitInvalidException } from '../../../shared/execeptions/units/unit-invalid.exception';
 import type { CreatePatientDTO } from '../../../presentation/dto/patientDTO/create-patient.dto';
 import type { Patient } from '../../../infrastructure/database/models/patient.models';
 import { Role } from '../../../shared/enums/role.enum';
@@ -19,6 +21,8 @@ export class CreatePatientUseCase {
     private readonly patientRepository: IPatientRepository,
     @Inject('IUserRepository')
     private readonly userRepository: IUserRepository,
+    @Inject('IUnitRepository')
+    private readonly unitRepository: IUnitRepository,
   ) {}
 
   async execute(createPatientDTO: CreatePatientDTO): Promise<Patient> {
@@ -74,6 +78,13 @@ export class CreatePatientUseCase {
         throw new PatientAlreadyExistsException(
           `userId ${createPatientDTO.userId}`,
         );
+      }
+
+      if (createPatientDTO.unitId) {
+        const unit = await this.unitRepository.findById(createPatientDTO.unitId);
+        if (!unit) {
+          throw new UnitInvalidException(createPatientDTO.unitId);
+        }
       }
 
       return await this.patientRepository.create(createPatientDTO);

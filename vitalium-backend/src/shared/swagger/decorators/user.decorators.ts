@@ -123,9 +123,9 @@ export const ApiUserOperations = {
     applyDecorators(
       ApiTags('users'),
       ApiOperation({
-        summary: 'Listar todos os usuários',
+        summary: 'Listar usuários',
         description:
-          'Retorna uma lista com todos os usuários cadastrados no sistema',
+          'SUPER_ADMIN: todos os usuários. HOSPITAL_ADMIN/CLINIC_ADMIN: apenas usuários vinculados às unidades do admin (médicos, pacientes, enfermeiras etc.).',
       }),
       ApiBearerAuth('JWT-auth'),
       ApiResponse({

@@ -8,8 +8,10 @@ export interface IPatientRepository {
   findByCpf(cpf: string): Promise<Patient | null>;
   findByUserId(userId: string): Promise<Patient | null>;
   findAll(): Promise<Patient[]>;
+  findAllByDoctorId(doctorId: string): Promise<Patient[]>;
   findFirstByPatientId(patientId: string): Promise<Patient | null>;
   findByWhatsappPhone(phone: string): Promise<Patient | null>;
   update(id: string, updatePatientDTO: UpdatePatientDTO): Promise<Patient>;
   delete(id: string): Promise<void>;
+  hasActiveUnitLink(patientId: string, unitId: string): Promise<boolean>;
 }

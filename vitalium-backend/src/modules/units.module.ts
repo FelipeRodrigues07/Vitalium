@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AuthModule } from './auth.module';
 import { PrismaModule } from '../infrastructure/repositories/database/prisma.module';
 import { CreateUnitUseCase } from '../application/use-cases/unit/create-unit.use-case';
 import { SearchUnitUseCase } from '../application/use-cases/unit/search-unit.use-case';
@@ -8,7 +9,7 @@ import { UnitRepository } from '../infrastructure/repositories/units/unit.reposi
 import { UnitController } from '../presentation/controllers/unit/unit.controller';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, AuthModule],
   controllers: [UnitController],
   providers: [
     CreateUnitUseCase,

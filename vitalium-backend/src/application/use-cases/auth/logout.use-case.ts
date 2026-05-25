@@ -9,6 +9,6 @@ export class LogoutUseCase {
   ) {}
 
   async execute(userId: string): Promise<void> {
-    await this.authRepository.updateRefreshToken(userId, null, null);
+    await this.authRepository.clearRefreshToken(userId);
   }
 }

@@ -9,31 +9,33 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import {
   Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { User, MoreVertical, UserCheck, UserX, Shield, Edit, Trash2, Plus, Filter, Download, Mail } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { User, MoreVertical, UserCheck, UserX, Shield, Edit, Trash2, Plus, Filter, Download, Mail, Stethoscope } from "lucide-react"
+import { AssignPatientDoctorDialog, type AssignPatientDoctorTarget } from "./assign-patient-doctor-dialog"
 import { NewUserForm } from "./new-user-form-dialog"
-import { GetUsersService, type ListedUserModel } from "@/services/api/users/GetUsers"
+import { EditUserForm, type EditableUser } from "./edit-user-form-dialog"
+import { GetUsersService } from "@/services/api/users/GetUsers"
 import { UpdateUserService } from "@/services/api/users/UpdateUser"
 import { DeleteUserService } from "@/services/api/users/DeleteUser"
 import { useSession } from "@/services/auth/use-session"
 
-interface DashboardUser {
-  id: string
-  name: string
-  email: string
-  phone: string
-  role: "doctor" | "patient" | "nurse" | "secretary" | "admin" | "caregiver"
-  status: "active" | "inactive"
-  lastLogin: string | null
-  registrationDate: string
-  verified: boolean
+import { isUnitScopedAdmin } from "@/lib/admin-auth"
+
+import { mapToDashboardUser, type DashboardUser, type DashboardUserStatus } from "@/lib/users-mapper"
+
+
+interface DashboardUserExtended extends DashboardUser {
   specialty?: string
   crm?: string
   patientsCount?: number
@@ -42,16 +44,24 @@ interface DashboardUser {
 export function UserManagement({ searchQuery }: any) {
   const [filterRole, setFilterRole] = useState("all")
   const [filterStatus, setFilterStatus] = useState("all")
-  const [selectedUser, setSelectedUser] = useState<any>(null)
   const [open, setOpen] = useState(false)
-  const [users, setUsers] = useState<DashboardUser[]>([])
+  const [editingUser, setEditingUser] = useState<EditableUser | null>(null)
+  const [deletingUser, setDeletingUser] = useState<DashboardUserExtended | null>(null)
+  const [assigningPatient, setAssigningPatient] = useState<AssignPatientDoctorTarget | null>(null)
+  const [users, setUsers] = useState<DashboardUserExtended[]>([])
   const [isLoadingUsers, setIsLoadingUsers] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [isSubmittingAction, setIsSubmittingAction] = useState(false)
-  const { isReady, accessToken, user } = useSession()
+
+  const { isReady, accessToken, user: currentUser, activeUnitId } = useSession()
 
   const fetchUsers = useCallback(async () => {
-    if (!accessToken || user?.role !== "ADMIN") {
+    if (!accessToken || currentUser?.role !== "ADMIN") {
+      setIsLoadingUsers(false)
+      return
+    }
+
+    if (isUnitScopedAdmin(currentUser) && !activeUnitId) {
       setIsLoadingUsers(false)
       return
     }
@@ -59,7 +69,10 @@ export function UserManagement({ searchQuery }: any) {
     try {
       setIsLoadingUsers(true)
       setLoadError(null)
-      const response = await GetUsersService.getUsers()
+
+      const response = await GetUsersService.getUsers(
+        isUnitScopedAdmin(currentUser) ? activeUnitId ?? undefined : undefined,
+      )
       setUsers(response.map(mapToDashboardUser))
     } catch (error) {
       console.error("Falha ao carregar usuários:", error)
@@ -67,7 +80,8 @@ export function UserManagement({ searchQuery }: any) {
     } finally {
       setIsLoadingUsers(false)
     }
-  }, [accessToken, user])
+  }, [accessToken, currentUser, activeUnitId])
+
 
   useEffect(() => {
     if (!isReady) {
@@ -102,27 +116,21 @@ export function UserManagement({ searchQuery }: any) {
         return (
           <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">Enfermeira</Badge>
         )
-      case "secretary":
+      case "caregiver":
         return (
-          <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">Secretária</Badge>
+          <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">Cuidador</Badge>
         )
       default:
         return <Badge variant="secondary">{role}</Badge>
     }
   }
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: DashboardUserStatus) => {
     switch (status) {
       case "active":
         return <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Ativo</Badge>
-      case "pending":
-        return <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">Pendente</Badge>
-      case "suspended":
-        return <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">Suspenso</Badge>
       case "inactive":
         return <Badge variant="outline">Inativo</Badge>
-      default:
-        return <Badge variant="secondary">{status}</Badge>
     }
   }
 
@@ -152,14 +160,29 @@ export function UserManagement({ searchQuery }: any) {
     }
   }
 
-  const handleDeleteUser = async (userId: string) => {
+  const toEditableUser = (dashboardUser: DashboardUserExtended): EditableUser => ({
+    id: dashboardUser.id,
+    firstName: dashboardUser.firstName,
+    lastName: dashboardUser.lastName,
+    email: dashboardUser.email,
+    phone: dashboardUser.phone,
+    role: dashboardUser.role,
+    status: dashboardUser.status,
+  })
+
+  const handleConfirmDelete = async () => {
+    if (!deletingUser) {
+      return
+    }
+
     try {
       setIsSubmittingAction(true)
-      await DeleteUserService.deleteUser(userId)
+      await DeleteUserService.deleteUser(deletingUser.id)
+      setDeletingUser(null)
       await fetchUsers()
     } catch (error) {
       console.error("Falha ao excluir usuário:", error)
-      setLoadError("Não foi possível excluir o usuário.")
+      setLoadError("Não foi possível desativar o usuário.")
     } finally {
       setIsSubmittingAction(false)
     }
@@ -173,7 +196,9 @@ export function UserManagement({ searchQuery }: any) {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Gerenciamento de Usuários</CardTitle>
-              <CardDescription>Gerencie todos os usuários da plataforma</CardDescription>
+              <CardDescription>
+                Usuários vinculados à unidade ativa (médicos, pacientes, enfermeiras e admins da unidade)
+              </CardDescription>
             </div>
             <div className="flex items-center space-x-2">
               <Button variant="outline" size="sm">
@@ -204,7 +229,7 @@ export function UserManagement({ searchQuery }: any) {
                 <SelectItem value="doctor">Médicos</SelectItem>
                 <SelectItem value="patient">Pacientes</SelectItem>
                 <SelectItem value="nurse">Enfermeiras</SelectItem>
-                <SelectItem value="secretary">Secretárias</SelectItem>
+                <SelectItem value="caregiver">Cuidadores</SelectItem>
                 <SelectItem value="admin">Administradores</SelectItem>
               </SelectContent>
             </Select>
@@ -216,8 +241,6 @@ export function UserManagement({ searchQuery }: any) {
               <SelectContent>
                 <SelectItem value="all">Todos os status</SelectItem>
                 <SelectItem value="active">Ativos</SelectItem>
-                <SelectItem value="pending">Pendentes</SelectItem>
-                <SelectItem value="suspended">Suspensos</SelectItem>
                 <SelectItem value="inactive">Inativos</SelectItem>
               </SelectContent>
             </Select>
@@ -256,7 +279,7 @@ export function UserManagement({ searchQuery }: any) {
                   <div>
                     <div className="flex items-center space-x-2 mb-1">
                       <h3 className="text-lg font-semibold text-foreground">{user.name}</h3>
-                      {user.verified && <Shield className="w-4 h-4 text-green-500" />}
+                      {user.status === "active" && <Shield className="w-4 h-4 text-green-500" />}
                     </div>
                     <p className="text-sm text-muted-foreground mb-1">{user.email}</p>
                     <div className="flex items-center space-x-2">
@@ -267,12 +290,6 @@ export function UserManagement({ searchQuery }: any) {
                 </div>
 
                 <div className="flex items-center space-x-2">
-                  {user.status === "pending" && (
-                    <Button size="sm" disabled={isSubmittingAction} onClick={() => handleApproveUser(user.id)}>
-                      <UserCheck className="w-4 h-4 mr-2" />
-                      Aprovar
-                    </Button>
-                  )}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="sm">
@@ -280,14 +297,24 @@ export function UserManagement({ searchQuery }: any) {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
-                      <DropdownMenuItem onClick={() => setSelectedUser(user)}>
-                        <User className="w-4 h-4 mr-2" />
-                        Ver Detalhes
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setEditingUser(toEditableUser(user))}>
                         <Edit className="w-4 h-4 mr-2" />
                         Editar
                       </DropdownMenuItem>
+                      {user.role === "patient" && (
+                        <DropdownMenuItem
+                          onClick={() =>
+                            setAssigningPatient({
+                              userId: user.id,
+                              name: user.name,
+                              email: user.email,
+                            })
+                          }
+                        >
+                          <Stethoscope className="w-4 h-4 mr-2" />
+                          Médico responsável
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem>
                         <Mail className="w-4 h-4 mr-2" />
                         Enviar Email
@@ -308,8 +335,8 @@ export function UserManagement({ searchQuery }: any) {
                         </DropdownMenuItem>
                       )}
                       <DropdownMenuItem
-                        disabled={isSubmittingAction}
-                        onClick={() => handleDeleteUser(user.id)}
+                        disabled={isSubmittingAction || user.id === currentUser?.id}
+                        onClick={() => setDeletingUser(user)}
                         className="text-red-600"
                       >
                         <Trash2 className="w-4 h-4 mr-2" />
@@ -327,7 +354,7 @@ export function UserManagement({ searchQuery }: any) {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Cadastro</p>
-                  <p className="text-sm font-medium">{new Date(user.registrationDate).toLocaleDateString("pt-BR")}</p>
+                  <p className="text-sm font-medium">{new Date(user.createdAt).toLocaleDateString("pt-BR")}</p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Último acesso</p>
@@ -347,6 +374,19 @@ export function UserManagement({ searchQuery }: any) {
                   </div>
                 </div>
               )}
+
+              {user.role === "patient" && (
+                <div className="mt-3 pt-3 border-t border-border">
+                  <p className="text-sm">
+                    <span className="text-muted-foreground">Médico responsável: </span>
+                    <span className="font-medium">
+                      {user.responsibleDoctorName
+                        ? `${user.responsibleDoctorName}${user.responsibleDoctorCrm ? ` • CRM ${user.responsibleDoctorCrm}` : ""}`
+                        : "Nenhum"}
+                    </span>
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}
@@ -361,38 +401,59 @@ export function UserManagement({ searchQuery }: any) {
           </CardContent>
         </Card>
       )}
+
+      <Dialog open={!!editingUser} onOpenChange={(isOpen) => !isOpen && setEditingUser(null)}>
+        {editingUser && (
+          <EditUserForm
+            user={editingUser}
+            onClose={() => setEditingUser(null)}
+            onUserUpdated={fetchUsers}
+          />
+        )}
+      </Dialog>
+
+      <Dialog
+        open={!!assigningPatient}
+        onOpenChange={(isOpen) => !isOpen && setAssigningPatient(null)}
+      >
+        {assigningPatient && (
+          <AssignPatientDoctorDialog
+            patient={assigningPatient}
+            onClose={() => setAssigningPatient(null)}
+            onAssigned={fetchUsers}
+          />
+        )}
+      </Dialog>
+
+      <AlertDialog open={!!deletingUser} onOpenChange={(isOpen) => !isOpen && setDeletingUser(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Desativar usuário?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deletingUser && (
+                <>
+                  O usuário <strong>{deletingUser.name}</strong> será desativado e não poderá mais acessar a
+                  plataforma. Esta ação pode ser revertida ativando o usuário novamente.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isSubmittingAction}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={isSubmittingAction}
+              onClick={(event) => {
+                event.preventDefault()
+                void handleConfirmDelete()
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isSubmittingAction ? "Desativando..." : "Desativar"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
 
-function mapToDashboardUser(user: ListedUserModel): DashboardUser {
-  return {
-    id: user.id,
-    name: `${user.firstName} ${user.lastName}`.trim(),
-    email: user.email,
-    phone: user.phone ?? "-",
-    role: mapRole(user.role),
-    status: user.isActive ? "active" : "inactive",
-    lastLogin: null,
-    registrationDate: user.createdAt,
-    verified: user.isActive,
-  }
-}
-
-function mapRole(role: ListedUserModel["role"]): DashboardUser["role"] {
-  switch (role) {
-    case "DOCTOR":
-      return "doctor"
-    case "PATIENT":
-      return "patient"
-    case "NURSE":
-      return "nurse"
-    case "SECRETARY":
-      return "secretary"
-    case "ADMIN":
-      return "admin"
-    case "CAREGIVER":
-    default:
-      return "caregiver"
-  }
-}

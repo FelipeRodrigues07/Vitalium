@@ -24,10 +24,14 @@ import { RolesGuard } from '../../../shared/guards/roles.guard';
 import { Roles } from '../../../shared/decorators/roles.decorator';
 import { Role } from '../../../shared/enums';
 import { ApiTags } from '@nestjs/swagger';
+import { SuperAdminGuard } from '../../../shared/guards/super-admin.guard';
+import { SuperAdminOnly } from '../../../shared/decorators/super-admin.decorator';
 
 @ApiTags('units')
 @Controller('units')
-@UseGuards(AuthGuard, RolesGuard)
+@UseGuards(AuthGuard, RolesGuard, SuperAdminGuard)
+@Roles(Role.ADMIN)
+@SuperAdminOnly()
 export class UnitController {
   constructor(
     private readonly createUnitUseCase: CreateUnitUseCase,
@@ -38,7 +42,6 @@ export class UnitController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @Roles(Role.ADMIN)
   @ApiUnitOperations.createUnit()
   async createUnit(
     @Body() createUnitDTO: CreateUnitDTO,
@@ -52,7 +55,6 @@ export class UnitController {
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  @Roles(Role.ADMIN)
   @ApiUnitOperations.findUnitById()
   async findUnitById(@Param('id') id: string): Promise<ResponseUnitDTO> {
     const unit = await this.searchUnitUseCase.execute(id);
@@ -64,7 +66,6 @@ export class UnitController {
 
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
-  @Roles(Role.ADMIN)
   @ApiUnitOperations.updateUnit()
   async updateUnit(
     @Param('id') id: string,
@@ -79,7 +80,6 @@ export class UnitController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Roles(Role.ADMIN)
   @ApiUnitOperations.deleteUnit()
   async deleteUnit(@Param('id') id: string): Promise<void> {
     await this.deleteUnitUseCase.execute(id);

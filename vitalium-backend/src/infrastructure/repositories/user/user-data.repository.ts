@@ -62,10 +62,81 @@ export class UserDataRepository implements IUserRepository {
       where: {
         isActive: true,
       },
+      include: this.patientDoctorInclude(),
       orderBy: { createdAt: 'desc' },
     });
 
-    return plainToInstance(User, users);
+    return users as unknown as User[];
+  }
+
+  async findAllByUnitIds(unitIds: string[]): Promise<User[]> {
+    const users = await this.prisma.user.findMany({
+      where: {
+        isActive: true,
+        OR: [
+          {
+            admin: {
+              units: {
+                some: { unitId: { in: unitIds }, isActive: true },
+              },
+            },
+          },
+          {
+            doctor: {
+              units: {
+                some: { unitId: { in: unitIds }, isActive: true },
+              },
+            },
+          },
+          {
+            patient: {
+              units: {
+                some: { unitId: { in: unitIds }, isActive: true },
+              },
+            },
+          },
+          {
+            nurse: {
+              units: {
+                some: { unitId: { in: unitIds }, isActive: true },
+              },
+            },
+          },
+        ],
+      },
+      include: this.patientDoctorInclude(unitIds),
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return users as unknown as User[];
+  }
+
+  private patientDoctorInclude(unitIds?: string[]) {
+    return {
+      patient: {
+        include: {
+          patientDoctors: {
+            where: { endDate: null },
+            include: {
+              doctor: {
+                include: {
+                  user: true,
+                  units: unitIds?.length
+                    ? {
+                        where: {
+                          unitId: { in: unitIds },
+                          isActive: true,
+                        },
+                      }
+                    : { where: { isActive: true } },
+                },
+              },
+            },
+            orderBy: { startDate: 'desc' as const },
+          },
+        },
+      },
+    };
   }
 
   async update(id: string, updateUserDTO: UpdateUserDTO): Promise<User> {

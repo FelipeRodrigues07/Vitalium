@@ -2,7 +2,9 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
+import { useAuth } from "@/providers/auth-provider"
+import { isSuperAdmin, isUnitScopedAdmin } from "@/lib/admin-auth"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -38,10 +40,18 @@ const navigation = [
     roles: ["doctor"],
   },
   {
+    name: "Plataforma",
+    href: "/work/admin/platform",
+    icon: Shield,
+    roles: ["admin"],
+    adminScope: "super",
+  },
+  {
     name: "Dashboard",
     href: "/work/admin/dashboard",
     icon: Stethoscope,
     roles: ["admin"],
+    adminScope: "unit",
   },
   {
     name: "Chat",
@@ -66,6 +76,7 @@ const navigation = [
     href: "/work/admin/users",
     icon: Users,
     roles: ["admin"],
+    adminScope: "unit",
   },
   {
     name: "Configurações",
@@ -82,10 +93,37 @@ interface SidebarProps {
 
 function SidebarContent({ userRole, className }: SidebarProps) {
   const pathname = usePathname()
+  const router = useRouter()
+  const { logout, user } = useAuth()
 
-  const filteredNavigation = navigation.filter(
-    (item) => item.public || (item.roles && userRole && item.roles.includes(userRole)),
-  )
+  const handleLogout = async () => {
+    await logout()
+    router.replace("/login")
+  }
+
+  const filteredNavigation = navigation.filter((item) => {
+    if (item.public) {
+      return true
+    }
+
+    if (!item.roles || !userRole || !item.roles.includes(userRole)) {
+      return false
+    }
+
+    if (userRole !== "admin" || !item.adminScope) {
+      return true
+    }
+
+    if (item.adminScope === "super") {
+      return isSuperAdmin(user)
+    }
+
+    if (item.adminScope === "unit") {
+      return isUnitScopedAdmin(user)
+    }
+
+    return true
+  })
 
   return (
     <div className={cn("flex h-full flex-col bg-sidebar", className)}>
@@ -131,11 +169,13 @@ function SidebarContent({ userRole, className }: SidebarProps) {
             <span className="truncate">Perfil</span>
           </Link>
         </Button>
-        <Button variant="ghost" className="w-full justify-start h-9 sm:h-10 px-2 sm:px-3" asChild>
-          <Link href="/login">
-            <LogOut className="h-4 w-4 mr-2 sm:mr-3 flex-shrink-0" />
-            <span className="truncate">Sair</span>
-          </Link>
+        <Button
+          variant="ghost"
+          className="w-full justify-start h-9 sm:h-10 px-2 sm:px-3"
+          onClick={() => void handleLogout()}
+        >
+          <LogOut className="h-4 w-4 mr-2 sm:mr-3 flex-shrink-0" />
+          <span className="truncate">Sair</span>
         </Button>
       </div>
     </div>

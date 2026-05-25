@@ -1,20 +1,9 @@
-import { api } from '@/services/api/api';
-import type { AuthUser } from '@/services/auth/session';
+import { authApi } from '@/services/api/auth/auth-api';
+import type { LoginPayload, LoginResponse } from '@/types/auth';
 
-export interface LoginPayload {
-  email: string;
-  password: string;
-}
+export type { LoginPayload, LoginResponse };
 
-export interface LoginResponse {
-  accessToken: string;
-  refreshToken: string;
-  user: AuthUser;
-}
-
+/** @deprecated Use authApi.login or useAuth().login */
 export const LoginService = {
-  login: async (payload: LoginPayload): Promise<LoginResponse> => {
-    const response = await api.post('/auth/login', payload);
-    return response.data;
-  },
+  login: authApi.login,
 };

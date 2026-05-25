@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+<<<<<<< HEAD
   Delete,
   Get,
   HttpCode,
@@ -12,10 +13,22 @@ import {
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { ApiTags } from '@nestjs/swagger';
+=======
+  HttpCode,
+  HttpStatus,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { plainToInstance } from 'class-transformer';
+import type { Request as ExpressRequest } from 'express';
+>>>>>>> 091e88224f787dc72cf54e381bffce0badde806a
 import { AuthGuard } from '../../../shared/guards/auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
 import { Roles } from '../../../shared/decorators/roles.decorator';
 import { Role } from '../../../shared/enums';
+<<<<<<< HEAD
 import { ApiPatientDoctorOperations } from '../../../shared/swagger/decorators/patient-doctor.decorators';
 import { PatientDoctorResponseDTO } from '../../dto/patientDoctorDTO/response/patient-doctor-response.dto';
 import { CreatePatientDoctorDTO } from '../../dto/patientDoctorDTO/create-patient-doctor.dto';
@@ -26,30 +39,55 @@ import {
   UpdatePatientDoctorUseCase,
   DeletePatientDoctorUseCase,
 } from '../../../application/use-cases/patient-doctor/patient-doctor.use-cases';
+=======
+import { CreatePatientDoctorUseCase } from '../../../application/use-cases/patient-doctor/create-patient-doctor.use-case';
+import { CreatePatientDoctorDTO } from '../../dto/patient-doctor/create-patient-doctor.dto';
+import { PatientDoctorResponseDTO } from '../../dto/patientDTO/response/patient-doctor-response.dto';
+import type { AuthJwtPayload } from '../../../shared/types/auth-jwt-payload.interface';
+
+interface RequestWithUser extends ExpressRequest {
+  user: AuthJwtPayload;
+}
+>>>>>>> 091e88224f787dc72cf54e381bffce0badde806a
 
 @ApiTags('patient-doctors')
 @Controller('patient-doctors')
 @UseGuards(AuthGuard, RolesGuard)
 export class PatientDoctorController {
   constructor(
+<<<<<<< HEAD
     private readonly createUseCase: CreatePatientDoctorUseCase,
     private readonly searchUseCase: SearchPatientDoctorUseCase,
     private readonly updateUseCase: UpdatePatientDoctorUseCase,
     private readonly deleteUseCase: DeletePatientDoctorUseCase,
+=======
+    private readonly createPatientDoctorUseCase: CreatePatientDoctorUseCase,
+>>>>>>> 091e88224f787dc72cf54e381bffce0badde806a
   ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+<<<<<<< HEAD
   @ApiPatientDoctorOperations.create()
   @Roles(Role.ADMIN)
   async create(
     @Body() dto: CreatePatientDoctorDTO,
   ): Promise<PatientDoctorResponseDTO> {
     const link = await this.createUseCase.execute(dto);
+=======
+  @Roles(Role.ADMIN)
+  async create(
+    @Body() dto: CreatePatientDoctorDTO,
+    @Request() req: RequestWithUser,
+  ): Promise<PatientDoctorResponseDTO> {
+    const link = await this.createPatientDoctorUseCase.execute(dto, req.user);
+
+>>>>>>> 091e88224f787dc72cf54e381bffce0badde806a
     return plainToInstance(PatientDoctorResponseDTO, link, {
       excludeExtraneousValues: true,
     });
   }
+<<<<<<< HEAD
 
   @Get('patient/:patientId')
   @HttpCode(HttpStatus.OK)
@@ -109,4 +147,6 @@ export class PatientDoctorController {
   async remove(@Param('id') id: string): Promise<void> {
     await this.deleteUseCase.execute(id);
   }
+=======
+>>>>>>> 091e88224f787dc72cf54e381bffce0badde806a
 }

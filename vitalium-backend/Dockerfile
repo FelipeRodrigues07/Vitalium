@@ -23,7 +23,7 @@ RUN npx prisma generate
 RUN npm run build
 
 # Stage 2: Production
-FROM node:18-alpine AS production
+FROM node:22-alpine AS production
 
 # Install dumb-init for proper signal handling and curl for healthchecks
 RUN apk add --no-cache dumb-init curl
@@ -39,7 +39,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install only production dependencies
-RUN npm ci --only=production --legacy-peer-deps && rm -rf ~/.npm
+RUN npm ci --omit=dev --legacy-peer-deps && rm -rf ~/.npm
 
 # Copy built application from builder stage
 COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
