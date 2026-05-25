@@ -8,6 +8,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AdminRole } from '../../enums/admin-role.enum';
+import { SUPER_ADMIN_FORBIDDEN_DESCRIPTION } from '../schemas/auth-user.schema';
 
 export const ApiAdminOperations = {
   createAdmin: () =>
@@ -17,7 +18,7 @@ export const ApiAdminOperations = {
       ApiOperation({
         summary: 'Criar admin',
         description:
-          'Cria o perfil de admin para um usuário existente com role ADMIN. Requer role **ADMIN**.',
+          'Cria o perfil de admin para um usuário com role ADMIN. **Apenas SUPER_ADMIN**. HOSPITAL_ADMIN/CLINIC_ADMIN exigem unitIds; SUPER_ADMIN não deve ter unidades.',
       }),
       ApiBody({
         schema: {
@@ -35,6 +36,13 @@ export const ApiAdminOperations = {
               example: AdminRole.HOSPITAL_ADMIN,
             },
             isActive: { type: 'boolean', example: true },
+            unitIds: {
+              type: 'array',
+              items: { type: 'string' },
+              description:
+                'Obrigatório para HOSPITAL_ADMIN e CLINIC_ADMIN. Omitir ou [] para SUPER_ADMIN.',
+              example: ['clxyz-unit-hospital-1'],
+            },
           },
         },
       }),
@@ -82,7 +90,7 @@ export const ApiAdminOperations = {
       }),
       ApiResponse({
         status: 403,
-        description: 'Sem permissão — requer role ADMIN',
+        description: SUPER_ADMIN_FORBIDDEN_DESCRIPTION,
       }),
     ),
 
@@ -93,7 +101,7 @@ export const ApiAdminOperations = {
       ApiOperation({
         summary: 'Buscar admin por ID',
         description:
-          'Retorna os dados de um admin pelo ID. Requer role **ADMIN**.',
+          'Retorna os dados de um admin pelo ID. **Apenas SUPER_ADMIN**.',
       }),
       ApiParam({ name: 'id', type: 'string', example: 'clxyz123456789abcdef' }),
       ApiResponse({
@@ -133,7 +141,7 @@ export const ApiAdminOperations = {
       }),
       ApiResponse({
         status: 403,
-        description: 'Sem permissão — requer role ADMIN',
+        description: SUPER_ADMIN_FORBIDDEN_DESCRIPTION,
       }),
     ),
 
@@ -144,7 +152,7 @@ export const ApiAdminOperations = {
       ApiOperation({
         summary: 'Atualizar admin',
         description:
-          'Atualiza role ou status de um admin. Requer role **ADMIN**.',
+          'Atualiza role ou status de um admin. **Apenas SUPER_ADMIN**.',
       }),
       ApiParam({ name: 'id', type: 'string', example: 'clxyz123456789abcdef' }),
       ApiBody({
@@ -168,7 +176,7 @@ export const ApiAdminOperations = {
       }),
       ApiResponse({
         status: 403,
-        description: 'Sem permissão — requer role ADMIN',
+        description: SUPER_ADMIN_FORBIDDEN_DESCRIPTION,
       }),
     ),
 
@@ -179,7 +187,7 @@ export const ApiAdminOperations = {
       ApiOperation({
         summary: 'Desativar admin',
         description:
-          'Realiza soft delete do perfil de admin. Requer role **ADMIN**.',
+          'Realiza soft delete do perfil de admin. **Apenas SUPER_ADMIN**.',
       }),
       ApiParam({ name: 'id', type: 'string', example: 'clxyz123456789abcdef' }),
       ApiResponse({ status: 204, description: 'Admin desativado com sucesso' }),
@@ -190,7 +198,7 @@ export const ApiAdminOperations = {
       }),
       ApiResponse({
         status: 403,
-        description: 'Sem permissão — requer role ADMIN',
+        description: SUPER_ADMIN_FORBIDDEN_DESCRIPTION,
       }),
     ),
 };

@@ -19,15 +19,10 @@ import type { RefreshTokenResponseDTO } from '../../dto/authDTO/response/refresh
 import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
 import { ApiAuthOperations } from '../../../shared/swagger/decorators/auth.decorators';
+import type { AuthJwtPayload } from '../../../shared/types/auth-jwt-payload.interface';
 
 interface RequestWithUser extends ExpressRequest {
-  user: {
-    sub: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    role: string;
-  };
+  user: AuthJwtPayload;
 }
 
 @ApiTags('auth')

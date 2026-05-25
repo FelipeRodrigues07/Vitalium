@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsEnum, IsOptional, IsString } from 'class-validator';
 import { AdminRole } from '../../../shared/enums/admin-role.enum';
 
 export class CreateAdminDTO {
@@ -35,4 +35,15 @@ export class CreateAdminDTO {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+
+  @ApiProperty({
+    description:
+      'Unidades vinculadas (obrigatório para HOSPITAL_ADMIN e CLINIC_ADMIN)',
+    type: [String],
+    required: false,
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  unitIds?: string[];
 }

@@ -3,6 +3,8 @@ import { IUserRepository } from '../../../domain/interfaces/repositories/user/us
 import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
 import { UserNotFoundException } from '../../../shared/execeptions/user/user-not-found.exception';
 import { User } from '../../../infrastructure/database/models/user.models';
+import type { AuthJwtPayload } from '../../../shared/types/auth-jwt-payload.interface';
+import { getScopedUnitIds, isUnitScopedAdmin } from '../../../shared/auth/auth-scope.helper';
 
 @Injectable()
 export class SearchUserUseCase {
@@ -60,8 +62,13 @@ export class SearchUserUseCase {
     return user;
   }
 
-  async findAll(): Promise<User[]> {
-    const users = await this.userRepository.findAll();
-    return users;
+  async findAll(authUser?: AuthJwtPayload): Promise<User[]> {
+    const unitIds = getScopedUnitIds(authUser);
+
+    if (isUnitScopedAdmin(authUser) && unitIds.length > 0) {
+      return this.userRepository.findAllByUnitIds(unitIds);
+    }
+
+    return this.userRepository.findAll();
   }
 }

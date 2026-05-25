@@ -8,8 +8,10 @@ import {
   Param,
   Patch,
   Post,
+  Request,
   UseGuards,
 } from '@nestjs/common';
+import type { Request as ExpressRequest } from 'express';
 import { plainToInstance } from 'class-transformer';
 import { CreateUserDTO } from '../../dto/userDTO/create-user.dto';
 import { UserResponseDTO } from '../../dto/userDTO/response/user-response.dto';
@@ -24,6 +26,11 @@ import { DeleteUserUseCase } from '../../../application/use-cases/user/delete-us
 import { Roles } from '../../../shared/decorators/roles.decorator';
 import { Role } from '../../../shared/enums';
 import { ApiTags } from '@nestjs/swagger';
+import type { AuthJwtPayload } from '../../../shared/types/auth-jwt-payload.interface';
+
+interface RequestWithUser extends ExpressRequest {
+  user: AuthJwtPayload;
+}
 
 @ApiTags('users')
 @Controller('users')
@@ -52,8 +59,10 @@ export class UserController {
   @Roles(Role.ADMIN)
   @HttpCode(HttpStatus.OK)
   @ApiUserOperations.findAllUsers()
-  async findAll(): Promise<UserResponseDTO[]> {
-    const users = await this.searchUserUseCase.findAll();
+  async findAll(
+    @Request() req: RequestWithUser,
+  ): Promise<UserResponseDTO[]> {
+    const users = await this.searchUserUseCase.findAll(req.user);
 
     return plainToInstance(UserResponseDTO, users, {
       excludeExtraneousValues: true,

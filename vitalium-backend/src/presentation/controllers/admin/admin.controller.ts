@@ -24,11 +24,14 @@ import { CreateAdminDTO } from '../../dto/adminDTO/create-admin.dto';
 import { UpdateAdminDTO } from '../../dto/adminDTO/update-admin.dto';
 import { AdminResponseDTO } from '../../dto/adminDTO/response/admin-response.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { SuperAdminGuard } from '../../../shared/guards/super-admin.guard';
+import { SuperAdminOnly } from '../../../shared/decorators/super-admin.decorator';
 
 @ApiTags('admins')
 @Controller('admins')
-@UseGuards(AuthGuard, RolesGuard)
+@UseGuards(AuthGuard, RolesGuard, SuperAdminGuard)
 @Roles(Role.ADMIN)
+@SuperAdminOnly()
 export class AdminController {
   constructor(
     private readonly createAdminUseCase: CreateAdminUseCase,

@@ -11,6 +11,8 @@ import type { Admin } from '../../../infrastructure/database/models/admin.models
 import { Role } from '../../../shared/enums/role.enum';
 import { AdminAlreadyExistsException } from '../../../shared/execeptions/admin/admin-already-exists.exception';
 import { UserNotFoundException } from '../../../shared/execeptions/user/user-not-found.exception';
+import { AdminRole } from '../../../shared/enums/admin-role.enum';
+import { PrismaProvider } from '../../../infrastructure/database/prisma.provider';
 
 @Injectable()
 export class CreateAdminUseCase {
@@ -19,6 +21,7 @@ export class CreateAdminUseCase {
     private readonly adminRepository: IAdminRepository,
     @Inject('IUserRepository')
     private readonly userRepository: IUserRepository,
+    private readonly prisma: PrismaProvider,
   ) {}
 
   async execute(createAdminDTO: CreateAdminDTO): Promise<Admin> {
@@ -67,6 +70,49 @@ export class CreateAdminUseCase {
         throw new AdminAlreadyExistsException(
           `userId: ${createAdminDTO.userId}`,
         );
+      }
+
+      const unitIds = createAdminDTO.unitIds ?? [];
+      const requiresUnits =
+        createAdminDTO.role === AdminRole.HOSPITAL_ADMIN ||
+        createAdminDTO.role === AdminRole.CLINIC_ADMIN;
+
+      if (createAdminDTO.role === AdminRole.SUPER_ADMIN && unitIds.length > 0) {
+        throw new ValidationException([
+          {
+            field: 'unitIds',
+            value: unitIds,
+            constraints: ['SUPER_ADMIN não deve ser vinculado a unidades'],
+          },
+        ]);
+      }
+
+      if (requiresUnits && unitIds.length === 0) {
+        throw new ValidationException([
+          {
+            field: 'unitIds',
+            value: unitIds,
+            constraints: [
+              'Admin de hospital/clínica deve ter ao menos uma unidade',
+            ],
+          },
+        ]);
+      }
+
+      if (unitIds.length > 0) {
+        const unitsCount = await this.prisma.unit.count({
+          where: { id: { in: unitIds }, isActive: true },
+        });
+
+        if (unitsCount !== unitIds.length) {
+          throw new ValidationException([
+            {
+              field: 'unitIds',
+              value: unitIds,
+              constraints: ['Uma ou mais unidades são inválidas ou inativas'],
+            },
+          ]);
+        }
       }
 
       return await this.adminRepository.create(createAdminDTO);

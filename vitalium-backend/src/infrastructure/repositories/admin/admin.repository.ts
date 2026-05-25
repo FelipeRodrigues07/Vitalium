@@ -11,28 +11,35 @@ export class AdminRepository implements IAdminRepository {
   constructor(private readonly prisma: PrismaProvider) {}
 
   async create(dto: CreateAdminDTO): Promise<Admin> {
-    const admin = await this.prisma.admin.create({
-      data: {
-        userId: dto.userId,
-        role: dto.role,
-        isActive: dto.isActive ?? true,
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-            phone: true,
-            avatar: true,
-            role: true,
-            isActive: true,
-            createdAt: true,
-            updatedAt: true,
-          },
+    const unitIds = dto.unitIds ?? [];
+
+    const admin = await this.prisma.$transaction(async (tx) => {
+      const created = await tx.admin.create({
+        data: {
+          userId: dto.userId,
+          role: dto.role,
+          isActive: dto.isActive ?? true,
         },
-      },
+      });
+
+      if (unitIds.length > 0) {
+        await tx.adminUnit.createMany({
+          data: unitIds.map((unitId, index) => ({
+            adminId: created.id,
+            unitId,
+            isPrimary: index === 0,
+            isActive: true,
+          })),
+        });
+      }
+
+      return tx.admin.findUniqueOrThrow({
+        where: { id: created.id },
+        include: {
+          user: true,
+          units: { where: { isActive: true }, include: { unit: true } },
+        },
+      });
     });
 
     return plainToInstance(Admin, admin);

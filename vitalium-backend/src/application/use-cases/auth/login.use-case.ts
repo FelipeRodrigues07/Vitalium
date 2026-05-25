@@ -4,6 +4,11 @@ import * as bcrypt from 'bcrypt';
 import type { IAuthRepository } from '../../../domain/interfaces/repositories/auth/auth.repository.interface';
 import type { LoginDTO } from '../../../presentation/dto/authDTO/login.dto';
 import type { AuthResponseDTO } from '../../../presentation/dto/authDTO/response/auth-response.dto';
+import {
+  buildAuthTokenPayload,
+  buildAuthUserResponse,
+} from '../../../shared/auth/build-auth-token-payload';
+import { Role } from '../../../shared/enums/role.enum';
 
 @Injectable()
 export class LoginUseCase {
@@ -35,16 +40,21 @@ export class LoginUseCase {
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
-    const accessToken = this.jwtService.sign(
-      {
-        sub: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role,
-      },
-      { expiresIn: '60m' },
-    );
+    let adminContext = null;
+
+    if (user.role === Role.ADMIN) {
+      adminContext = await this.authRepository.findAdminContextByUserId(user.id);
+
+      if (!adminContext) {
+        throw new UnauthorizedException(
+          'Perfil administrativo não configurado para este usuário',
+        );
+      }
+    }
+
+    const tokenPayload = buildAuthTokenPayload(user, adminContext);
+
+    const accessToken = this.jwtService.sign(tokenPayload, { expiresIn: '60m' });
 
     const refreshToken = this.jwtService.sign(
       { sub: user.id, type: 'refresh' },
@@ -64,13 +74,7 @@ export class LoginUseCase {
     return {
       accessToken,
       refreshToken,
-      user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role,
-      },
+      user: buildAuthUserResponse(user, adminContext),
     };
   }
 }
