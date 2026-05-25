@@ -13,6 +13,16 @@ import { LoggingInterceptor } from '../shared/interceptors/logging.interceptor';
 import { AuthModule } from './auth.module';
 import { AdminModule } from './admin.module';
 import { ChatModule } from './chat.module';
+import { MedicalRecordModule } from './medical-record.module';
+import { AppointmentModule } from './appointment.module';
+import { PrescriptionModule } from './prescription.module';
+import { WardModule } from './ward.module';
+import { CaregiverModule } from './caregiver.module';
+import { PatientDoctorModule } from './patient-doctor.module';
+import { PatientCaregiverModule } from './patient-caregiver.module';
+import { PatientUnitModule } from './patient-unit.module';
+import { NurseModule } from './nurse.module';
+import { SpecializationModule } from './specialization.module';
 
 @Module({
   imports: [
@@ -29,6 +39,16 @@ import { ChatModule } from './chat.module';
     UnitModule,
     AdminModule,
     ChatModule,
+    MedicalRecordModule,
+    AppointmentModule,
+    PrescriptionModule,
+    WardModule,
+    CaregiverModule,
+    PatientDoctorModule,
+    PatientCaregiverModule,
+    PatientUnitModule,
+    NurseModule,
+    SpecializationModule,
     ExceptionsModule,
     MonitoringModule,
   ],

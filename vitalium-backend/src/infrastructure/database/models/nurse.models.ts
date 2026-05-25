@@ -5,7 +5,7 @@ export class Nurse {
   id: string;
   userId: string;
   coren: string;
-  corenState: string;
+  corenState: boolean;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;

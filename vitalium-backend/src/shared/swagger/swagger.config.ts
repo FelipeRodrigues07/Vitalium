@@ -16,6 +16,19 @@ export class SwaggerConfig {
       .addTag('health', 'Status da aplicação')
       .addTag('patients', 'Operações relacionadas aos pacientes')
       .addTag('chat', 'Mensagens e conversas entre médico e paciente')
+      .addTag('medical-records', 'Prontuários médicos')
+      .addTag('appointments', 'Agendamento de consultas')
+      .addTag('prescriptions', 'Prescrições médicas')
+      .addTag('wards', 'Alas e quartos das unidades')
+      .addTag('ward-admissions', 'Internações hospitalares')
+      .addTag('caregivers', 'Cuidadores de pacientes')
+      .addTag('patient-doctors', 'Vínculos paciente-médico')
+      .addTag('patient-caregivers', 'Vínculos paciente-cuidador')
+      .addTag('patient-units', 'Vínculos paciente-unidade')
+      .addTag('nurses', 'Operações relacionadas aos enfermeiros(as)')
+      .addTag('nurse-units', 'Vínculos enfermeiro(a)-unidade')
+      .addTag('specializations', 'Especializações médicas')
+      .addTag('doctor-specializations', 'Vínculos médico-especialização')
       .addBearerAuth(
         {
           type: 'http',
