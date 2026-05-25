@@ -28,7 +28,11 @@ import { GetUsersService } from "@/services/api/users/GetUsers"
 import { UpdateUserService } from "@/services/api/users/UpdateUser"
 import { DeleteUserService } from "@/services/api/users/DeleteUser"
 import { useSession } from "@/services/auth/use-session"
+
+import { isUnitScopedAdmin } from "@/lib/admin-auth"
+
 import { mapToDashboardUser, type DashboardUser, type DashboardUserStatus } from "@/lib/users-mapper"
+
 
 interface DashboardUserExtended extends DashboardUser {
   registrationDate: string
@@ -48,7 +52,11 @@ export function UserManagement({ searchQuery }: any) {
   const [isLoadingUsers, setIsLoadingUsers] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [isSubmittingAction, setIsSubmittingAction] = useState(false)
+
+  const { isReady, accessToken, user, activeUnitId } = useSession()
+
   const { isReady, accessToken, user: currentUser } = useSession()
+
 
   const fetchUsers = useCallback(async () => {
     if (!accessToken || currentUser?.role !== "ADMIN") {
@@ -56,9 +64,20 @@ export function UserManagement({ searchQuery }: any) {
       return
     }
 
+    if (isUnitScopedAdmin(user) && !activeUnitId) {
+      setIsLoadingUsers(false)
+      return
+    }
+
     try {
       setIsLoadingUsers(true)
       setLoadError(null)
+
+      const response = await GetUsersService.getUsers(
+        isUnitScopedAdmin(user) ? activeUnitId ?? undefined : undefined,
+      )
+      setUsers(response.map(mapToDashboardUser))
+
       const response = await GetUsersService.getUsers()
       setUsers(
         response.map((user) => ({
@@ -67,13 +86,18 @@ export function UserManagement({ searchQuery }: any) {
           verified: user.isActive,
         })),
       )
+
     } catch (error) {
       console.error("Falha ao carregar usuários:", error)
       setLoadError("Não foi possível carregar os usuários.")
     } finally {
       setIsLoadingUsers(false)
     }
+
+  }, [accessToken, user, activeUnitId])
+
   }, [accessToken, currentUser])
+
 
   useEffect(() => {
     if (!isReady) {
@@ -406,4 +430,36 @@ export function UserManagement({ searchQuery }: any) {
     </div>
   )
 }
+
+
+function mapToDashboardUser(user: ListedUserModel): DashboardUser {
+  return {
+    id: user.id,
+    name: `${user.firstName} ${user.lastName}`.trim(),
+    email: user.email,
+    phone: user.phone ?? "-",
+    role: mapRole(user.role),
+    status: user.isActive ? "active" : "inactive",
+    lastLogin: null,
+    registrationDate: user.createdAt,
+    verified: user.isActive,
+  }
+}
+
+function mapRole(role: ListedUserModel["role"]): DashboardUser["role"] {
+  switch (role) {
+    case "DOCTOR":
+      return "doctor"
+    case "PATIENT":
+      return "patient"
+    case "NURSE":
+      return "nurse"
+    case "ADMIN":
+      return "admin"
+    case "CAREGIVER":
+    default:
+      return "caregiver"
+  }
+}
+=======
 

@@ -5,7 +5,9 @@ import { AuthController } from '../presentation/controllers/auth/auth.controller
 import { LoginUseCase } from '../application/use-cases/auth/login.use-case';
 import { RefreshTokenUseCase } from '../application/use-cases/auth/refresh-token.use-case';
 import { LogoutUseCase } from '../application/use-cases/auth/logout.use-case';
+import { GetAdminUnitsUseCase } from '../application/use-cases/auth/get-admin-units.use-case';
 import { AuthRepository } from '../infrastructure/repositories/auth/auth.repository';
+import { SuperAdminGuard } from '../shared/guards/super-admin.guard';
 
 @Module({
   imports: [
@@ -21,11 +23,13 @@ import { AuthRepository } from '../infrastructure/repositories/auth/auth.reposit
     LoginUseCase,
     RefreshTokenUseCase,
     LogoutUseCase,
+    GetAdminUnitsUseCase,
+    SuperAdminGuard,
     {
       provide: 'IAuthRepository',
       useClass: AuthRepository,
     },
   ],
-  exports: [JwtModule],
+  exports: [JwtModule, SuperAdminGuard],
 })
 export class AuthModule {}

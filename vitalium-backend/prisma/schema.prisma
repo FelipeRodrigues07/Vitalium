@@ -200,6 +200,7 @@ model Unit {
   doctors       DoctorUnit[]
   nurses        NurseUnit[]
   patients      PatientUnit[]
+  admins        AdminUnit[]
   appointments  Appointment[]
   prescriptions Prescription[]
   wards         Ward[]
@@ -327,9 +328,27 @@ model Admin {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  units AdminUnit[]
 
   @@map("admins")
+}
+
+model AdminUnit {
+  id        String   @id @default(cuid())
+  adminId   String
+  unitId    String
+  isPrimary Boolean  @default(false)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  admin Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  unit  Unit  @relation(fields: [unitId], references: [id], onDelete: Cascade)
+
+  @@unique([adminId, unitId])
+  @@index([adminId])
+  @@index([unitId])
+  @@map("admin_units")
 }
 
 //////////////////////////////////////

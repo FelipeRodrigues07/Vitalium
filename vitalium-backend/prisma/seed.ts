@@ -37,11 +37,19 @@ async function main() {
 
   // Criar usuários e seus perfis
   console.log('👥 Criando usuários...');
-  const { adminUser, doctorUsers, nurseUsers, patientUsers, caregiverUsers } = await createUsers();
+  const {
+    adminUser,
+    hospitalAdminUser,
+    clinicAdminUser,
+    doctorUsers,
+    nurseUsers,
+    patientUsers,
+    caregiverUsers,
+  } = await createUsers();
 
-  // Criar admin
-  console.log('👨‍💼 Criando admin...');
-  await createAdmins(adminUser);
+  // Criar admins (super + hospital + clínica com vínculo em admin_units)
+  console.log('👨‍💼 Criando admins...');
+  await createAdmins(adminUser, hospitalAdminUser, clinicAdminUser, units);
 
   // Criar médicos com especialidades
   console.log('👨‍⚕️ Criando médicos...');
@@ -106,6 +114,7 @@ async function cleanDatabase() {
     await prisma.errorLog.deleteMany();
     await prisma.requestLog.deleteMany();
     await prisma.databaseLog.deleteMany();
+    await prisma.adminUnit.deleteMany();
     await prisma.admin.deleteMany();
     await prisma.nurse.deleteMany();
     await prisma.caregiver.deleteMany();
@@ -189,6 +198,30 @@ async function createUsers() {
     },
   });
 
+  const hospitalAdminUser = await prisma.user.create({
+    data: {
+      email: 'admin.hospital@vitalium.com',
+      password: await hashPassword('admin123456'),
+      firstName: 'Admin',
+      lastName: 'Hospital',
+      phone: '(11) 99999-0002',
+      role: UserRole.ADMIN,
+      isActive: true,
+    },
+  });
+
+  const clinicAdminUser = await prisma.user.create({
+    data: {
+      email: 'admin.clinica@vitalium.com',
+      password: await hashPassword('admin123456'),
+      firstName: 'Admin',
+      lastName: 'Clínica',
+      phone: '(11) 99999-0003',
+      role: UserRole.ADMIN,
+      isActive: true,
+    },
+  });
+
   const doctorUsers = [];
   for (let i = 1; i <= 3; i++) {
     const doctor = await prisma.user.create({
@@ -253,10 +286,27 @@ async function createUsers() {
     caregiverUsers.push(caregiver);
   }
 
-  return { adminUser, doctorUsers, nurseUsers, patientUsers, caregiverUsers };
+  return {
+    adminUser,
+    hospitalAdminUser,
+    clinicAdminUser,
+    doctorUsers,
+    nurseUsers,
+    patientUsers,
+    caregiverUsers,
+  };
 }
 
-async function createAdmins(adminUser) {
+async function createAdmins(
+  adminUser: { id: string },
+  hospitalAdminUser: { id: string },
+  clinicAdminUser: { id: string },
+  units: { id: string; name: string; type: UnitType }[],
+) {
+  const hospitalUnit = units.find((u) => u.type === UnitType.HOSPITAL) ?? units[0];
+  const clinicUnit = units.find((u) => u.type === UnitType.CLINIC) ?? units[1];
+
+  // SUPER_ADMIN — sem vínculo em admin_units (escopo global)
   await prisma.admin.create({
     data: {
       userId: adminUser.id,
@@ -264,6 +314,58 @@ async function createAdmins(adminUser) {
       isActive: true,
     },
   });
+
+  // HOSPITAL_ADMIN — pode ter várias unidades (ex.: hospital + clínica do grupo)
+  const hospitalAdmin = await prisma.admin.create({
+    data: {
+      userId: hospitalAdminUser.id,
+      role: AdminRole.HOSPITAL_ADMIN,
+      isActive: true,
+      units: {
+        create: [
+          {
+            unitId: hospitalUnit.id,
+            isPrimary: true,
+            isActive: true,
+          },
+          ...(clinicUnit.id !== hospitalUnit.id
+            ? [
+                {
+                  unitId: clinicUnit.id,
+                  isPrimary: false,
+                  isActive: true,
+                },
+              ]
+            : []),
+        ],
+      },
+    },
+  });
+
+  // CLINIC_ADMIN — vinculado à Clínica do Bairro
+  const clinicAdmin = await prisma.admin.create({
+    data: {
+      userId: clinicAdminUser.id,
+      role: AdminRole.CLINIC_ADMIN,
+      isActive: true,
+      units: {
+        create: {
+          unitId: clinicUnit.id,
+          isPrimary: true,
+          isActive: true,
+        },
+      },
+    },
+  });
+
+  console.log('   Super admin: admin@vitalium.com / admin123456 (sem unidade)');
+  console.log(
+    `   Hospital admin: admin.hospital@vitalium.com / admin123456 → ${hospitalUnit.name}${clinicUnit.id !== hospitalUnit.id ? ` + ${clinicUnit.name}` : ''}`,
+  );
+  console.log(
+    `   Clínica admin: admin.clinica@vitalium.com / admin123456 → ${clinicUnit.name}`,
+  );
+  console.log(`   admin_units: hospital=${hospitalAdmin.id}, clinica=${clinicAdmin.id}`);
 }
 
 async function createDoctors(doctorUsers, units, specializations) {

@@ -68,6 +68,47 @@ export class UserDataRepository implements IUserRepository {
     return plainToInstance(User, users);
   }
 
+  async findAllByUnitIds(unitIds: string[]): Promise<User[]> {
+    const users = await this.prisma.user.findMany({
+      where: {
+        isActive: true,
+        OR: [
+          {
+            admin: {
+              units: {
+                some: { unitId: { in: unitIds }, isActive: true },
+              },
+            },
+          },
+          {
+            doctor: {
+              units: {
+                some: { unitId: { in: unitIds }, isActive: true },
+              },
+            },
+          },
+          {
+            patient: {
+              units: {
+                some: { unitId: { in: unitIds }, isActive: true },
+              },
+            },
+          },
+          {
+            nurse: {
+              units: {
+                some: { unitId: { in: unitIds }, isActive: true },
+              },
+            },
+          },
+        ],
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return plainToInstance(User, users);
+  }
+
   async update(id: string, updateUserDTO: UpdateUserDTO): Promise<User> {
     const updatedUser = await this.prisma.user.update({
       where: {

@@ -3,6 +3,8 @@ import { plainToInstance } from 'class-transformer';
 import type { IAuthRepository } from '../../../domain/interfaces/repositories/auth/auth.repository.interface';
 import { User } from '../../database/models/user.models';
 import { PrismaProvider } from '../../database/prisma.provider';
+import { AdminRole } from '../../../shared/enums/admin-role.enum';
+import type { AuthAdminContext } from '../../../domain/interfaces/repositories/auth/auth.repository.interface';
 
 @Injectable()
 export class AuthRepository implements IAuthRepository {
@@ -26,6 +28,30 @@ export class AuthRepository implements IAuthRepository {
     if (!user) return null;
 
     return plainToInstance(User, user);
+  }
+
+  async findAdminContextByUserId(
+    userId: string,
+  ): Promise<AuthAdminContext | null> {
+    const admin = await this.prisma.admin.findFirst({
+      where: { userId, isActive: true },
+      include: {
+        units: {
+          where: { isActive: true },
+          select: { unitId: true },
+        },
+      },
+    });
+
+    if (!admin) {
+      return null;
+    }
+
+    return {
+      adminId: admin.id,
+      adminRole: admin.role as AdminRole,
+      unitIds: admin.units.map((link) => link.unitId),
+    };
   }
 
   async updateRefreshToken(

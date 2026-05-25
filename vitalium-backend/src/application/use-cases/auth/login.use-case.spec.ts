@@ -38,6 +38,7 @@ describe('LoginUseCase', () => {
           useValue: {
             findByEmailWithOutPassword: jest.fn(),
             findByIdWithRefreshToken: jest.fn(),
+            findAdminContextByUserId: jest.fn(),
             updateRefreshToken: jest.fn(),
           },
         },

@@ -8,6 +8,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { UnitType } from '../../enums/unit.enum';
+import { SUPER_ADMIN_FORBIDDEN_DESCRIPTION } from '../schemas/auth-user.schema';
 
 const unitSchema = {
   type: 'object',
@@ -44,7 +45,7 @@ const authResponses = [
   }),
   ApiResponse({
     status: 403,
-    description: 'Sem permissÃ£o â€” requer role ADMIN',
+    description: SUPER_ADMIN_FORBIDDEN_DESCRIPTION,
   }),
 ];
 
@@ -56,7 +57,7 @@ export const ApiUnitOperations = {
       ApiOperation({
         summary: 'Criar unidade',
         description:
-          'Cria uma nova unidade (hospital, clÃ­nica, consultÃ³rio, laboratÃ³rio etc.). Requer role **ADMIN**.',
+          'Cria uma nova unidade (hospital, clínica, etc.). **Apenas SUPER_ADMIN** — gestão global da plataforma.',
       }),
       ApiBody({
         description: 'Dados para criaÃ§Ã£o da unidade',
@@ -130,7 +131,7 @@ export const ApiUnitOperations = {
       ApiOperation({
         summary: 'Buscar unidade por ID',
         description:
-          'Retorna os dados de uma unidade pelo ID. Requer role **ADMIN**.',
+          'Retorna os dados de uma unidade pelo ID. **Apenas SUPER_ADMIN**.',
       }),
       ApiParam({
         name: 'id',
@@ -169,7 +170,7 @@ export const ApiUnitOperations = {
       ApiOperation({
         summary: 'Atualizar unidade',
         description:
-          'Atualiza os dados de uma unidade existente. Todos os campos sÃ£o opcionais. Requer role **ADMIN**.',
+          'Atualiza os dados de uma unidade existente. **Apenas SUPER_ADMIN**.',
       }),
       ApiParam({
         name: 'id',
@@ -257,7 +258,7 @@ export const ApiUnitOperations = {
       ApiOperation({
         summary: 'Excluir unidade',
         description:
-          'Remove uma unidade do sistema (soft delete). Requer role **ADMIN**.',
+          'Remove uma unidade do sistema (soft delete). **Apenas SUPER_ADMIN**.',
       }),
       ApiParam({
         name: 'id',

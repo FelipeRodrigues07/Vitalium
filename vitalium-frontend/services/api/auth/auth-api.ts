@@ -15,12 +15,38 @@ export function mapProfileToUser(profile: ProfileResponse): UserProfile {
     firstName: profile.firstName,
     lastName: profile.lastName,
     role: profile.role,
+    adminId: profile.adminId,
+    adminRole: profile.adminRole,
+    unitIds: profile.unitIds,
+  };
+}
+
+function mapLoginUser(user: LoginResponse['user']): UserProfile {
+  return {
+    id: user.id,
+    email: user.email,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    role: user.role,
+    adminId: user.adminId,
+    adminRole: user.adminRole,
+    unitIds: user.unitIds,
   };
 }
 
 export const authApi = {
   login: async (payload: LoginPayload): Promise<LoginResponse> => {
     const response = await api.post<LoginResponse>('/auth/login', payload);
+    return {
+      ...response.data,
+      user: mapLoginUser(response.data.user),
+    };
+  },
+
+  getAdminUnits: async () => {
+    const response = await api.get<import('@/types/auth').AdminUnitSummary[]>(
+      '/auth/units',
+    );
     return response.data;
   },
 

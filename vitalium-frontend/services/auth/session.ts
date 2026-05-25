@@ -3,6 +3,7 @@ import type { UserProfile } from '@/types/auth';
 const ACCESS_TOKEN_KEY = 'accessToken';
 const REFRESH_TOKEN_KEY = 'refreshToken';
 const AUTH_USER_KEY = 'authUser';
+const ACTIVE_UNIT_KEY = 'activeUnitId';
 
 let onSessionCleared: (() => void) | null = null;
 let onAccessTokenUpdated: ((token: string) => void) | null = null;
@@ -76,11 +77,27 @@ export function persistAuthSession(data: {
   window.localStorage.setItem(AUTH_USER_KEY, JSON.stringify(data.user));
 }
 
+export function getActiveUnitId(): string | null {
+  if (!isBrowser()) return null;
+  return window.localStorage.getItem(ACTIVE_UNIT_KEY);
+}
+
+export function setActiveUnitId(unitId: string): void {
+  if (!isBrowser()) return;
+  window.localStorage.setItem(ACTIVE_UNIT_KEY, unitId);
+}
+
+export function clearActiveUnitId(): void {
+  if (!isBrowser()) return;
+  window.localStorage.removeItem(ACTIVE_UNIT_KEY);
+}
+
 export function clearAuthSession(): void {
   if (!isBrowser()) return;
 
   window.localStorage.removeItem(ACCESS_TOKEN_KEY);
   window.localStorage.removeItem(REFRESH_TOKEN_KEY);
   window.localStorage.removeItem(AUTH_USER_KEY);
+  window.localStorage.removeItem(ACTIVE_UNIT_KEY);
   onSessionCleared?.();
 }

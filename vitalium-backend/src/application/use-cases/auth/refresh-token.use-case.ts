@@ -2,6 +2,8 @@ import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { IAuthRepository } from '../../../domain/interfaces/repositories/auth/auth.repository.interface';
 import type { RefreshTokenResponseDTO } from '../../../presentation/dto/authDTO/response/refresh-token-response.dto';
+import { buildAuthTokenPayload } from '../../../shared/auth/build-auth-token-payload';
+import { Role } from '../../../shared/enums/role.enum';
 
 @Injectable()
 export class RefreshTokenUseCase {
@@ -50,16 +52,21 @@ export class RefreshTokenUseCase {
       throw new UnauthorizedException('Refresh token expirado');
     }
 
-    const newAccessToken = this.jwtService.sign(
-      {
-        sub: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role,
-      },
-      { expiresIn: '60m' },
-    );
+    let adminContext = null;
+
+    if (user.role === Role.ADMIN) {
+      adminContext = await this.authRepository.findAdminContextByUserId(user.id);
+
+      if (!adminContext) {
+        throw new UnauthorizedException(
+          'Perfil administrativo não configurado para este usuário',
+        );
+      }
+    }
+
+    const tokenPayload = buildAuthTokenPayload(user, adminContext);
+
+    const newAccessToken = this.jwtService.sign(tokenPayload, { expiresIn: '60m' });
 
     return { accessToken: newAccessToken };
   }

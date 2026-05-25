@@ -6,15 +6,17 @@ interface SessionState {
   isReady: boolean;
   accessToken: string | null;
   user: ReturnType<typeof useAuth>['user'];
+  activeUnitId: string | null;
 }
 
 /** Compatibilidade com componentes que já usam useSession */
 export function useSession(): SessionState {
-  const { user, accessToken, isLoadingUser } = useAuth();
+  const { user, accessToken, isLoadingUser, activeUnitId } = useAuth();
 
   return {
     isReady: !isLoadingUser,
     accessToken,
     user,
+    activeUnitId,
   };
 }

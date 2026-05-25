@@ -16,8 +16,10 @@ export interface ListedUserModel {
 }
 
 export const GetUsersService = {
-  getUsers: async (): Promise<ListedUserModel[]> => {
-    const response = await api.get('/users');
+  getUsers: async (unitId?: string): Promise<ListedUserModel[]> => {
+    const response = await api.get('/users', {
+      params: unitId ? { unitId } : undefined,
+    });
     return response.data;
   },
 };
