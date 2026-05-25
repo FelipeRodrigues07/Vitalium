@@ -23,6 +23,7 @@ import { GetUsersService, type ListedUserModel } from "@/services/api/users/GetU
 import { UpdateUserService } from "@/services/api/users/UpdateUser"
 import { DeleteUserService } from "@/services/api/users/DeleteUser"
 import { useSession } from "@/services/auth/use-session"
+import { isUnitScopedAdmin } from "@/lib/admin-auth"
 
 interface DashboardUser {
   id: string
@@ -48,7 +49,7 @@ export function UserManagement({ searchQuery }: any) {
   const [isLoadingUsers, setIsLoadingUsers] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [isSubmittingAction, setIsSubmittingAction] = useState(false)
-  const { isReady, accessToken, user } = useSession()
+  const { isReady, accessToken, user, activeUnitId } = useSession()
 
   const fetchUsers = useCallback(async () => {
     if (!accessToken || user?.role !== "ADMIN") {
@@ -56,10 +57,17 @@ export function UserManagement({ searchQuery }: any) {
       return
     }
 
+    if (isUnitScopedAdmin(user) && !activeUnitId) {
+      setIsLoadingUsers(false)
+      return
+    }
+
     try {
       setIsLoadingUsers(true)
       setLoadError(null)
-      const response = await GetUsersService.getUsers()
+      const response = await GetUsersService.getUsers(
+        isUnitScopedAdmin(user) ? activeUnitId ?? undefined : undefined,
+      )
       setUsers(response.map(mapToDashboardUser))
     } catch (error) {
       console.error("Falha ao carregar usuários:", error)
@@ -67,7 +75,7 @@ export function UserManagement({ searchQuery }: any) {
     } finally {
       setIsLoadingUsers(false)
     }
-  }, [accessToken, user])
+  }, [accessToken, user, activeUnitId])
 
   useEffect(() => {
     if (!isReady) {
@@ -115,10 +123,6 @@ export function UserManagement({ searchQuery }: any) {
     switch (status) {
       case "active":
         return <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Ativo</Badge>
-      case "pending":
-        return <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">Pendente</Badge>
-      case "suspended":
-        return <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">Suspenso</Badge>
       case "inactive":
         return <Badge variant="outline">Inativo</Badge>
       default:
@@ -216,8 +220,6 @@ export function UserManagement({ searchQuery }: any) {
               <SelectContent>
                 <SelectItem value="all">Todos os status</SelectItem>
                 <SelectItem value="active">Ativos</SelectItem>
-                <SelectItem value="pending">Pendentes</SelectItem>
-                <SelectItem value="suspended">Suspensos</SelectItem>
                 <SelectItem value="inactive">Inativos</SelectItem>
               </SelectContent>
             </Select>
@@ -267,12 +269,6 @@ export function UserManagement({ searchQuery }: any) {
                 </div>
 
                 <div className="flex items-center space-x-2">
-                  {user.status === "pending" && (
-                    <Button size="sm" disabled={isSubmittingAction} onClick={() => handleApproveUser(user.id)}>
-                      <UserCheck className="w-4 h-4 mr-2" />
-                      Aprovar
-                    </Button>
-                  )}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="sm">
@@ -387,8 +383,6 @@ function mapRole(role: ListedUserModel["role"]): DashboardUser["role"] {
       return "patient"
     case "NURSE":
       return "nurse"
-    case "SECRETARY":
-      return "secretary"
     case "ADMIN":
       return "admin"
     case "CAREGIVER":

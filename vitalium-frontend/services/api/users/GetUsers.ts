@@ -1,6 +1,6 @@
 import { api } from '@/services/api/api';
 
-export type UserRole = 'DOCTOR' | 'PATIENT' | 'NURSE' | 'SECRETARY' | 'ADMIN' | 'CAREGIVER';
+export type UserRole = 'DOCTOR' | 'PATIENT' | 'NURSE' | 'ADMIN' | 'CAREGIVER';
 
 export interface ListedUserModel {
   id: string;
@@ -16,8 +16,10 @@ export interface ListedUserModel {
 }
 
 export const GetUsersService = {
-  getUsers: async (): Promise<ListedUserModel[]> => {
-    const response = await api.get('/users');
+  getUsers: async (unitId?: string): Promise<ListedUserModel[]> => {
+    const response = await api.get('/users', {
+      params: unitId ? { unitId } : undefined,
+    });
     return response.data;
   },
 };

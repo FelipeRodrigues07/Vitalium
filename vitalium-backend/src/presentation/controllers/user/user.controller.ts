@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -61,8 +62,9 @@ export class UserController {
   @ApiUserOperations.findAllUsers()
   async findAll(
     @Request() req: RequestWithUser,
+    @Query('unitId') unitId?: string,
   ): Promise<UserResponseDTO[]> {
-    const users = await this.searchUserUseCase.findAll(req.user);
+    const users = await this.searchUserUseCase.findAll(req.user, unitId);
 
     return plainToInstance(UserResponseDTO, users, {
       excludeExtraneousValues: true,

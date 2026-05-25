@@ -1,11 +1,14 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { IUserRepository } from '../../../domain/interfaces/repositories/user/user.repository.interface';
 import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
 import { UserNotFoundException } from '../../../shared/execeptions/user/user-not-found.exception';
 import { User } from '../../../infrastructure/database/models/user.models';
 import type { AuthJwtPayload } from '../../../shared/types/auth-jwt-payload.interface';
-import { getScopedUnitIds, isUnitScopedAdmin } from '../../../shared/auth/auth-scope.helper';
-
+import {
+  getScopedUnitIds,
+  isSuperAdmin,
+  isUnitScopedAdmin,
+} from '../../../shared/auth/auth-scope.helper';
 @Injectable()
 export class SearchUserUseCase {
   constructor(
@@ -62,11 +65,29 @@ export class SearchUserUseCase {
     return user;
   }
 
-  async findAll(authUser?: AuthJwtPayload): Promise<User[]> {
-    const unitIds = getScopedUnitIds(authUser);
+  async findAll(
+    authUser?: AuthJwtPayload,
+    filterUnitId?: string,
+  ): Promise<User[]> {
+    const scopedUnitIds = getScopedUnitIds(authUser);
 
-    if (isUnitScopedAdmin(authUser) && unitIds.length > 0) {
-      return this.userRepository.findAllByUnitIds(unitIds);
+    if (filterUnitId) {
+      if (isSuperAdmin(authUser)) {
+        return this.userRepository.findAllByUnitIds([filterUnitId]);
+      }
+
+      if (isUnitScopedAdmin(authUser)) {
+        if (!scopedUnitIds.includes(filterUnitId)) {
+          throw new ForbiddenException(
+            'Unidade não permitida para este administrador',
+          );
+        }
+        return this.userRepository.findAllByUnitIds([filterUnitId]);
+      }
+    }
+
+    if (isUnitScopedAdmin(authUser) && scopedUnitIds.length > 0) {
+      return this.userRepository.findAllByUnitIds(scopedUnitIds);
     }
 
     return this.userRepository.findAll();

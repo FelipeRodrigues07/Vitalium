@@ -11,7 +11,8 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import axios from "axios"
 import { useAuth } from "@/providers/auth-provider"
-import { getRoleHomePath, normalizeRole } from "@/lib/auth-routes"
+import { getPostLoginPath, normalizeRole } from "@/lib/auth-routes"
+import { getActiveUnitId } from "@/services/auth/session"
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -22,13 +23,13 @@ export default function LoginPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const router = useRouter()
-  const { login, logout, isLoadingUser, user } = useAuth()
+  const { login, logout, isLoadingUser, user, activeUnitId } = useAuth()
 
   useEffect(() => {
     if (!isLoadingUser && user) {
-      router.replace(getRoleHomePath(user.role))
+      router.replace(getPostLoginPath(user, activeUnitId ?? getActiveUnitId()))
     }
-  }, [isLoadingUser, router, user])
+  }, [isLoadingUser, router, user, activeUnitId])
 
   const handleLogin = async (event?: FormEvent) => {
     event?.preventDefault()
@@ -45,7 +46,7 @@ export default function LoginPage() {
         return
       }
 
-      router.push(getRoleHomePath(profile.role))
+      router.push(getPostLoginPath(profile, getActiveUnitId()))
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const message = error.response?.data?.message

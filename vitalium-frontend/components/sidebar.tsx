@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/providers/auth-provider"
+import { isSuperAdmin, isUnitScopedAdmin } from "@/lib/admin-auth"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -39,10 +40,18 @@ const navigation = [
     roles: ["doctor"],
   },
   {
+    name: "Plataforma",
+    href: "/work/admin/platform",
+    icon: Shield,
+    roles: ["admin"],
+    adminScope: "super",
+  },
+  {
     name: "Dashboard",
     href: "/work/admin/dashboard",
     icon: Stethoscope,
     roles: ["admin"],
+    adminScope: "unit",
   },
   {
     name: "Chat",
@@ -67,6 +76,7 @@ const navigation = [
     href: "/work/admin/users",
     icon: Users,
     roles: ["admin"],
+    adminScope: "unit",
   },
   {
     name: "Configurações",
@@ -84,16 +94,36 @@ interface SidebarProps {
 function SidebarContent({ userRole, className }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const { logout } = useAuth()
+  const { logout, user } = useAuth()
 
   const handleLogout = async () => {
     await logout()
     router.replace("/login")
   }
 
-  const filteredNavigation = navigation.filter(
-    (item) => item.public || (item.roles && userRole && item.roles.includes(userRole)),
-  )
+  const filteredNavigation = navigation.filter((item) => {
+    if (item.public) {
+      return true
+    }
+
+    if (!item.roles || !userRole || !item.roles.includes(userRole)) {
+      return false
+    }
+
+    if (userRole !== "admin" || !item.adminScope) {
+      return true
+    }
+
+    if (item.adminScope === "super") {
+      return isSuperAdmin(user)
+    }
+
+    if (item.adminScope === "unit") {
+      return isUnitScopedAdmin(user)
+    }
+
+    return true
+  })
 
   return (
     <div className={cn("flex h-full flex-col bg-sidebar", className)}>
