@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
@@ -54,8 +55,10 @@ export class DoctorController {
   @HttpCode(HttpStatus.OK)
   @ApiDoctorOperations.findAllDoctors()
   @Roles(Role.ADMIN, Role.NURSE)
-  async findAll(): Promise<DoctorResponseDTO[]> {
-    const doctors = await this.searchDoctorUseCase.findAll();
+  async findAll(
+    @Query('unitId') unitId?: string,
+  ): Promise<DoctorResponseDTO[]> {
+    const doctors = await this.searchDoctorUseCase.findAll(unitId);
 
     return plainToInstance(DoctorResponseDTO, doctors, {
       excludeExtraneousValues: true,

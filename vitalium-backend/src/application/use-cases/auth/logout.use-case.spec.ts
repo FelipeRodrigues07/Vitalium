@@ -16,6 +16,7 @@ describe('LogoutUseCase', () => {
             findByEmailWithOutPassword: jest.fn(),
             findByIdWithRefreshToken: jest.fn(),
             updateRefreshToken: jest.fn(),
+            clearRefreshToken: jest.fn(),
           },
         },
       ],
@@ -31,19 +32,15 @@ describe('LogoutUseCase', () => {
 
   describe('execute', () => {
     it('should clear refresh token on logout', async () => {
-      authRepository.updateRefreshToken.mockResolvedValue(undefined);
+      authRepository.clearRefreshToken.mockResolvedValue(undefined);
 
       await useCase.execute('user-id-1');
 
-      expect(authRepository.updateRefreshToken).toHaveBeenCalledWith(
-        'user-id-1',
-        null,
-        null,
-      );
+      expect(authRepository.clearRefreshToken).toHaveBeenCalledWith('user-id-1');
     });
 
     it('should complete without error for valid userId', async () => {
-      authRepository.updateRefreshToken.mockResolvedValue(undefined);
+      authRepository.clearRefreshToken.mockResolvedValue(undefined);
 
       await expect(useCase.execute('user-id-1')).resolves.toBeUndefined();
     });

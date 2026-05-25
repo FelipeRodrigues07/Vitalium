@@ -8,8 +8,11 @@ import {
   Param,
   Patch,
   Post,
+  Query,
+  Request,
   UseGuards,
 } from '@nestjs/common';
+import type { Request as ExpressRequest } from 'express';
 import { plainToInstance } from 'class-transformer';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
@@ -24,6 +27,11 @@ import { CreatePatientUseCase } from '../../../application/use-cases/patient/cre
 import { SearchPatientUseCase } from '../../../application/use-cases/patient/search-patient.use-case';
 import { UpdatePatientUseCase } from '../../../application/use-cases/patient/update-patient.use-case';
 import { DeletePatientUseCase } from '../../../application/use-cases/patient/delete-patient.use-case';
+import type { AuthJwtPayload } from '../../../shared/types/auth-jwt-payload.interface';
+
+interface RequestWithUser extends ExpressRequest {
+  user: AuthJwtPayload;
+}
 
 @ApiTags('patients')
 @Controller('patients')
@@ -54,10 +62,29 @@ export class PatientController {
   @HttpCode(HttpStatus.OK)
   @ApiPatientOperations.findAllPatients()
   @Roles(Role.ADMIN, Role.DOCTOR, Role.NURSE)
-  async findAll(): Promise<PatientResponseDTO[]> {
-    const patients = await this.searchPatientUseCase.findAll();
+  async findAll(
+    @Request() req: RequestWithUser,
+    @Query('doctorId') doctorId?: string,
+  ): Promise<PatientResponseDTO[]> {
+    const patients = await this.searchPatientUseCase.findAllForAuthUser(
+      req.user,
+      doctorId,
+    );
 
     return plainToInstance(PatientResponseDTO, patients, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  @Get('by-user/:userId')
+  @HttpCode(HttpStatus.OK)
+  @Roles(Role.ADMIN, Role.DOCTOR, Role.NURSE)
+  async findByUserId(
+    @Param('userId') userId: string,
+  ): Promise<PatientResponseDTO> {
+    const patient = await this.searchPatientUseCase.findByUserId(userId);
+
+    return plainToInstance(PatientResponseDTO, patient, {
       excludeExtraneousValues: true,
     });
   }

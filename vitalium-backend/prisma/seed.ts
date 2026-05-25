@@ -53,15 +53,23 @@ async function main() {
 
   // Criar médicos com especialidades
   console.log('👨‍⚕️ Criando médicos...');
-  const doctors = await createDoctors(doctorUsers, units, specializations);
+  const hospitalUnit = units[0];
+  const clinicUnit = units[1] ?? units[0];
+
+  const doctors = await createDoctors(
+    doctorUsers,
+    hospitalUnit,
+    clinicUnit,
+    specializations,
+  );
 
   // Criar enfermeiras
   console.log('👩‍⚕️ Criando enfermeiras...');
-  await createNurses(nurseUsers, units);
+  await createNurses(nurseUsers, hospitalUnit, clinicUnit);
 
   // Criar pacientes
   console.log('👨‍🦽 Criando pacientes...');
-  const patients = await createPatients(patientUsers, units);
+  const patients = await createPatients(patientUsers, hospitalUnit, clinicUnit);
 
   // Criar cuidadores
   console.log('🤝 Criando cuidadores...');
@@ -69,15 +77,15 @@ async function main() {
 
   // Criar associações médico-paciente
   console.log('📊 Criando associações médico-paciente...');
-  await createPatientDoctors(patients, doctors);
+  await createPatientDoctors(patients);
 
   // Criar agendamentos
   console.log('📅 Criando agendamentos...');
-  await createAppointments(patients, doctors, units);
+  await createAppointments(patients);
 
   // Criar registros médicos
   console.log('📝 Criando registros médicos...');
-  await createMedicalRecords(patients, doctors);
+  await createMedicalRecords(patients);
 
   // Criar logs de segurança
   console.log('🔐 Criando logs de segurança...');
@@ -92,6 +100,11 @@ async function main() {
   await createBusinessEventLogs();
 
   console.log('✅ Seed concluído com sucesso!');
+  console.log('');
+  console.log('📌 Vínculos por unidade (para testar admin):');
+  console.log(`   Hospital (${hospitalUnit.name}): medico1-2, paciente1-3, enfermeira1`);
+  console.log(`   Clínica (${clinicUnit.name}): medico3, paciente4-5, enfermeira2`);
+  console.log('   Paciente ↔ médico: mesmo vínculo de unidade (PatientDoctor)');
 }
 
 async function cleanDatabase() {
@@ -368,8 +381,14 @@ async function createAdmins(
   console.log(`   admin_units: hospital=${hospitalAdmin.id}, clinica=${clinicAdmin.id}`);
 }
 
-async function createDoctors(doctorUsers, units, specializations) {
+async function createDoctors(doctorUsers, hospitalUnit, clinicUnit, specializations) {
   const doctors = [];
+  const unitAssignments = [
+    [hospitalUnit],
+    [hospitalUnit],
+    [clinicUnit],
+  ];
+
   for (let i = 0; i < doctorUsers.length; i++) {
     const doctor = await prisma.doctor.create({
       data: {
@@ -380,7 +399,6 @@ async function createDoctors(doctorUsers, units, specializations) {
       },
     });
 
-    // Adicionar especialidades
     const specs = [specializations[i], specializations[(i + 1) % specializations.length]];
     for (const spec of specs) {
       await prisma.doctorSpecialization.create({
@@ -391,12 +409,12 @@ async function createDoctors(doctorUsers, units, specializations) {
       });
     }
 
-    // Adicionar às unidades
-    for (let j = 0; j < units.length; j++) {
+    const assignedUnits = unitAssignments[i] ?? [hospitalUnit];
+    for (let j = 0; j < assignedUnits.length; j++) {
       await prisma.doctorUnit.create({
         data: {
           doctorId: doctor.id,
-          unitId: units[j].id,
+          unitId: assignedUnits[j].id,
           consultationPrice: 150.0 + i * 10,
           isPrimary: j === 0,
         },
@@ -408,7 +426,9 @@ async function createDoctors(doctorUsers, units, specializations) {
   return doctors;
 }
 
-async function createNurses(nurseUsers, units) {
+async function createNurses(nurseUsers, hospitalUnit, clinicUnit) {
+  const unitAssignments = [hospitalUnit, clinicUnit];
+
   for (let i = 0; i < nurseUsers.length; i++) {
     const nurse = await prisma.nurse.create({
       data: {
@@ -419,25 +439,43 @@ async function createNurses(nurseUsers, units) {
       },
     });
 
-    // Adicionar às unidades
-    for (let j = 0; j < units.length; j++) {
-      await prisma.nurseUnit.create({
-        data: {
-          nurseId: nurse.id,
-          unitId: units[j].id,
-          isPrimary: j === 0,
-        },
-      });
-    }
+    const unit = unitAssignments[i] ?? hospitalUnit;
+    await prisma.nurseUnit.create({
+      data: {
+        nurseId: nurse.id,
+        unitId: unit.id,
+        isPrimary: true,
+      },
+    });
   }
 }
 
-async function createPatients(patientUsers, units) {
+async function createPatients(patientUsers, hospitalUnit, clinicUnit) {
   const patients = [];
-  const cpfs = ['123.456.789-00', '987.654.321-11', '111.222.333-44', '555.666.777-88', '999.888.777-66'];
-  const bloodTypes = [BloodType.A_POSITIVE, BloodType.O_NEGATIVE, BloodType.B_POSITIVE, BloodType.AB_POSITIVE, BloodType.O_POSITIVE];
+  const cpfs = [
+    '12345678901',
+    '98765432111',
+    '11122233344',
+    '55566677788',
+    '99988877766',
+  ];
+  const bloodTypes = [
+    BloodType.A_POSITIVE,
+    BloodType.O_NEGATIVE,
+    BloodType.B_POSITIVE,
+    BloodType.AB_POSITIVE,
+    BloodType.O_POSITIVE,
+  ];
+  const unitAssignments = [
+    hospitalUnit,
+    hospitalUnit,
+    hospitalUnit,
+    clinicUnit,
+    clinicUnit,
+  ];
 
   for (let i = 0; i < patientUsers.length; i++) {
+    const unit = unitAssignments[i] ?? hospitalUnit;
     const patient = await prisma.patient.create({
       data: {
         userId: patientUsers[i].id,
@@ -453,19 +491,14 @@ async function createPatients(patientUsers, units) {
         city: 'São Paulo',
         state: 'SP',
         zipCode: '01311-100',
+        units: {
+          create: {
+            unitId: unit.id,
+            isPrimary: true,
+          },
+        },
       },
     });
-
-    // Adicionar às unidades
-    for (let j = 0; j < units.length; j++) {
-      await prisma.patientUnit.create({
-        data: {
-          patientId: patient.id,
-          unitId: units[j].id,
-          isPrimary: j === 0,
-        },
-      });
-    }
 
     patients.push(patient);
   }
@@ -494,39 +527,69 @@ async function createCaregivers(caregiverUsers, patients) {
   }
 }
 
-async function createPatientDoctors(patients, doctors) {
-  for (let i = 0; i < patients.length; i++) {
-    const doctor = doctors[i % doctors.length];
+async function createPatientDoctors(patients) {
+  for (const patient of patients) {
+    const patientUnit = await prisma.patientUnit.findFirst({
+      where: { patientId: patient.id, isActive: true },
+      orderBy: { isPrimary: 'desc' },
+    });
+
+    if (!patientUnit) {
+      continue;
+    }
+
+    const doctorUnit = await prisma.doctorUnit.findFirst({
+      where: {
+        unitId: patientUnit.unitId,
+        isActive: true,
+      },
+    });
+
+    if (!doctorUnit) {
+      continue;
+    }
+
     await prisma.patientDoctor.create({
       data: {
-        patientId: patients[i].id,
-        doctorId: doctor.id,
+        patientId: patient.id,
+        doctorId: doctorUnit.doctorId,
         startDate: new Date(2024, 0, 1),
       },
     });
   }
 }
 
-async function createAppointments(patients, doctors, units) {
+async function createAppointments(patients) {
   const appointmentTypes = [AppointmentType.CONSULTATION, AppointmentType.FOLLOW_UP, AppointmentType.ROUTINE_CHECKUP, AppointmentType.EXAMINATION];
   const appointmentStatuses = [AppointmentStatus.SCHEDULED, AppointmentStatus.CONFIRMED, AppointmentStatus.COMPLETED, AppointmentStatus.CANCELLED];
 
   for (let i = 0; i < patients.length; i++) {
+    const patientDoctor = await prisma.patientDoctor.findFirst({
+      where: { patientId: patients[i].id },
+    });
+    const patientUnit = await prisma.patientUnit.findFirst({
+      where: { patientId: patients[i].id, isActive: true },
+    });
+
+    if (!patientDoctor || !patientUnit) {
+      continue;
+    }
+
     for (let j = 0; j < 3; j++) {
       const scheduledDate = new Date();
       scheduledDate.setDate(scheduledDate.getDate() + j + 1);
       scheduledDate.setHours(9 + j * 2, 0, 0, 0);
 
-      const doctor = doctors[i % doctors.length];
-      const unit = units[0];
+      const doctorId = patientDoctor.doctorId;
+      const unitId = patientUnit.unitId;
       const typeIndex = j % appointmentTypes.length;
       const statusIndex = j % appointmentStatuses.length;
 
       await prisma.appointment.create({
         data: {
           patientId: patients[i].id,
-          doctorId: doctor.id,
-          unitId: unit.id,
+          doctorId,
+          unitId,
           scheduledAt: scheduledDate,
           type: appointmentTypes[typeIndex],
           status: appointmentStatuses[statusIndex],
@@ -540,11 +603,17 @@ async function createAppointments(patients, doctors, units) {
   }
 }
 
-async function createMedicalRecords(patients, doctors) {
+async function createMedicalRecords(patients) {
   const recordTypes = [RecordType.CONSULTATION, RecordType.EXAMINATION, RecordType.SURGERY, RecordType.DIAGNOSTIC];
 
   for (let i = 0; i < patients.length; i++) {
-    const doctor = doctors[i % doctors.length];
+    const patientDoctor = await prisma.patientDoctor.findFirst({
+      where: { patientId: patients[i].id },
+    });
+
+    if (!patientDoctor) {
+      continue;
+    }
 
     for (let j = 0; j < 2; j++) {
       const typeIndex = j % recordTypes.length;
@@ -552,7 +621,7 @@ async function createMedicalRecords(patients, doctors) {
       await prisma.medicalRecord.create({
         data: {
           patientId: patients[i].id,
-          doctorId: doctor.id,
+          doctorId: patientDoctor.doctorId,
           recordType: recordTypes[typeIndex],
           title: `Registro Médico ${j + 1}`,
           description: `Descrição do registro médico número ${j + 1}`,

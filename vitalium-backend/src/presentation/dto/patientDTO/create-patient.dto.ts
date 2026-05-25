@@ -129,4 +129,22 @@ export class CreatePatientDTO {
   @IsOptional()
   @IsString()
   whatsappPhone?: string;
+
+  @ApiProperty({
+    description:
+      'ID da unidade para vincular o paciente na admissão (PatientUnit)',
+    example: 'clabc987654321fedcba',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  unitId?: string;
+
+  @ApiProperty({
+    description: 'Unidade principal do paciente neste vínculo',
+    example: true,
+    required: false,
+  })
+  @IsOptional()
+  isPrimary?: boolean;
 }

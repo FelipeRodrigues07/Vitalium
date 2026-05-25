@@ -57,7 +57,11 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @ApiAuthOperations.logout()
   async logout(@Request() req: RequestWithUser): Promise<void> {
-    return this.logoutUseCase.execute(req.user.sub);
+    const userId = req.user?.sub;
+    if (!userId) {
+      return;
+    }
+    return this.logoutUseCase.execute(userId);
   }
 
   @Get('profile')

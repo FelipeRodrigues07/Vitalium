@@ -9,7 +9,9 @@ import { UpdatePatientUseCase } from '../application/use-cases/patient/update-pa
 import { DeletePatientUseCase } from '../application/use-cases/patient/delete-patient.use-case';
 
 import { PatientRepository } from '../infrastructure/repositories/patient/patient.repository';
+import { DoctorRepository } from '../infrastructure/repositories/doctor/doctor.repository';
 import { UserDataRepository } from '../infrastructure/repositories/user/user-data.repository';
+import { UnitRepository } from '../infrastructure/repositories/units/unit.repository';
 
 @Module({
   imports: [PrismaModule],
@@ -25,8 +27,16 @@ import { UserDataRepository } from '../infrastructure/repositories/user/user-dat
       useClass: PatientRepository,
     },
     {
+      provide: 'IDoctorRepository',
+      useClass: DoctorRepository,
+    },
+    {
       provide: 'IUserRepository',
       useClass: UserDataRepository,
+    },
+    {
+      provide: 'IUnitRepository',
+      useClass: UnitRepository,
     },
   ],
 })

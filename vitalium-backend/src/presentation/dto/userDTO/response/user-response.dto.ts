@@ -84,6 +84,22 @@ export class UserResponseDTO {
   @Expose()
   updatedAt: string;
 
+  @ApiPropertyOptional({
+    description: 'Nome do médico responsável ativo (role PATIENT)',
+    example: 'Dr. João Silva',
+  })
+  @Expose()
+  @Transform(({ value }) => value ?? undefined)
+  responsibleDoctorName?: string;
+
+  @ApiPropertyOptional({
+    description: 'CRM do médico responsável ativo (role PATIENT)',
+    example: '123456',
+  })
+  @Expose()
+  @Transform(({ value }) => value ?? undefined)
+  responsibleDoctorCrm?: string;
+
   patient?: Patient;
   doctor?: Doctor;
   nurse?: Nurse;

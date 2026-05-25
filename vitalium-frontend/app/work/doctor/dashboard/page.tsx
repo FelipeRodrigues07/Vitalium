@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -10,53 +10,74 @@ import { PatientMonitoring } from "@/components/doctor/patient-monitoring"
 import { AlertsPanel } from "@/components/doctor/alerts-panel"
 import { DoctorAppointments } from "@/components/doctor/doctor-appointments"
 import { AppLayout } from "@/components/app-layout"
+import { useSession } from "@/services/auth/use-session"
+import { GetPatientsService } from "@/services/api/patients/GetPatients"
 
 export default function DoctorDashboard() {
   const [selectedPatient, setSelectedPatient] = useState<string | null>(null)
+  const { isReady, accessToken, user } = useSession()
+  const [linkedPatientsCount, setLinkedPatientsCount] = useState(0)
 
-  // Mock data - in real app this would come from API
-  const doctorData = {
-    name: "Dr. João Santos",
-    specialty: "Cardiologia",
-    crm: "CRM 12345-SP",
-    totalPatients: 127,
-    activePatients: 89,
-    appointmentsToday: 8,
-    pendingAlerts: 5,
-  }
+  const doctorName = user
+    ? `${user.firstName} ${user.lastName}`.trim()
+    : "Médico"
 
+  const loadPatientCount = useCallback(async () => {
+    if (!accessToken || user?.role !== "DOCTOR") {
+      return
+    }
+
+    try {
+      const patients = await GetPatientsService.getMyPatients()
+      setLinkedPatientsCount(patients.length)
+    } catch (error) {
+      console.error("Falha ao contar pacientes do médico:", error)
+      setLinkedPatientsCount(0)
+    }
+  }, [accessToken, user?.role])
+
+  useEffect(() => {
+    if (!isReady) {
+      return
+    }
+    void loadPatientCount()
+  }, [isReady, loadPatientCount])
+
+  // Consultas, mensagens e alertas ainda sem API — valores provisórios
   const todayStats = {
-    consultationsCompleted: 3,
-    consultationsRemaining: 5,
-    newMessages: 12,
-    criticalAlerts: 2,
+    consultationsCompleted: 0,
+    consultationsRemaining: 0,
+    appointmentsToday: 0,
+    newMessages: 0,
+    criticalAlerts: 0,
   }
 
   return (
     <AppLayout userRole="doctor">
       <div className="container mx-auto px-4 py-8">
-        {/* Welcome Section */}
         <div className="mb-8">
           <div className="flex items-center space-x-3 mb-4">
-            <h1 className="text-3xl font-bold text-foreground">Bom dia, {doctorData.name}!</h1>
+            <h1 className="text-3xl font-bold text-foreground">
+              Bom dia, {doctorName}!
+            </h1>
             <Badge variant="default">Médico</Badge>
           </div>
           <p className="text-muted-foreground">
-            Você tem {todayStats.consultationsRemaining} consultas restantes hoje e {todayStats.newMessages} novas
-            mensagens.
+            Você tem {linkedPatientsCount} paciente(s) vinculado(s) na plataforma.
           </p>
         </div>
 
-        {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center space-x-2 mb-2">
                 <Users className="w-5 h-5 text-primary" />
-                <span className="text-sm font-medium">Pacientes Ativos</span>
+                <span className="text-sm font-medium">Pacientes vinculados</span>
               </div>
-              <div className="text-3xl font-bold text-foreground">{doctorData.activePatients}</div>
-              <p className="text-xs text-muted-foreground">de {doctorData.totalPatients} total</p>
+              <div className="text-3xl font-bold text-foreground">
+                {linkedPatientsCount}
+              </div>
+              <p className="text-xs text-muted-foreground">responsável ativo</p>
             </CardContent>
           </Card>
 
@@ -67,9 +88,9 @@ export default function DoctorDashboard() {
                 <span className="text-sm font-medium">Consultas Hoje</span>
               </div>
               <div className="text-3xl font-bold text-foreground">
-                {todayStats.consultationsCompleted}/{doctorData.appointmentsToday}
+                {todayStats.consultationsCompleted}/{todayStats.appointmentsToday}
               </div>
-              <p className="text-xs text-muted-foreground">{todayStats.consultationsRemaining} restantes</p>
+              <p className="text-xs text-muted-foreground">em breve na API</p>
             </CardContent>
           </Card>
 
@@ -79,8 +100,10 @@ export default function DoctorDashboard() {
                 <MessageCircle className="w-5 h-5 text-green-500" />
                 <span className="text-sm font-medium">Mensagens</span>
               </div>
-              <div className="text-3xl font-bold text-foreground">{todayStats.newMessages}</div>
-              <p className="text-xs text-muted-foreground">novas mensagens</p>
+              <div className="text-3xl font-bold text-foreground">
+                {todayStats.newMessages}
+              </div>
+              <p className="text-xs text-muted-foreground">em breve na API</p>
             </CardContent>
           </Card>
 
@@ -90,13 +113,14 @@ export default function DoctorDashboard() {
                 <AlertTriangle className="w-5 h-5 text-red-500" />
                 <span className="text-sm font-medium">Alertas Críticos</span>
               </div>
-              <div className="text-3xl font-bold text-foreground">{todayStats.criticalAlerts}</div>
-              <p className="text-xs text-muted-foreground">requerem atenção</p>
+              <div className="text-3xl font-bold text-foreground">
+                {todayStats.criticalAlerts}
+              </div>
+              <p className="text-xs text-muted-foreground">em breve na API</p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Main Dashboard */}
         <Tabs defaultValue="patients" className="w-full">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="patients">Pacientes</TabsTrigger>

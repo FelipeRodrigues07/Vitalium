@@ -15,6 +15,7 @@ import { AdminModule } from './admin.module';
 import { ChatModule } from './chat.module';
 import { SpecializationModule } from './specialization.module';
 import { DoctorSpecializationModule } from './doctor-specialization.module';
+import { PatientDoctorModule } from './patient-doctor.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { DoctorSpecializationModule } from './doctor-specialization.module';
     ChatModule,
     SpecializationModule,
     DoctorSpecializationModule,
+    PatientDoctorModule,
     ExceptionsModule,
     MonitoringModule,
   ],

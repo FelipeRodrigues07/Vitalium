@@ -21,7 +21,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { User, MoreVertical, UserCheck, UserX, Shield, Edit, Trash2, Plus, Filter, Download, Mail } from "lucide-react"
+import { User, MoreVertical, UserCheck, UserX, Shield, Edit, Trash2, Plus, Filter, Download, Mail, Stethoscope } from "lucide-react"
+import { AssignPatientDoctorDialog, type AssignPatientDoctorTarget } from "./assign-patient-doctor-dialog"
 import { NewUserForm } from "./new-user-form-dialog"
 import { EditUserForm, type EditableUser } from "./edit-user-form-dialog"
 import { GetUsersService } from "@/services/api/users/GetUsers"
@@ -46,6 +47,7 @@ export function UserManagement({ searchQuery }: any) {
   const [open, setOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<EditableUser | null>(null)
   const [deletingUser, setDeletingUser] = useState<DashboardUserExtended | null>(null)
+  const [assigningPatient, setAssigningPatient] = useState<AssignPatientDoctorTarget | null>(null)
   const [users, setUsers] = useState<DashboardUserExtended[]>([])
   const [isLoadingUsers, setIsLoadingUsers] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -194,7 +196,9 @@ export function UserManagement({ searchQuery }: any) {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Gerenciamento de Usuários</CardTitle>
-              <CardDescription>Gerencie todos os usuários da plataforma</CardDescription>
+              <CardDescription>
+                Usuários vinculados à unidade ativa (médicos, pacientes, enfermeiras e admins da unidade)
+              </CardDescription>
             </div>
             <div className="flex items-center space-x-2">
               <Button variant="outline" size="sm">
@@ -297,6 +301,20 @@ export function UserManagement({ searchQuery }: any) {
                         <Edit className="w-4 h-4 mr-2" />
                         Editar
                       </DropdownMenuItem>
+                      {user.role === "patient" && (
+                        <DropdownMenuItem
+                          onClick={() =>
+                            setAssigningPatient({
+                              userId: user.id,
+                              name: user.name,
+                              email: user.email,
+                            })
+                          }
+                        >
+                          <Stethoscope className="w-4 h-4 mr-2" />
+                          Médico responsável
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem>
                         <Mail className="w-4 h-4 mr-2" />
                         Enviar Email
@@ -356,6 +374,19 @@ export function UserManagement({ searchQuery }: any) {
                   </div>
                 </div>
               )}
+
+              {user.role === "patient" && (
+                <div className="mt-3 pt-3 border-t border-border">
+                  <p className="text-sm">
+                    <span className="text-muted-foreground">Médico responsável: </span>
+                    <span className="font-medium">
+                      {user.responsibleDoctorName
+                        ? `${user.responsibleDoctorName}${user.responsibleDoctorCrm ? ` • CRM ${user.responsibleDoctorCrm}` : ""}`
+                        : "Nenhum"}
+                    </span>
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}
@@ -377,6 +408,19 @@ export function UserManagement({ searchQuery }: any) {
             user={editingUser}
             onClose={() => setEditingUser(null)}
             onUserUpdated={fetchUsers}
+          />
+        )}
+      </Dialog>
+
+      <Dialog
+        open={!!assigningPatient}
+        onOpenChange={(isOpen) => !isOpen && setAssigningPatient(null)}
+      >
+        {assigningPatient && (
+          <AssignPatientDoctorDialog
+            patient={assigningPatient}
+            onClose={() => setAssigningPatient(null)}
+            onAssigned={fetchUsers}
           />
         )}
       </Dialog>

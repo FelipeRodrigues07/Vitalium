@@ -32,13 +32,11 @@ export class SearchDoctorUseCase {
     return doctor;
   }
 
-  async findAll(): Promise<Doctor[]> {
-    const doctors = await this.DoctorRepository.findAll();
+  async findAll(unitId?: string): Promise<Doctor[]> {
+    const doctors = unitId
+      ? await this.DoctorRepository.findAllByUnitId(unitId)
+      : await this.DoctorRepository.findAll();
 
-    if (!doctors || doctors.length === 0) {
-      throw new DoctorNotFoundException();
-    }
-
-    return doctors;
+    return doctors ?? [];
   }
 }

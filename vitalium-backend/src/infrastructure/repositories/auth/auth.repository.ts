@@ -68,4 +68,19 @@ export class AuthRepository implements IAuthRepository {
       },
     });
   }
+
+  async clearRefreshToken(userId: string): Promise<void> {
+    if (!userId) {
+      return;
+    }
+
+    await this.prisma.user.updateMany({
+      where: { id: userId },
+      data: {
+        refreshToken: null,
+        refreshTokenExpiresAt: null,
+        updatedAt: new Date(),
+      },
+    });
+  }
 }

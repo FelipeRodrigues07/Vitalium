@@ -21,6 +21,8 @@ export interface DashboardUser {
   avatar?: string;
   createdAt: string;
   lastLogin: string | null;
+  responsibleDoctorName?: string;
+  responsibleDoctorCrm?: string;
 }
 
 export function mapRoleToApi(role: DashboardUserRole): ListedUserModel['role'] {
@@ -68,6 +70,8 @@ export function mapToDashboardUser(user: ListedUserModel): DashboardUser {
     avatar: user.avatar,
     createdAt: user.createdAt,
     lastLogin: null,
+    responsibleDoctorName: user.responsibleDoctorName,
+    responsibleDoctorCrm: user.responsibleDoctorCrm,
   };
 }
 

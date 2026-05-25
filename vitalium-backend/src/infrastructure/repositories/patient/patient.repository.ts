@@ -28,6 +28,17 @@ export class PatientRepository implements IPatientRepository {
         zipCode: createPatientDTO.zipCode ?? null,
         whatsappPhone: createPatientDTO.whatsappPhone ?? null,
         isActive: true,
+        ...(createPatientDTO.unitId
+          ? {
+              units: {
+                create: {
+                  unitId: createPatientDTO.unitId,
+                  isPrimary: createPatientDTO.isPrimary ?? true,
+                  isActive: true,
+                },
+              },
+            }
+          : {}),
       },
       include: {
         user: {
@@ -44,10 +55,17 @@ export class PatientRepository implements IPatientRepository {
             updatedAt: true,
           },
         },
+        units: {
+          where: { isActive: true },
+          include: { unit: true },
+        },
       },
     });
 
-    return plainToInstance(Patient, patient);
+    return plainToInstance(Patient, {
+      ...patient,
+      units: patient.units?.map((pu) => pu.unit) ?? [],
+    });
   }
 
   async findById(id: string): Promise<Patient | null> {
@@ -110,9 +128,11 @@ export class PatientRepository implements IPatientRepository {
           include: { unit: true },
         },
         patientDoctors: {
+          where: { endDate: null },
           include: {
             doctor: { include: { user: true } },
           },
+          orderBy: { startDate: 'desc' },
         },
       },
     });
@@ -138,6 +158,42 @@ export class PatientRepository implements IPatientRepository {
           include: {
             doctor: { include: { user: true } },
           },
+        },
+      },
+      orderBy: { user: { firstName: 'asc' } },
+    });
+
+    return patients.map((p) =>
+      plainToInstance(Patient, {
+        ...p,
+        units: p.units.map((pu) => pu.unit),
+      }),
+    );
+  }
+
+  async findAllByDoctorId(doctorId: string): Promise<Patient[]> {
+    const patients = await this.prisma.patient.findMany({
+      where: {
+        isActive: true,
+        patientDoctors: {
+          some: {
+            doctorId,
+            endDate: null,
+          },
+        },
+      },
+      include: {
+        user: true,
+        units: {
+          where: { isActive: true },
+          include: { unit: true },
+        },
+        patientDoctors: {
+          where: { doctorId, endDate: null },
+          include: {
+            doctor: { include: { user: true } },
+          },
+          orderBy: { startDate: 'desc' },
         },
       },
       orderBy: { user: { firstName: 'asc' } },
@@ -274,5 +330,17 @@ export class PatientRepository implements IPatientRepository {
       where: { id },
       data: { isActive: false, updatedAt: new Date() },
     });
+  }
+
+  async hasActiveUnitLink(patientId: string, unitId: string): Promise<boolean> {
+    const link = await this.prisma.patientUnit.findFirst({
+      where: {
+        patientId,
+        unitId,
+        isActive: true,
+      },
+    });
+
+    return !!link;
   }
 }

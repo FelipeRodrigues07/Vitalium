@@ -28,10 +28,24 @@ describe('SearchPatientUseCase', () => {
     findByCpf: jest.fn(),
     findByUserId: jest.fn(),
     findAll: jest.fn(),
+    findAllByDoctorId: jest.fn(),
     findFirstByPatientId: jest.fn(),
     findByWhatsappPhone: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
+    hasActiveUnitLink: jest.fn(),
+  };
+
+  const doctorRepositoryMock = {
+    create: jest.fn(),
+    findById: jest.fn(),
+    findByCrm: jest.fn(),
+    findByUserId: jest.fn(),
+    findAll: jest.fn(),
+    findAllByUnitId: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+    hasActiveUnitLink: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -41,6 +55,7 @@ describe('SearchPatientUseCase', () => {
       providers: [
         SearchPatientUseCase,
         { provide: 'IPatientRepository', useValue: patientRepositoryMock },
+        { provide: 'IDoctorRepository', useValue: doctorRepositoryMock },
       ],
     }).compile();
 

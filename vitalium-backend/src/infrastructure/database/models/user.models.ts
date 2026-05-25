@@ -26,4 +26,8 @@ export class User {
   nurse?: Nurse;
   caregiver?: Caregiver;
   admin?: Admin;
+
+  /** Preenchido na listagem de pacientes (GET /users) */
+  responsibleDoctorName?: string;
+  responsibleDoctorCrm?: string;
 }
