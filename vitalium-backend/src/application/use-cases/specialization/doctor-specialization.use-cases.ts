@@ -33,7 +33,8 @@ export class CreateDoctorSpecializationUseCase {
     } catch (error) {
       if (error instanceof ValidationException) throw error;
       // Prisma FK constraint (doctor or specialization not found)
-      if (error?.code === 'P2003' || error?.code === 'P2025') {
+      const err = error as { code?: string };
+      if (err.code === 'P2003' || err.code === 'P2025') {
         throw new ValidationException([
           {
             field: 'doctorId',
