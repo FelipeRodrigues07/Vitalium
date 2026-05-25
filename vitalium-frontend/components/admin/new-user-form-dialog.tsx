@@ -27,7 +27,7 @@ interface FormData {
   phone: string;
   email: string;
   password: string;
-  role: 'DOCTOR' | 'PATIENT' | 'NURSE' | 'SECRETARY' | 'ADMIN' | '';
+  role: 'DOCTOR' | 'PATIENT' | 'NURSE' | 'CAREGIVER' | 'ADMIN' | '';
   specialty: string;
   crm: string;
   consultationPrice: number;
@@ -67,7 +67,7 @@ export function NewUserForm({ onClose, onUserCreated }: NewUserFormProps) {
   };
 
   const handleRoleChange = (value: string) => {
-    const validRoles = ['DOCTOR', 'PATIENT', 'NURSE', 'SECRETARY', 'ADMIN', ''];
+    const validRoles = ['DOCTOR', 'PATIENT', 'NURSE', 'CAREGIVER', 'ADMIN', ''];
     const newRole = validRoles.includes(value as FormData['role']) ? value as FormData['role'] : '';
 
     setFormData(prev => ({ ...prev, role: newRole }));
@@ -147,13 +147,22 @@ export function NewUserForm({ onClose, onUserCreated }: NewUserFormProps) {
               value={formData.password}
               onChange={handleChange}
               required
+              minLength={8}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="phone">Telefone</Label>
-              <Input id="phone" placeholder="Digite o telefone" value={formData.phone} onChange={handleChange} required />
+              <Input
+                id="phone"
+                placeholder="62999999999 (11 dígitos)"
+                value={formData.phone}
+                onChange={handleChange}
+                required
+                minLength={11}
+                maxLength={13}
+              />
             </div>
 
             <div className="space-y-2">
@@ -172,7 +181,7 @@ export function NewUserForm({ onClose, onUserCreated }: NewUserFormProps) {
                 <SelectItem value="DOCTOR">Médico</SelectItem>
                 <SelectItem value="PATIENT">Paciente</SelectItem>
                 <SelectItem value="NURSE">Enfermeira</SelectItem>
-                <SelectItem value="SECRETARY">Secretária</SelectItem>
+                <SelectItem value="CAREGIVER">Cuidador</SelectItem>
                 <SelectItem value="ADMIN">Administrador</SelectItem>
               </SelectContent>
             </Select>

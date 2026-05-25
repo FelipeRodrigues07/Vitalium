@@ -13,6 +13,8 @@ import { LoggingInterceptor } from '../shared/interceptors/logging.interceptor';
 import { AuthModule } from './auth.module';
 import { AdminModule } from './admin.module';
 import { ChatModule } from './chat.module';
+import { SpecializationModule } from './specialization.module';
+import { DoctorSpecializationModule } from './doctor-specialization.module';
 
 @Module({
   imports: [
@@ -29,6 +31,8 @@ import { ChatModule } from './chat.module';
     UnitModule,
     AdminModule,
     ChatModule,
+    SpecializationModule,
+    DoctorSpecializationModule,
     ExceptionsModule,
     MonitoringModule,
   ],
