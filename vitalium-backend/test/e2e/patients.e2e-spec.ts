@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { AppModule } from '../../src/modules/app.module';
 import { PrismaProvider } from '../../src/infrastructure/database/prisma.provider';
 import { Role } from '../../src/shared/enums/role.enum';
+import { AdminRole } from '../../src/shared/enums/admin-role.enum';
 
 describe('Patients API (e2e)', () => {
   let app: INestApplication;
@@ -63,7 +64,7 @@ describe('Patients API (e2e)', () => {
     });
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    await prisma.user.create({
+    const adminUser = await prisma.user.create({
       data: {
         email: adminEmail,
         password: hashedPassword,
@@ -71,6 +72,13 @@ describe('Patients API (e2e)', () => {
         lastName: 'Tester',
         isActive: true,
         role: Role.ADMIN,
+      },
+    });
+    await prisma.admin.create({
+      data: {
+        userId: adminUser.id,
+        role: AdminRole.SUPER_ADMIN,
+        isActive: true,
       },
     });
 

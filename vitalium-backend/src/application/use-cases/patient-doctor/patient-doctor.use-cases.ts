@@ -14,7 +14,11 @@ export class CreatePatientDoctorUseCase {
   ) {}
   async execute(dto: CreatePatientDoctorDTO): Promise<PatientDoctor> {
     try {
-      return await this.repo.create(dto);
+      return await this.repo.create({
+        patientId: dto.patientId,
+        doctorId: dto.doctorId,
+        startDate: dto.startDate ? new Date(dto.startDate) : undefined,
+      });
     } catch (error) {
       throw new DatabaseException('criar vínculo paciente-médico', error);
     }

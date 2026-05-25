@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
 import { DoctorSpecializationNotFoundException } from '../../../shared/execeptions/specialization/doctor-specialization-not-found.exception';
 import type { IDoctorSpecializationRepository } from '../../../domain/interfaces/repositories/specialization/doctor-specialization.repository.interface';
 import type { CreateDoctorSpecializationDTO } from '../../../presentation/dto/doctorSpecializationDTO/create-doctor-specialization.dto';
@@ -15,8 +16,32 @@ export class CreateDoctorSpecializationUseCase {
     dto: CreateDoctorSpecializationDTO,
   ): Promise<DoctorSpecialization> {
     try {
+      const existing = await this.repo.findByDoctorAndSpecialization(
+        dto.doctorId,
+        dto.specializationId,
+      );
+      if (existing) {
+        throw new ValidationException([
+          {
+            field: 'doctorSpecialization',
+            value: `${dto.doctorId}-${dto.specializationId}`,
+            constraints: ['Médico já possui vínculo com esta especialização'],
+          },
+        ]);
+      }
       return await this.repo.create(dto);
     } catch (error) {
+      if (error instanceof ValidationException) throw error;
+      // Prisma FK constraint (doctor or specialization not found)
+      if (error?.code === 'P2003' || error?.code === 'P2025') {
+        throw new ValidationException([
+          {
+            field: 'doctorId',
+            value: dto.doctorId,
+            constraints: ['Médico ou especialização não encontrado(a)'],
+          },
+        ]);
+      }
       throw new DatabaseException('vincular médico à especialização', error);
     }
   }

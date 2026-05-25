@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
 import { SpecializationNotFoundException } from '../../../shared/execeptions/specialization/specialization-not-found.exception';
 import type { ISpecializationRepository } from '../../../domain/interfaces/repositories/specialization/specialization.repository.interface';
 import type { CreateSpecializationDTO } from '../../../presentation/dto/specializationDTO/create-specialization.dto';
@@ -14,8 +15,19 @@ export class CreateSpecializationUseCase {
   ) {}
   async execute(dto: CreateSpecializationDTO): Promise<Specialization> {
     try {
+      const existing = await this.repo.findByName(dto.name);
+      if (existing) {
+        throw new ValidationException([
+          {
+            field: 'name',
+            value: dto.name,
+            constraints: ['Já existe uma especialização com este nome'],
+          },
+        ]);
+      }
       return await this.repo.create(dto);
     } catch (error) {
+      if (error instanceof ValidationException) throw error;
       throw new DatabaseException('criar especialização', error);
     }
   }

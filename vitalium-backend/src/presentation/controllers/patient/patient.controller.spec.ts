@@ -46,7 +46,11 @@ describe('PatientController', () => {
         { provide: CreatePatientUseCase, useValue: { execute: jest.fn() } },
         {
           provide: SearchPatientUseCase,
-          useValue: { findById: jest.fn(), findAll: jest.fn() },
+          useValue: {
+            findById: jest.fn(),
+            findAll: jest.fn(),
+            findAllForAuthUser: jest.fn(),
+          },
         },
         { provide: UpdatePatientUseCase, useValue: { execute: jest.fn() } },
         { provide: DeletePatientUseCase, useValue: { execute: jest.fn() } },
@@ -134,21 +138,23 @@ describe('PatientController', () => {
   });
 
   describe('findAll', () => {
-    it('should return all patients', async () => {
-      searchPatientUseCase.findAll.mockResolvedValue([mockPatient]);
+    const mockReq = { user: { id: 'user-id-1', role: 'ADMIN' } } as any;
 
-      const result = await controller.findAll();
+    it('should return all patients', async () => {
+      searchPatientUseCase.findAllForAuthUser.mockResolvedValue([mockPatient]);
+
+      const result = await controller.findAll(mockReq);
 
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe(mockPatient.id);
     });
 
     it('should propagate PatientNotFoundException when no patients', async () => {
-      searchPatientUseCase.findAll.mockRejectedValue(
+      searchPatientUseCase.findAllForAuthUser.mockRejectedValue(
         new PatientNotFoundException(),
       );
 
-      await expect(controller.findAll()).rejects.toThrow(
+      await expect(controller.findAll(mockReq)).rejects.toThrow(
         PatientNotFoundException,
       );
     });

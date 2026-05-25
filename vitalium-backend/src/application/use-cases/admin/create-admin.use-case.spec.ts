@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CreateAdminUseCase } from './create-admin.use-case';
+import { PrismaProvider } from '../../../infrastructure/database/prisma.provider';
 import { Role } from '../../../shared/enums/role.enum';
 import { AdminRole } from '../../../shared/enums/admin-role.enum';
 import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
@@ -64,6 +65,10 @@ describe('CreateAdminUseCase', () => {
             delete: jest.fn(),
           },
         },
+        {
+          provide: PrismaProvider,
+          useValue: { $transaction: jest.fn() },
+        },
       ],
     }).compile();
 
@@ -79,7 +84,7 @@ describe('CreateAdminUseCase', () => {
   describe('execute', () => {
     const validDTO = {
       userId: 'user-id-1',
-      role: AdminRole.HOSPITAL_ADMIN,
+      role: AdminRole.SUPER_ADMIN,
       isActive: true,
     };
 

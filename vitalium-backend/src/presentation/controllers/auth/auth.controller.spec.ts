@@ -4,6 +4,7 @@ import { AuthController } from './auth.controller';
 import { LoginUseCase } from '../../../application/use-cases/auth/login.use-case';
 import { RefreshTokenUseCase } from '../../../application/use-cases/auth/refresh-token.use-case';
 import { LogoutUseCase } from '../../../application/use-cases/auth/logout.use-case';
+import { GetAdminUnitsUseCase } from '../../../application/use-cases/auth/get-admin-units.use-case';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
 import { Role } from '../../../shared/enums/role.enum';
 
@@ -40,6 +41,7 @@ describe('AuthController', () => {
         { provide: LoginUseCase, useValue: { execute: jest.fn() } },
         { provide: RefreshTokenUseCase, useValue: { execute: jest.fn() } },
         { provide: LogoutUseCase, useValue: { execute: jest.fn() } },
+        { provide: GetAdminUnitsUseCase, useValue: { execute: jest.fn() } },
         // Override guards for unit tests
         {
           provide: AuthGuard,

@@ -79,16 +79,18 @@ describe('SearchDoctorUseCase', () => {
       expect(result).toHaveLength(2);
     });
 
-    it('should throw DoctorNotFoundException when no doctors exist', async () => {
+    it('should return empty array when no doctors exist', async () => {
       doctorRepository.findAll.mockResolvedValue([]);
 
-      await expect(useCase.findAll()).rejects.toThrow(DoctorNotFoundException);
+      const result = await useCase.findAll();
+      expect(result).toEqual([]);
     });
 
-    it('should throw DoctorNotFoundException when result is null', async () => {
+    it('should return empty array when result is null', async () => {
       doctorRepository.findAll.mockResolvedValue(null as any);
 
-      await expect(useCase.findAll()).rejects.toThrow(DoctorNotFoundException);
+      const result = await useCase.findAll();
+      expect(result).toEqual([]);
     });
   });
 });

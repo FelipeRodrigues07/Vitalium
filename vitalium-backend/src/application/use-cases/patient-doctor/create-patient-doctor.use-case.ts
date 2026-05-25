@@ -82,10 +82,11 @@ export class CreatePatientDoctorUseCase {
         await this.assertSharedUnit(dto.patientId, dto.doctorId, dto.unitId);
       }
 
-      const existing = await this.patientDoctorRepository.findByPatientIdAndDoctorId(
-        dto.patientId,
-        dto.doctorId,
-      );
+      const existing =
+        await this.patientDoctorRepository.findByPatientAndDoctor(
+          dto.patientId,
+          dto.doctorId,
+        );
 
       if (existing && !existing.endDate) {
         throw new ConflictException(
@@ -126,7 +127,10 @@ export class CreatePatientDoctorUseCase {
     }
   }
 
-  private assertUnitScope(authUser: AuthJwtPayload | undefined, unitId: string) {
+  private assertUnitScope(
+    authUser: AuthJwtPayload | undefined,
+    unitId: string,
+  ) {
     if (!authUser || isSuperAdmin(authUser)) {
       return;
     }

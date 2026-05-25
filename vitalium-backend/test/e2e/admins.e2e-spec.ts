@@ -14,6 +14,7 @@ describe('Admins API (e2e)', () => {
   let nonAdminAccessToken: string;
 
   const adminEmail = 'test-e2e-admin-user@example.com';
+  const superAdminEmail = 'test-e2e-admin-super@example.com';
   const patientEmail = 'test-e2e-admin-patient@example.com';
   const password = 'TestPassword123!';
 
@@ -65,7 +66,26 @@ describe('Admins API (e2e)', () => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Usuário com role ADMIN
+    // Super admin para autenticação (separado do adminEmail que é target dos testes)
+    const superAdminUser = await prisma.user.create({
+      data: {
+        email: superAdminEmail,
+        password: hashedPassword,
+        firstName: 'Super',
+        lastName: 'Admin',
+        isActive: true,
+        role: Role.ADMIN,
+      },
+    });
+    await prisma.admin.create({
+      data: {
+        userId: superAdminUser.id,
+        role: AdminRole.SUPER_ADMIN,
+        isActive: true,
+      },
+    });
+
+    // Usuário com role ADMIN (target dos testes - sem perfil Admin)
     await prisma.user.create({
       data: {
         email: adminEmail,
@@ -89,7 +109,7 @@ describe('Admins API (e2e)', () => {
       },
     });
 
-    adminAccessToken = await loginAndGetToken(adminEmail);
+    adminAccessToken = await loginAndGetToken(superAdminEmail);
     nonAdminAccessToken = await loginAndGetToken(patientEmail);
   });
 
@@ -104,12 +124,12 @@ describe('Admins API (e2e)', () => {
       const response = await request(app.getHttpServer())
         .post('/admins')
         .set('Authorization', `Bearer ${adminAccessToken}`)
-        .send({ userId: adminUser?.id, role: AdminRole.HOSPITAL_ADMIN })
+        .send({ userId: adminUser?.id, role: AdminRole.SUPER_ADMIN })
         .expect(201);
 
       expect(response.body.id).toBeDefined();
       expect(response.body.userId).toBe(adminUser?.id);
-      expect(response.body.role).toBe(AdminRole.HOSPITAL_ADMIN);
+      expect(response.body.role).toBe(AdminRole.SUPER_ADMIN);
       expect(response.body.isActive).toBe(true);
     });
 
@@ -121,7 +141,7 @@ describe('Admins API (e2e)', () => {
       await request(app.getHttpServer())
         .post('/admins')
         .set('Authorization', `Bearer ${adminAccessToken}`)
-        .send({ userId: adminUser?.id, role: AdminRole.HOSPITAL_ADMIN })
+        .send({ userId: adminUser?.id, role: AdminRole.SUPER_ADMIN })
         .expect(201);
 
       await request(app.getHttpServer())
@@ -204,7 +224,7 @@ describe('Admins API (e2e)', () => {
       const created = await request(app.getHttpServer())
         .post('/admins')
         .set('Authorization', `Bearer ${adminAccessToken}`)
-        .send({ userId: adminUser?.id, role: AdminRole.HOSPITAL_ADMIN })
+        .send({ userId: adminUser?.id, role: AdminRole.SUPER_ADMIN })
         .expect(201);
 
       const response = await request(app.getHttpServer())
@@ -213,7 +233,7 @@ describe('Admins API (e2e)', () => {
         .expect(200);
 
       expect(response.body.id).toBe(created.body.id);
-      expect(response.body.role).toBe(AdminRole.HOSPITAL_ADMIN);
+      expect(response.body.role).toBe(AdminRole.SUPER_ADMIN);
     });
 
     it('should return 404 for non-existent admin', async () => {
@@ -245,7 +265,7 @@ describe('Admins API (e2e)', () => {
       const created = await request(app.getHttpServer())
         .post('/admins')
         .set('Authorization', `Bearer ${adminAccessToken}`)
-        .send({ userId: adminUser?.id, role: AdminRole.HOSPITAL_ADMIN })
+        .send({ userId: adminUser?.id, role: AdminRole.SUPER_ADMIN })
         .expect(201);
 
       const response = await request(app.getHttpServer())
@@ -264,7 +284,7 @@ describe('Admins API (e2e)', () => {
       const created = await request(app.getHttpServer())
         .post('/admins')
         .set('Authorization', `Bearer ${adminAccessToken}`)
-        .send({ userId: adminUser?.id, role: AdminRole.HOSPITAL_ADMIN })
+        .send({ userId: adminUser?.id, role: AdminRole.SUPER_ADMIN })
         .expect(201);
 
       const response = await request(app.getHttpServer())
@@ -310,7 +330,7 @@ describe('Admins API (e2e)', () => {
       const created = await request(app.getHttpServer())
         .post('/admins')
         .set('Authorization', `Bearer ${adminAccessToken}`)
-        .send({ userId: adminUser?.id, role: AdminRole.HOSPITAL_ADMIN })
+        .send({ userId: adminUser?.id, role: AdminRole.SUPER_ADMIN })
         .expect(201);
 
       await request(app.getHttpServer())

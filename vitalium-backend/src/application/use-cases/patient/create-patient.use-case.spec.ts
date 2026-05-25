@@ -76,6 +76,7 @@ describe('CreatePatientUseCase', () => {
         CreatePatientUseCase,
         { provide: 'IPatientRepository', useValue: patientRepositoryMock },
         { provide: 'IUserRepository', useValue: userRepositoryMock },
+        { provide: 'IUnitRepository', useValue: { findById: jest.fn() } },
       ],
     }).compile();
 

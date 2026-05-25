@@ -17,7 +17,7 @@ import { Roles } from '../../../shared/decorators/roles.decorator';
 import { Role } from '../../../shared/enums';
 import { ApiMedicalAttachmentOperations } from '../../../shared/swagger/decorators/medical-attachment.decorators';
 import { MedicalAttachmentResponseDTO } from '../../dto/medicalAttachmentDTO/response/medical-attachment-response.dto';
-import { CreateMedicalAttachmentDTO } from '../../dto/medicalAttachmentDTO/create-medical-attachment.dto';
+import { CreateMedicalAttachmentBodyDTO } from '../../dto/medicalAttachmentDTO/create-medical-attachment-body.dto';
 import {
   CreateMedicalAttachmentUseCase,
   SearchMedicalAttachmentUseCase,
@@ -40,7 +40,7 @@ export class MedicalAttachmentController {
   @Roles(Role.ADMIN, Role.DOCTOR)
   async create(
     @Param('recordId') recordId: string,
-    @Body() dto: Omit<CreateMedicalAttachmentDTO, 'medicalRecordId'>,
+    @Body() dto: CreateMedicalAttachmentBodyDTO,
   ): Promise<MedicalAttachmentResponseDTO> {
     const attachment = await this.createUseCase.execute({
       ...dto,

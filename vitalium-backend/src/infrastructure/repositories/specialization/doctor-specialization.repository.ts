@@ -21,15 +21,8 @@ export class DoctorSpecializationRepository implements IDoctorSpecializationRepo
   async create(
     dto: CreateDoctorSpecializationDTO,
   ): Promise<DoctorSpecialization> {
-    const link = await this.prisma.doctorSpecialization.upsert({
-      where: {
-        doctorId_specializationId: {
-          doctorId: dto.doctorId,
-          specializationId: dto.specializationId,
-        },
-      },
-      update: {},
-      create: {
+    const link = await this.prisma.doctorSpecialization.create({
+      data: {
         doctorId: dto.doctorId,
         specializationId: dto.specializationId,
       },
@@ -68,5 +61,16 @@ export class DoctorSpecializationRepository implements IDoctorSpecializationRepo
 
   async delete(id: string): Promise<void> {
     await this.prisma.doctorSpecialization.delete({ where: { id } });
+  }
+
+  async findByDoctorAndSpecialization(
+    doctorId: string,
+    specializationId: string,
+  ): Promise<DoctorSpecialization | null> {
+    const link = await this.prisma.doctorSpecialization.findFirst({
+      where: { doctorId, specializationId },
+      include: includeRelations,
+    });
+    return link ? plainToInstance(DoctorSpecialization, link) : null;
   }
 }

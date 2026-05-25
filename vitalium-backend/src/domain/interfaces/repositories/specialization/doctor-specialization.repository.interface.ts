@@ -8,5 +8,9 @@ export interface IDoctorSpecializationRepository {
   findBySpecializationId(
     specializationId: string,
   ): Promise<DoctorSpecialization[]>;
+  findByDoctorAndSpecialization(
+    doctorId: string,
+    specializationId: string,
+  ): Promise<DoctorSpecialization | null>;
   delete(id: string): Promise<void>;
 }
