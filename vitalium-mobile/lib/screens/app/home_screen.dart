@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/components/modalRegisterSymptoms.dart';
+import 'package:provider/provider.dart';
 
+import '../../providers/auth_provider.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -17,12 +19,15 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<AuthProvider>().user;
+    final displayName = user?.fullName ?? 'Paciente';
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF22A16C),
         elevation: 0,
         title: const Text(
-          "Vitalium",
+          'Vitalium',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 20,
@@ -42,9 +47,9 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Olá, Maria Silva",
-              style: TextStyle(
+            Text(
+              'Olá, $displayName',
+              style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
               ),
@@ -57,7 +62,7 @@ class HomeScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Text(
-                "Paciente",
+                'Paciente',
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -66,7 +71,7 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             const Text(
-              "Como você está se sentindo hoje? Registre seus sintomas e acompanhe sua evolução.",
+              'Como você está se sentindo hoje? Registre seus sintomas e acompanhe sua evolução.',
               style: TextStyle(fontSize: 14, color: Colors.black54),
             ),
             const SizedBox(height: 20),
@@ -84,14 +89,14 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 child: const Text(
-                  "+ Registrar Sintomas",
+                  '+ Registrar Sintomas',
                   style: TextStyle(fontSize: 16, color: Colors.white),
                 ),
               ),
             ),
             const SizedBox(height: 30),
             const Text(
-              "Relatório",
+              'Relatório',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -103,14 +108,14 @@ class HomeScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey.shade300),
+                border: Border.all(color: Colors.grey),
               ),
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
                     child: Text(
-                      "Você relatou 3 dias de dores de cabeça em setembro",
+                      'Você relatou 3 dias de dores de cabeça em setembro',
                       style: TextStyle(fontSize: 14),
                     ),
                   ),
