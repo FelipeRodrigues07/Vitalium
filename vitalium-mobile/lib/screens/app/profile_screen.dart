@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:provider/provider.dart';
+
+import '../../providers/auth_provider.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -53,12 +56,40 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  Future<void> _logout(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Sair'),
+        content: const Text('Deseja encerrar sua sessão?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Sair', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      await context.read<AuthProvider>().logout();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<AuthProvider>().user;
+    final displayName = user?.fullName ?? 'Paciente';
+    final email = user?.email ?? '';
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          "Perfil",
+          'Perfil',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 20,
@@ -100,48 +131,55 @@ class ProfileScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
-
-            const Text(
-              "Maria Silva",
-              style: TextStyle(
+            Text(
+              displayName,
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 4),
-            const Text(
-              "maria@email.com",
-              style: TextStyle(
+            Text(
+              email,
+              style: const TextStyle(
                 fontSize: 18,
                 color: Colors.grey,
               ),
             ),
-
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {},
-              child: const Text("Editar Perfil"),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF016B3A),
                 foregroundColor: Colors.white,
               ),
+              child: const Text('Editar Perfil'),
             ),
-
             const SizedBox(height: 30),
             const Divider(),
             const SizedBox(height: 10),
-
-            _profileMenuItem("Configurações", Icons.settings, () {}),
-            _profileMenuItem("Informações", Icons.info, () {}),
-            _profileMenuItem("Sair", Icons.logout, () {}, textColor: Colors.red),
+            _profileMenuItem('Configurações', Icons.settings, () {}),
+            _profileMenuItem('Informações', Icons.info, () {}),
+            _profileMenuItem(
+              'Sair',
+              Icons.logout,
+              () => _logout(context),
+              textColor: Colors.red,
+              endIcon: false,
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _profileMenuItem(String title, IconData icon, VoidCallback onPress,
-      {Color? textColor, bool endIcon = true}) {
+  Widget _profileMenuItem(
+    String title,
+    IconData icon,
+    VoidCallback onPress, {
+    Color? textColor,
+    bool endIcon = true,
+  }) {
     return ListTile(
       leading: Icon(icon, color: textColor ?? Colors.black),
       title: Text(

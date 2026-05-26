@@ -1,16 +1,46 @@
-# mobile
+# Vitalium Mobile (Paciente)
 
-A new Flutter project.
+App Flutter para pacientes — login integrado com a API Vitalium.
 
-## Getting Started
+## Pré-requisitos
 
-This project is a starting point for a Flutter application.
+- Flutter SDK
+- Backend rodando (ex.: `http://localhost:3000`)
 
-A few resources to get you started if this is your first Flutter project:
+## Instalação
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+```bash
+cd vitalium-mobile
+flutter pub get
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Rodar
+
+**Emulador Android** (API em `localhost:3000` no host):
+
+```bash
+flutter run
+```
+
+**Dispositivo físico** (substitua pelo IP da sua máquina na rede):
+
+```bash
+flutter run --dart-define=API_BASE_URL=http://192.168.0.10:3000
+```
+
+## Conta de teste (seed)
+
+| Email | Senha |
+|-------|--------|
+| `paciente1@vitalium.com` | `paciente123456` |
+
+Apenas usuários com perfil **PATIENT** podem entrar no app.
+
+## Autenticação
+
+- `POST /auth/login` — login
+- `GET /auth/profile` — restaurar sessão
+- `POST /auth/refresh` — renovar access token
+- `POST /auth/logout` — sair
+
+Tokens ficam em `lib/storage/auth_storage.dart` (`shared_preferences`, sessão persistente).
