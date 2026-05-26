@@ -14,8 +14,8 @@ import {
 import type { Request as ExpressRequest } from 'express';
 import { ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
+import { CreatePatientDoctorUseCase } from '../../../application/use-cases/patient-doctor/create-patient-doctor.use-case';
 import {
-  CreatePatientDoctorUseCase,
   DeletePatientDoctorUseCase,
   SearchPatientDoctorUseCase,
   UpdatePatientDoctorUseCase,
