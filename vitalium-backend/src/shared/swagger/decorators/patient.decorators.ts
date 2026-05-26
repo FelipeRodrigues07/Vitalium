@@ -131,13 +131,33 @@ export const ApiPatientOperations = {
       ApiTags('patients'),
       ApiBearerAuth('JWT-auth'),
       ApiOperation({
-        summary: 'Listar todos os pacientes',
+        summary: 'Listar pacientes',
         description:
-          'Retorna lista de todos os pacientes ativos com usuário, unidades vinculadas e médicos responsáveis. Requer role **ADMIN**, **DOCTOR** ou **NURSE**.',
+          '**DOCTOR**: apenas pacientes com vínculo ativo com o médico logado. **ADMIN/NURSE**: todos os ativos (opcional `?doctorId=`). Inclui usuário, unidades e médicos responsáveis.',
       }),
       ApiResponse({ status: 200, description: 'Lista retornada com sucesso' }),
       ApiResponse({ status: 401, description: 'Não autenticado' }),
       ApiResponse({ status: 403, description: 'Sem permissão' }),
+    ),
+
+  findPatientByUserId: () =>
+    applyDecorators(
+      ApiTags('patients'),
+      ApiBearerAuth('JWT-auth'),
+      ApiOperation({
+        summary: 'Buscar paciente pelo ID do usuário',
+        description:
+          'Retorna perfil clínico do paciente (`userId` da tabela users). Requer role **ADMIN**, **DOCTOR** ou **NURSE**.',
+      }),
+      ApiParam({
+        name: 'userId',
+        description: 'ID do usuário (role PATIENT)',
+        example: 'clxyz123456789abcdef',
+      }),
+      ApiResponse({ status: 200, description: 'Paciente encontrado' }),
+      ApiResponse({ status: 401, description: 'Não autenticado' }),
+      ApiResponse({ status: 403, description: 'Sem permissão' }),
+      ApiResponse({ status: 404, description: 'Paciente não encontrado' }),
     ),
 
   findPatientById: () =>

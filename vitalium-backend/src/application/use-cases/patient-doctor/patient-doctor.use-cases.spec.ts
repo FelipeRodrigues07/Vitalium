@@ -2,8 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import type { IPatientDoctorRepository } from '../../../domain/interfaces/repositories/patient-doctor/patient-doctor.repository.interface';
 import { PatientDoctorNotFoundException } from '../../../shared/execeptions/patient-doctor/patient-doctor-not-found.exception';
 import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import { CreatePatientDoctorUseCase } from './create-patient-doctor.use-case';
 import {
-  CreatePatientDoctorUseCase,
   DeletePatientDoctorUseCase,
   SearchPatientDoctorUseCase,
   UpdatePatientDoctorUseCase,
@@ -41,6 +41,14 @@ describe('CreatePatientDoctorUseCase', () => {
       providers: [
         CreatePatientDoctorUseCase,
         { provide: 'IPatientDoctorRepository', useValue: { ...mockRepoValue } },
+        {
+          provide: 'IPatientRepository',
+          useValue: { findById: jest.fn().mockResolvedValue({ id: 'patient-id-1' }) },
+        },
+        {
+          provide: 'IDoctorRepository',
+          useValue: { findById: jest.fn().mockResolvedValue({ id: 'doctor-id-1' }) },
+        },
       ],
     }).compile();
 
@@ -51,12 +59,15 @@ describe('CreatePatientDoctorUseCase', () => {
   });
 
   it('should create a patient-doctor link', async () => {
+    repo.findByPatientAndDoctor.mockResolvedValue(null);
+    repo.endActiveLinksForPatient.mockResolvedValue(undefined);
     repo.create.mockResolvedValue(mockPatientDoctor);
     const result = await useCase.execute({
       patientId: 'patient-id-1',
       doctorId: 'doctor-id-1',
     });
     expect(result).toEqual(mockPatientDoctor);
+    expect(repo.endActiveLinksForPatient).toHaveBeenCalled();
   });
 
   it('should throw DatabaseException on error', async () => {

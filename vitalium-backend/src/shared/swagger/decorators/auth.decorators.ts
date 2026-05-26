@@ -122,4 +122,33 @@ export const ApiAuthOperations = {
       }),
       ApiResponse({ status: 401, description: 'Não autorizado' }),
     ),
+
+  adminUnits: () =>
+    applyDecorators(
+      ApiTags('auth'),
+      ApiBearerAuth('JWT-auth'),
+      ApiOperation({
+        summary: 'Unidades do administrador',
+        description:
+          'Lista unidades que o admin pode gerenciar (SUPER_ADMIN: todas; demais: admin_units).',
+      }),
+      ApiResponse({
+        status: 200,
+        description: 'Lista de unidades',
+        schema: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              name: { type: 'string' },
+              type: { type: 'string' },
+              city: { type: 'string', nullable: true },
+              state: { type: 'string', nullable: true },
+            },
+          },
+        },
+      }),
+      ApiResponse({ status: 401, description: 'Não autorizado' }),
+    ),
 };

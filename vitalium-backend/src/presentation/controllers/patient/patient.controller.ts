@@ -78,6 +78,7 @@ export class PatientController {
 
   @Get('by-user/:userId')
   @HttpCode(HttpStatus.OK)
+  @ApiPatientOperations.findPatientByUserId()
   @Roles(Role.ADMIN, Role.DOCTOR, Role.NURSE)
   async findByUserId(
     @Param('userId') userId: string,

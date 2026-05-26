@@ -75,6 +75,7 @@ export class AuthController {
   @Get('units')
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard)
+  @ApiAuthOperations.adminUnits()
   async getAdminUnits(@Request() req: RequestWithUser) {
     return this.getAdminUnitsUseCase.execute(req.user);
   }

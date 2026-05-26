@@ -1,29 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { IPatientDoctorRepository } from '../../../domain/interfaces/repositories/patient-doctor/patient-doctor.repository.interface';
 import type { PatientDoctor } from '../../../infrastructure/database/models/patient-doctor.models';
-import type { CreatePatientDoctorDTO } from '../../../presentation/dto/patientDoctorDTO/create-patient-doctor.dto';
 import type { UpdatePatientDoctorDTO } from '../../../presentation/dto/patientDoctorDTO/update-patient-doctor.dto';
 import { PatientDoctorNotFoundException } from '../../../shared/execeptions/patient-doctor/patient-doctor-not-found.exception';
 import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
-
-@Injectable()
-export class CreatePatientDoctorUseCase {
-  constructor(
-    @Inject('IPatientDoctorRepository')
-    private readonly repo: IPatientDoctorRepository,
-  ) {}
-  async execute(dto: CreatePatientDoctorDTO): Promise<PatientDoctor> {
-    try {
-      return await this.repo.create({
-        patientId: dto.patientId,
-        doctorId: dto.doctorId,
-        startDate: dto.startDate ? new Date(dto.startDate) : undefined,
-      });
-    } catch (error) {
-      throw new DatabaseException('criar vínculo paciente-médico', error);
-    }
-  }
-}
 
 @Injectable()
 export class SearchPatientDoctorUseCase {

@@ -13,7 +13,11 @@ export const ApiPatientDoctorOperations = {
     applyDecorators(
       ApiTags('patient-doctors'),
       ApiBearerAuth('JWT-auth'),
-      ApiOperation({ summary: 'Vincular paciente a médico' }),
+      ApiOperation({
+        summary: 'Vincular paciente a médico (médico responsável)',
+        description:
+          'Encerra vínculos ativos anteriores do paciente e define o médico responsável. Valida unidade quando unitId é enviado.',
+      }),
       ApiBody({
         schema: {
           type: 'object',
@@ -21,6 +25,11 @@ export const ApiPatientDoctorOperations = {
           properties: {
             patientId: { type: 'string' },
             doctorId: { type: 'string' },
+            unitId: {
+              type: 'string',
+              description:
+                'Unidade para validar vínculo paciente/médico (recomendado)',
+            },
             startDate: { type: 'string', format: 'date-time' },
           },
         },

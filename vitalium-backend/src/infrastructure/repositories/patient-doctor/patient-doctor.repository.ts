@@ -69,7 +69,7 @@ export class PatientDoctorRepository implements IPatientDoctorRepository {
 
   async findByDoctorId(doctorId: string): Promise<PatientDoctor[]> {
     const links = await this.prisma.patientDoctor.findMany({
-      where: { doctorId },
+      where: { doctorId, endDate: null },
       include: includeRelations,
       orderBy: { startDate: 'desc' },
     });

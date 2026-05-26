@@ -69,10 +69,13 @@ describe('PatientDoctorController', () => {
   describe('create', () => {
     it('should create a patient-doctor link', async () => {
       createUseCase.execute.mockResolvedValue(mockLink);
-      const result = await controller.create({
-        patientId: 'patient-id-1',
-        doctorId: 'doctor-id-1',
-      } as any);
+      const result = await controller.create(
+        { user: { sub: 'admin-user-id', role: 'ADMIN' } } as any,
+        {
+          patientId: 'patient-id-1',
+          doctorId: 'doctor-id-1',
+        } as any,
+      );
       expect(result).toBeDefined();
     });
   });

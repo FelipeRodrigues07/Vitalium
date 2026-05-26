@@ -8,8 +8,10 @@ import {
   Param,
   Patch,
   Post,
+  Request,
   UseGuards,
 } from '@nestjs/common';
+import type { Request as ExpressRequest } from 'express';
 import { ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import {
@@ -23,9 +25,14 @@ import { Role } from '../../../shared/enums';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
 import { ApiPatientDoctorOperations } from '../../../shared/swagger/decorators/patient-doctor.decorators';
-import { CreatePatientDoctorDTO } from '../../dto/patientDoctorDTO/create-patient-doctor.dto';
+import type { AuthJwtPayload } from '../../../shared/types/auth-jwt-payload.interface';
+import { CreatePatientDoctorDTO } from '../../dto/patient-doctor/create-patient-doctor.dto';
 import { PatientDoctorResponseDTO } from '../../dto/patientDoctorDTO/response/patient-doctor-response.dto';
 import { UpdatePatientDoctorDTO } from '../../dto/patientDoctorDTO/update-patient-doctor.dto';
+
+interface RequestWithUser extends ExpressRequest {
+  user: AuthJwtPayload;
+}
 
 @ApiTags('patient-doctors')
 @Controller('patient-doctors')
@@ -43,9 +50,10 @@ export class PatientDoctorController {
   @ApiPatientDoctorOperations.create()
   @Roles(Role.ADMIN)
   async create(
+    @Request() req: RequestWithUser,
     @Body() dto: CreatePatientDoctorDTO,
   ): Promise<PatientDoctorResponseDTO> {
-    const link = await this.createUseCase.execute(dto);
+    const link = await this.createUseCase.execute(dto, req.user);
     return plainToInstance(PatientDoctorResponseDTO, link, {
       excludeExtraneousValues: true,
     });

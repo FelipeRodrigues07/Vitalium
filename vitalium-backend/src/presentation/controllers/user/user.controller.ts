@@ -71,22 +71,22 @@ export class UserController {
     });
   }
 
-  @Get(':id')
+  @Get('email/:email')
   @HttpCode(HttpStatus.OK)
-  @ApiUserOperations.findUserById()
-  async findOne(@Param('id') id: string): Promise<UserResponseDTO> {
-    const user = await this.searchUserUseCase.findById(id);
+  @ApiUserOperations.findUserByEmail()
+  async findByEmail(@Param('email') email: string): Promise<UserResponseDTO> {
+    const user = await this.searchUserUseCase.findByEmail(email);
 
     return plainToInstance(UserResponseDTO, user, {
       excludeExtraneousValues: true,
     });
   }
 
-  @Get('email/:email')
+  @Get(':id')
   @HttpCode(HttpStatus.OK)
-  @ApiUserOperations.findUserByEmail()
-  async findByEmail(@Param('email') email: string): Promise<UserResponseDTO> {
-    const user = await this.searchUserUseCase.findByEmail(email);
+  @ApiUserOperations.findUserById()
+  async findOne(@Param('id') id: string): Promise<UserResponseDTO> {
+    const user = await this.searchUserUseCase.findById(id);
 
     return plainToInstance(UserResponseDTO, user, {
       excludeExtraneousValues: true,
