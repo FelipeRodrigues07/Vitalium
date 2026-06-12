@@ -3,18 +3,106 @@ import 'package:mobile/components/modalRegisterSymptoms.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../services/api_client.dart';
+import '../../services/symptom_log_service.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
-  void _showSymptomBottomSheet(BuildContext context) {
-    showModalBottomSheet(
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final _symptomLogService = SymptomLogService();
+  bool _isLoadingSummary = true;
+  String? _summaryText;
+  String? _summaryError;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSummary();
+  }
+
+  Future<void> _loadSummary() async {
+    setState(() {
+      _isLoadingSummary = true;
+      _summaryError = null;
+    });
+
+    try {
+      final logs = await _symptomLogService.listMine();
+      if (!mounted) {
+        return;
+      }
+
+      if (logs.isEmpty) {
+        setState(() {
+          _summaryText = 'Nenhum sintoma registrado ainda.';
+        });
+      } else {
+        final latest = logs.first;
+        final preview = latest.description.length > 80
+            ? '${latest.description.substring(0, 80)}...'
+            : latest.description;
+        setState(() {
+          _summaryText =
+              'Último registro (${_formatDate(latest.createdAt)}): $preview';
+        });
+      }
+    } on ApiException catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _summaryError = error.message;
+        _summaryText = null;
+      });
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _summaryError = 'Não foi possível carregar seus registros.';
+        _summaryText = null;
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingSummary = false;
+        });
+      }
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    final day = date.day.toString().padLeft(2, '0');
+    final month = date.month.toString().padLeft(2, '0');
+    return '$day/$month/${date.year}';
+  }
+
+  Future<void> _showSymptomBottomSheet() async {
+    final saved = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (BuildContext context) {
-        return const SymptomBottomSheet();
+        return SymptomBottomSheet(onSaved: _loadSummary);
       },
     );
+
+    if (saved == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Sintoma registrado com sucesso.'),
+          backgroundColor: Color(0xFF016B3A),
+        ),
+      );
+    }
   }
 
   @override
@@ -78,9 +166,7 @@ class HomeScreen extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  _showSymptomBottomSheet(context);
-                },
+                onPressed: _showSymptomBottomSheet,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF016B3A),
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -104,24 +190,34 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Container(
+              width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: Colors.grey),
               ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Você relatou 3 dias de dores de cabeça em setembro',
-                      style: TextStyle(fontSize: 14),
+              child: _isLoadingSummary
+                  ? const Row(
+                      children: [
+                        SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                        SizedBox(width: 12),
+                        Text('Carregando registros...'),
+                      ],
+                    )
+                  : Text(
+                      _summaryError ?? _summaryText ?? 'Sem registros.',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: _summaryError != null
+                            ? Colors.red.shade700
+                            : Colors.black87,
+                      ),
                     ),
-                  ),
-                  Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-                ],
-              ),
             ),
           ],
         ),

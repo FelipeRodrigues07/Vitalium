@@ -20,6 +20,7 @@ import { PatientDoctorModule } from './patient-doctor.module';
 import { PatientUnitModule } from './patient-unit.module';
 import { PrescriptionModule } from './prescription.module';
 import { SpecializationModule } from './specialization.module';
+import { SymptomLogModule } from './symptom-log.module';
 import { UnitModule } from './units.module';
 import { UserModule } from './user.module';
 import { WardModule } from './ward.module';
@@ -49,6 +50,7 @@ import { WardModule } from './ward.module';
     PatientUnitModule,
     NurseModule,
     SpecializationModule,
+    SymptomLogModule,
     ExceptionsModule,
     MonitoringModule,
   ],

@@ -48,7 +48,7 @@ class _ReportScreenState extends State<ReportScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFE0F2F1), // Cor clara de fundo
+                color: const Color(0xFFE0F2F1),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: const Color(0xFF016B3A), width: 1),
               ),
