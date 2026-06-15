@@ -25,6 +25,11 @@ class LLMService:
 
     def _init_openai(self):
         """Inicializa cliente OpenAI"""
+        if not Config.OPENAI_API_KEY:
+            logger.warning("OPENAI_API_KEY não configurada — LLM desabilitado")
+            self.client = None
+            return
+
         from openai import OpenAI
 
         self.client = OpenAI(api_key=Config.OPENAI_API_KEY)
@@ -74,6 +79,9 @@ class LLMService:
         self, message: str, conversation_history: List[Dict] = None
     ) -> str:
         """Gera resposta usando OpenAI"""
+        if not self.client:
+            return self._get_error_response()
+
         messages = [{"role": "system", "content": Config.SYSTEM_PROMPT}]
 
         # Adiciona histórico se disponível

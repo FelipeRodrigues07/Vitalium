@@ -46,18 +46,15 @@ class RabbitMQService:
             raise
 
     def _declare_queues(self):
-        """Declara as filas necessárias"""
+        """Verifica que as filas necessárias existem (declaradas pelo backend)"""
         queues = [Config.QUEUE_TO_AI, Config.QUEUE_FROM_AI]
-        
+
         for queue in queues:
             self.channel.queue_declare(
                 queue=queue,
-                durable=True,  # Persiste após restart do RabbitMQ
-                arguments={
-                    "x-message-ttl": 3600000,  # TTL de 1 hora
-                },
+                passive=True,  # Apenas verifica existência; não recria com args diferentes
             )
-            logger.info(f"Fila declarada: {queue}")
+            logger.info(f"Fila verificada: {queue}")
 
     def consume(self, queue: str, callback: Callable):
         """

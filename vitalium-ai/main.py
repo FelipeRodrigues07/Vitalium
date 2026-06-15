@@ -47,13 +47,12 @@ def main():
     logger.info("🚀 Vitalium AI Service")
     logger.info("=" * 60)
 
-    # Valida configurações
+    # Valida configurações (avisos, não fatal quando LLM ainda não configurado)
     try:
         Config.validate()
         logger.info("✅ Configurações validadas")
     except ValueError as e:
-        logger.error(f"❌ {e}")
-        sys.exit(1)
+        logger.warning(f"⚠️  {e} — o serviço vai iniciar mas respostas de IA estarão desabilitadas")
 
     # Inicializa consumer
     consumer = AIConsumer()

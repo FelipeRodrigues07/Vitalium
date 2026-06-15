@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  NotFoundException,
   Param,
   Patch,
   Post,
@@ -20,6 +21,7 @@ import {
   SearchPatientDoctorUseCase,
   UpdatePatientDoctorUseCase,
 } from '../../../application/use-cases/patient-doctor/patient-doctor.use-cases';
+import { PrismaProvider } from '../../../infrastructure/database/prisma.provider';
 import { Roles } from '../../../shared/decorators/roles.decorator';
 import { Role } from '../../../shared/enums';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
@@ -43,6 +45,7 @@ export class PatientDoctorController {
     private readonly searchUseCase: SearchPatientDoctorUseCase,
     private readonly updateUseCase: UpdatePatientDoctorUseCase,
     private readonly deleteUseCase: DeletePatientDoctorUseCase,
+    private readonly prisma: PrismaProvider,
   ) {}
 
   @Post()
@@ -67,6 +70,21 @@ export class PatientDoctorController {
     @Param('patientId') patientId: string,
   ): Promise<PatientDoctorResponseDTO[]> {
     const links = await this.searchUseCase.findByPatientId(patientId);
+    return plainToInstance(PatientDoctorResponseDTO, links, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  @Get('doctor/by-user/:userId')
+  @HttpCode(HttpStatus.OK)
+  @Roles(Role.ADMIN, Role.DOCTOR)
+  async findByDoctorUserId(
+    @Param('userId') userId: string,
+  ): Promise<PatientDoctorResponseDTO[]> {
+    const doctor = await this.prisma.doctor.findFirst({ where: { userId } });
+    if (!doctor)
+      throw new NotFoundException('Médico não encontrado para este usuário');
+    const links = await this.searchUseCase.findByDoctorId(doctor.id);
     return plainToInstance(PatientDoctorResponseDTO, links, {
       excludeExtraneousValues: true,
     });

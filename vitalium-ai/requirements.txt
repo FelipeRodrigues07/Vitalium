@@ -4,6 +4,10 @@ pika==1.3.2
 # OpenAI API
 openai==1.12.0
 
+# Pinar httpx para compatibilidade com openai 1.12.x
+# (httpx>=0.28 removeu o argumento 'proxies' que o openai 1.12 usa)
+httpx<0.28.0
+
 # Environment variables
 python-dotenv==1.0.1
 
