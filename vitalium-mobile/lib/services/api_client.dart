@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 
 import '../core/config/api_config.dart';
 import '../storage/auth_storage.dart';
@@ -70,6 +71,7 @@ class ApiClient {
             fileField,
             filePath,
             filename: fileName,
+            contentType: _imageContentType(filePath, fileName),
           ),
         );
 
@@ -166,6 +168,38 @@ class ApiClient {
       await _storage.clearSession();
       return false;
     }
+  }
+
+  static MediaType _imageContentType(String filePath, String? fileName) {
+    String extensionOf(String value) {
+      final dot = value.lastIndexOf('.');
+      if (dot == -1 || dot == value.length - 1) {
+        return '';
+      }
+      return value.substring(dot + 1).toLowerCase();
+    }
+
+    for (final candidate in [fileName, filePath]) {
+      if (candidate == null || candidate.isEmpty) {
+        continue;
+      }
+
+      switch (extensionOf(candidate)) {
+        case 'jpg':
+        case 'jpeg':
+          return MediaType('image', 'jpeg');
+        case 'png':
+          return MediaType('image', 'png');
+        case 'webp':
+          return MediaType('image', 'webp');
+        case 'heic':
+          return MediaType('image', 'heic');
+        case 'heif':
+          return MediaType('image', 'heif');
+      }
+    }
+
+    return MediaType('image', 'jpeg');
   }
 
   static String parseErrorMessage(http.Response response) {

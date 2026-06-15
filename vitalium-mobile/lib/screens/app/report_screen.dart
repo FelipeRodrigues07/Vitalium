@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../models/symptom_log.dart';
+import '../../services/api_client.dart';
+import '../../services/symptom_log_service.dart';
+
 class ReportScreen extends StatefulWidget {
   const ReportScreen({super.key});
 
@@ -8,12 +12,73 @@ class ReportScreen extends StatefulWidget {
 }
 
 class _ReportScreenState extends State<ReportScreen> {
-  final List<Map<String, String>> symptoms = const [
-    {'date': '01 Set', 'severity': 'Leve', 'description': 'Dor de cabeça na parte frontal. Usei Tylenol.'},
-    {'date': '10 Set', 'severity': 'Moderada', 'description': 'Dor latejante após reunião estressante.'},
-    {'date': '18 Set', 'severity': 'Forte', 'description': 'Enxaqueca com sensibilidade à luz e náuseas.'},
-    {'date': '25 Set', 'severity': 'Leve', 'description': 'Cansado e com dor leve no final do dia.'},
-  ];
+  final _symptomLogService = SymptomLogService();
+
+  bool _isLoading = true;
+  String? _errorMessage;
+  List<SymptomLog> _logs = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLogs();
+  }
+
+  Future<void> _loadLogs() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final logs = await _symptomLogService.listMine();
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _logs = logs;
+      });
+    } on ApiException catch (error) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _errorMessage = error.message;
+        _logs = [];
+      });
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _errorMessage = 'Não foi possível carregar seus registros.';
+        _logs = [];
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    const months = [
+      'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
+      'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez',
+    ];
+    final day = date.day.toString().padLeft(2, '0');
+    return '$day ${months[date.month - 1]}';
+  }
+
+  String _formatFullDate(DateTime date) {
+    final day = date.day.toString().padLeft(2, '0');
+    final month = date.month.toString().padLeft(2, '0');
+    return '$day/$month/${date.year}';
+  }
+
+  int get _logsWithImage => _logs.where((log) => log.fullImageUrl != null).length;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +88,7 @@ class _ReportScreenState extends State<ReportScreen> {
         elevation: 0,
         centerTitle: true,
         title: const Text(
-          "Relatório de Sintomas",
+          'Relatório de Sintomas',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 20,
@@ -31,165 +96,326 @@ class _ReportScreenState extends State<ReportScreen> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+      body: RefreshIndicator(
+        onRefresh: _loadLogs,
+        color: const Color(0xFF22A16C),
+        child: _isLoading
+            ? ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  const SizedBox(height: 120),
+                  Center(
+                    child: CircularProgressIndicator(
+                      color: Color(0xFF22A16C),
+                    ),
+                  ),
+                ],
+              )
+            : _errorMessage != null
+                ? ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(16),
+                    children: [
+                      const SizedBox(height: 80),
+                      Icon(Icons.error_outline, size: 48, color: Colors.red.shade400),
+                      const SizedBox(height: 12),
+                      Text(
+                        _errorMessage!,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.red.shade700),
+                      ),
+                      const SizedBox(height: 16),
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: _loadLogs,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF016B3A),
+                          ),
+                          child: const Text('Tentar novamente', style: TextStyle(color: Colors.white)),
+                        ),
+                      ),
+                    ],
+                  )
+                : ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(16),
+                    children: [
+                      const Text(
+                        'Histórico de Sintomas',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE0F2F1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFF016B3A)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Resumo',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF016B3A),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text('Total de registros:', style: TextStyle(fontSize: 15)),
+                                Text(
+                                  '${_logs.length}',
+                                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text('Com imagem:', style: TextStyle(fontSize: 15)),
+                                Text(
+                                  '$_logsWithImage',
+                                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      const Text(
+                        'Registro Detalhado',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      if (_logs.isEmpty)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade50,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.grey.shade300),
+                          ),
+                          child: const Text(
+                            'Nenhum sintoma registrado ainda.\nUse a aba Início para registrar.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: Colors.black54),
+                          ),
+                        )
+                      else
+                        ..._logs.map(_buildLogCard),
+                      const SizedBox(height: 28),
+                      _buildFutureImprovementsSection(),
+                    ],
+                  ),
+      ),
+    );
+  }
+
+  Widget _buildLogCard(SymptomLog log) {
+    final imageUrl = log.fullImageUrl;
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Histórico de Dores de Cabeça (Dezembro)",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 10),
-            
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFFE0F2F1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFF016B3A), width: 1),
-              ),
-              child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Resumo do Período",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF016B3A)),
+            Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: const Color(0xFF22A16C),
+                  child: Text(
+                    log.createdAt.day.toString().padLeft(2, '0'),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
                   ),
-                  SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Total de dias relatados:", style: TextStyle(fontSize: 15)),
-                      Text("4 dias", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                  SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("Sintoma mais comum:", style: TextStyle(fontSize: 15)),
-                      Text("Dor de Cabeça", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            
-            const SizedBox(height: 30),
-            
-            const Text(
-              "Registro Detalhado",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 10),
-            
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: symptoms.length,
-              itemBuilder: (context, index) {
-                final symptom = symptoms[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  elevation: 2,
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                    leading: CircleAvatar(
-                      backgroundColor: _getSeverityColor(symptom['severity']!),
-                      child: Text(
-                        symptom['date']!.split(' ')[0],
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                      Text(
+                        _formatDate(log.createdAt),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
                       ),
-                    ),
-                    title: Text(
-                      "Intensidade: ${symptom['severity']!}",
-                      style: TextStyle(fontWeight: FontWeight.bold, color: _getSeverityColor(symptom['severity']!)),
-                    ),
-                    subtitle: Padding(
-                      padding: const EdgeInsets.only(top: 4.0),
-                      child: Text(symptom['description']!),
-                    ),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-                    onTap: () {
-                      print('Detalhes do sintoma de ${symptom['date']}');
-                    },
+                      Text(
+                        _formatFullDate(log.createdAt),
+                        style: const TextStyle(fontSize: 12, color: Colors.black54),
+                      ),
+                    ],
                   ),
-                );
-              },
+                ),
+                if (imageUrl != null)
+                  const Icon(Icons.image, color: Color(0xFF016B3A), size: 20),
+              ],
             ),
-
-            const SizedBox(height: 30),
-
-            const Text(
-              "Sugestões de Ação",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+            const SizedBox(height: 12),
+            Text(
+              log.description,
+              style: const TextStyle(fontSize: 14, color: Colors.black87),
+            ),
+            if (imageUrl != null) ...[
+              const SizedBox(height: 12),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  imageUrl,
+                  width: double.infinity,
+                  height: 200,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (context, child, progress) {
+                    if (progress == null) {
+                      return child;
+                    }
+                    return Container(
+                      height: 200,
+                      color: Colors.grey.shade100,
+                      child: const Center(
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Color(0xFF22A16C),
+                        ),
+                      ),
+                    );
+                  },
+                  errorBuilder: (_, __, ___) => Container(
+                    height: 120,
+                    width: double.infinity,
+                    color: Colors.grey.shade100,
+                    child: const Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.broken_image_outlined, color: Colors.grey),
+                        SizedBox(height: 4),
+                        Text(
+                          'Não foi possível carregar a imagem',
+                          style: TextStyle(fontSize: 12, color: Colors.black54),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(height: 10),
-            
-            _buildSuggestionCard(
-              context,
-              icon: Icons.local_hospital,
-              title: "Consulte um Médico",
-              subtitle: "Se as dores fortes persistirem (3 ou mais por mês), é fundamental agendar uma consulta.",
-              color: Colors.red.shade100,
-            ),
-            _buildSuggestionCard(
-              context,
-              icon: Icons.wb_sunny,
-              title: "Gerenciamento de Estresse",
-              subtitle: "Note que o sintoma Moderado ocorreu após estresse. Tente 15 minutos de meditação diária.",
-              color: Colors.blue.shade100,
-            ),
-            _buildSuggestionCard(
-              context,
-              icon: Icons.water_drop,
-              title: "Hidratação e Dieta",
-              subtitle: "Mantenha o consumo de água e evite alimentos gatilho conhecidos para prevenir crises.",
-              color: const Color(0xFFE0F2F1),
-            ),
+            ],
           ],
         ),
       ),
     );
   }
 
-  Color _getSeverityColor(String severity) {
-    switch (severity) {
-      case 'Forte':
-        return Colors.red;
-      case 'Moderada':
-        return Colors.orange.shade700;
-      case 'Leve':
-        return const Color(0xFF22A16C);
-      default:
-        return Colors.grey;
-    }
+  Widget _buildFutureImprovementsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Expanded(
+              child: Text(
+                'Melhorias futuras',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.orange.shade50,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.orange.shade200),
+              ),
+              child: Text(
+                'Em desenvolvimento',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.orange.shade800,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        const Text(
+          'Funcionalidades planejadas para as próximas versões do Vitalium, '
+          'com apoio de IA no acompanhamento entre consultas.',
+          style: TextStyle(fontSize: 13, color: Colors.black54),
+        ),
+        const SizedBox(height: 12),
+        _buildFutureCard(
+          icon: Icons.auto_awesome,
+          title: 'Análise inteligente do histórico',
+          subtitle:
+              'IA irá resumir seus registros, identificar padrões de sintomas '
+              'e destacar evolução ao longo do tempo.',
+          color: const Color(0xFFE0F2F1),
+        ),
+        _buildFutureCard(
+          icon: Icons.local_hospital,
+          title: 'Orientações de cuidado personalizadas',
+          subtitle:
+              'Sugestões educativas com base nos sintomas relatados, sempre '
+              'com reforço para buscar avaliação médica quando necessário.',
+          color: Colors.red.shade50,
+        ),
+        _buildFutureCard(
+          icon: Icons.image_search,
+          title: 'Leitura de imagens da região afetada',
+          subtitle:
+              'Análise assistida de fotos (ex.: inchaço, ferida, vermelhidão) '
+              'para enriquecer o relatório enviado ao profissional de saúde.',
+          color: Colors.blue.shade50,
+        ),
+      ],
+    );
   }
 
-  Widget _buildSuggestionCard(BuildContext context, {required IconData icon, required String title, required String subtitle, required Color color}) {
+  Widget _buildFutureCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+  }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(
+          color: Colors.grey.shade300,
+          style: BorderStyle.solid,
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: const Color(0xFF016B3A), size: 30),
+          Icon(icon, color: const Color(0xFF016B3A), size: 28),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -197,12 +423,16 @@ class _ReportScreenState extends State<ReportScreen> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF016B3A)),
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF016B3A),
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: const TextStyle(fontSize: 14, color: Colors.black87),
+                  style: const TextStyle(fontSize: 13, color: Colors.black87),
                 ),
               ],
             ),
