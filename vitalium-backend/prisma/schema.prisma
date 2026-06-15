@@ -387,9 +387,26 @@ model Patient {
   prescriptions  Prescription[]
   wardAdmissions WardAdmission[]
   conversations  Conversation[]
+  symptomLogs    SymptomLog[]
 
   @@index([cpf])
   @@map("patients")
+}
+
+model SymptomLog {
+  id            String   @id @default(cuid())
+  patientId     String
+  description   String
+  imageUrl      String?
+  imageFileName String?
+  imageMimeType String?
+  createdAt     DateTime @default(now())
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([patientId])
+  @@index([createdAt])
+  @@map("symptom_logs")
 }
 
 model PatientUnit {

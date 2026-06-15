@@ -1,13 +1,19 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { config } from 'dotenv';
+import { join } from 'node:path';
 import { AppModule } from './modules/app.module';
 import { SwaggerConfig } from './shared/swagger/swagger.config';
 
 config();
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  app.useStaticAssets(join(process.cwd(), 'uploads'), {
+    prefix: '/uploads/',
+  });
 
   // Configurar CORS
   app.enableCors({

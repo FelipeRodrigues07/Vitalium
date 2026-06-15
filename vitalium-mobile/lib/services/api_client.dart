@@ -51,14 +51,50 @@ class ApiClient {
     );
   }
 
+  Future<http.Response> postMultipart(
+    String path, {
+    required Map<String, String> fields,
+    required String fileField,
+    required String filePath,
+    String? fileName,
+    bool authenticated = true,
+    bool retryOnUnauthorized = true,
+  }) {
+    return _send(
+      () async {
+        final request = http.MultipartRequest('POST', _uri(path));
+        request.headers.addAll(await _authHeaders(authenticated));
+        request.fields.addAll(fields);
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            fileField,
+            filePath,
+            filename: fileName,
+          ),
+        );
+
+        final streamedResponse = await request.send();
+        return http.Response.fromStream(streamedResponse);
+      },
+      path: path,
+      authenticated: authenticated,
+      retryOnUnauthorized: retryOnUnauthorized,
+    );
+  }
+
   Uri _uri(String path) {
     final normalized = path.startsWith('/') ? path : '/$path';
     return Uri.parse('${ApiConfig.baseUrl}$normalized');
   }
 
   Future<Map<String, String>> _headers(bool authenticated) async {
+    final headers = await _authHeaders(authenticated);
+    headers['Content-Type'] = 'application/json';
+    return headers;
+  }
+
+  Future<Map<String, String>> _authHeaders(bool authenticated) async {
     final headers = <String, String>{
-      'Content-Type': 'application/json',
       'Accept': 'application/json',
     };
 
