@@ -6,6 +6,7 @@ import { ChatSidebar } from "@/components/chat/chat-sidebar";
 import { ChatWindow } from "@/components/chat/chat-window";
 import { ChatHeader } from "@/components/chat/chat-header";
 import { AppLayout } from "@/components/app-layout";
+import { useChatContactNames } from "@/hooks/use-chat-contact-names";
 import { useSession } from "@/services/auth/use-session";
 import type { Conversation } from "@/services/api/chat";
 
@@ -14,6 +15,11 @@ export default function ChatPage() {
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [selectedConversation, setSelectedConversation] =
     useState<Conversation | null>(null);
+
+  const { getOtherParty, isDoctor } = useChatContactNames(
+    user?.id ?? "",
+    user?.role ?? "PATIENT",
+  );
 
   const handleSelectChat = (chatId: string, conversation: Conversation) => {
     setSelectedChatId(chatId);
@@ -36,12 +42,14 @@ export default function ChatPage() {
     role: user.role.toLowerCase(),
   };
 
+  const otherParty = selectedConversation
+    ? getOtherParty(selectedConversation)
+    : undefined;
+
   return (
     <AppLayout userRole={currentUser.role} showSidebar={true}>
       <div className="h-screen bg-background flex flex-col">
-        {/* Main Chat Interface */}
         <div className="flex-1 flex overflow-hidden">
-          {/* Sidebar */}
           <div className="h-full w-80 border-r border-border flex-shrink-0">
             <ChatSidebar
               searchQuery=""
@@ -49,16 +57,19 @@ export default function ChatPage() {
               onSelectChat={handleSelectChat}
               userId={user.id}
               userRole={user.role}
+              getOtherParty={getOtherParty}
+              isDoctor={isDoctor}
             />
           </div>
 
-          {/* Chat Area */}
           <div className="flex-1 flex flex-col">
             {selectedChatId && selectedConversation ? (
               <>
                 <ChatHeader
                   conversation={selectedConversation}
                   currentUser={currentUser}
+                  otherPartyName={otherParty?.name}
+                  otherPartyEmail={otherParty?.email}
                 />
                 <ChatWindow chatId={selectedChatId} currentUser={currentUser} />
               </>

@@ -1,5 +1,4 @@
 ﻿import { Injectable } from '@nestjs/common';
-import { plainToInstance } from 'class-transformer';
 import type {
   CreatePatientDoctorData,
   IPatientDoctorRepository,
@@ -38,7 +37,7 @@ export class PatientDoctorRepository implements IPatientDoctorRepository {
       },
       include: includeRelations,
     });
-    return plainToInstance(PatientDoctor, link);
+    return link as unknown as PatientDoctor;
   }
 
   async findById(id: string): Promise<PatientDoctor | null> {
@@ -46,7 +45,7 @@ export class PatientDoctorRepository implements IPatientDoctorRepository {
       where: { id },
       include: includeRelations,
     });
-    return link ? plainToInstance(PatientDoctor, link) : null;
+    return link ? (link as unknown as PatientDoctor) : null;
   }
 
   async findByPatientId(patientId: string): Promise<PatientDoctor[]> {
@@ -55,7 +54,7 @@ export class PatientDoctorRepository implements IPatientDoctorRepository {
       include: includeRelations,
       orderBy: { startDate: 'desc' },
     });
-    return plainToInstance(PatientDoctor, links);
+    return links as unknown as PatientDoctor[];
   }
 
   async findActiveByPatientId(patientId: string): Promise<PatientDoctor[]> {
@@ -64,7 +63,7 @@ export class PatientDoctorRepository implements IPatientDoctorRepository {
       include: includeRelations,
       orderBy: { startDate: 'desc' },
     });
-    return plainToInstance(PatientDoctor, links);
+    return links as unknown as PatientDoctor[];
   }
 
   async findByDoctorId(doctorId: string): Promise<PatientDoctor[]> {
@@ -73,7 +72,7 @@ export class PatientDoctorRepository implements IPatientDoctorRepository {
       include: includeRelations,
       orderBy: { startDate: 'desc' },
     });
-    return plainToInstance(PatientDoctor, links);
+    return links as unknown as PatientDoctor[];
   }
 
   async findByPatientAndDoctor(
@@ -84,7 +83,7 @@ export class PatientDoctorRepository implements IPatientDoctorRepository {
       where: { patientId, doctorId },
       include: includeRelations,
     });
-    return link ? plainToInstance(PatientDoctor, link) : null;
+    return link ? (link as unknown as PatientDoctor) : null;
   }
 
   async endActiveLinksForPatient(
@@ -103,7 +102,7 @@ export class PatientDoctorRepository implements IPatientDoctorRepository {
       data: { endDate: null, startDate },
       include: includeRelations,
     });
-    return plainToInstance(PatientDoctor, link);
+    return link as unknown as PatientDoctor;
   }
 
   async update(
@@ -117,7 +116,7 @@ export class PatientDoctorRepository implements IPatientDoctorRepository {
       },
       include: includeRelations,
     });
-    return plainToInstance(PatientDoctor, link);
+    return link as unknown as PatientDoctor;
   }
 
   async delete(id: string): Promise<void> {

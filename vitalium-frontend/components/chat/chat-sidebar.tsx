@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -12,9 +13,14 @@ import {
 import { Plus } from "lucide-react";
 import { chatApi, type Conversation } from "@/services/api/chat";
 import {
+  getLinkedPerson,
+  getLinkedPersonDisplayName,
+  getPersonInitials,
   patientDoctorApi,
-  type PatientSummary,
+  type PatientDoctorLink,
 } from "@/services/api/patient-doctors/patientsByDoctor";
+import type { ChatContactInfo } from "@/hooks/use-chat-contact-names";
+import { normalizeRole } from "@/lib/auth-routes";
 import type { UserRole } from "@/types/auth";
 
 interface ChatSidebarProps {
@@ -23,6 +29,8 @@ interface ChatSidebarProps {
   onSelectChat: (chatId: string, conversation: Conversation) => void;
   userId: string;
   userRole: UserRole;
+  getOtherParty: (conversation: Conversation) => ChatContactInfo;
+  isDoctor: boolean;
 }
 
 export function ChatSidebar({
@@ -31,24 +39,27 @@ export function ChatSidebar({
   onSelectChat,
   userId,
   userRole,
+  getOtherParty,
+  isDoctor,
 }: ChatSidebarProps) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [doctorEntityId, setDoctorEntityId] = useState<string | null>(null);
   const [newChatOpen, setNewChatOpen] = useState(false);
-  const [patients, setPatients] = useState<PatientSummary[]>([]);
+  const [patients, setPatients] = useState<PatientDoctorLink[]>([]);
   const [loadingPatients, setLoadingPatients] = useState(false);
   const [creating, setCreating] = useState(false);
 
   useEffect(() => {
+    const role = normalizeRole(userRole);
+
     const load = async () => {
       try {
         let data: Conversation[];
-        if (userRole === "DOCTOR") {
+        if (role === "doctor") {
           data = await chatApi.listByDoctor(userId);
-          // Capture doctorId from first conversation if available
           if (data.length > 0) setDoctorEntityId(data[0].doctorId);
-        } else if (userRole === "PATIENT") {
+        } else if (role === "patient") {
           data = await chatApi.listByPatient(userId);
         } else {
           data = [];
@@ -60,7 +71,8 @@ export function ChatSidebar({
         setLoading(false);
       }
     };
-    load();
+
+    void load();
   }, [userId, userRole]);
 
   const filteredConversations = conversations.filter((conv) =>
@@ -73,9 +85,8 @@ export function ChatSidebar({
     try {
       const data = await patientDoctorApi.listPatientsByUserDoctor(userId);
       setPatients(data);
-      // Capture doctorId from first link if not yet known
-      if (!doctorEntityId && data.length > 0) {
-        setDoctorEntityId(data[0].doctorId);
+      if (data.length > 0) {
+        setDoctorEntityId((prev) => prev ?? data[0].doctorId);
       }
     } catch {
       setPatients([]);
@@ -117,10 +128,8 @@ export function ChatSidebar({
   }: {
     conversation: Conversation;
   }) => {
-    const isDoctor = userRole === "DOCTOR";
-    const otherId = isDoctor ? conversation.patientId : conversation.doctorId;
-    const initials = otherId.slice(0, 2).toUpperCase();
-    const otherLabel = isDoctor ? "Paciente" : "Médico";
+    const contact = getOtherParty(conversation);
+    const initials = getPersonInitials(contact.name);
 
     return (
       <div
@@ -141,16 +150,18 @@ export function ChatSidebar({
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-1">
               <h3 className="font-semibold text-foreground truncate text-sm">
-                {otherLabel}
+                {contact.name}
               </h3>
               <span className="text-xs text-muted-foreground">
                 {formatTime(conversation.updatedAt)}
               </span>
             </div>
 
-            <p className="text-xs text-muted-foreground mb-1 truncate">
-              {otherId}
-            </p>
+            {contact.email && (
+              <p className="text-xs text-muted-foreground mb-1 truncate">
+                {contact.email}
+              </p>
+            )}
 
             <div className="flex items-center justify-between">
               <Badge
@@ -178,7 +189,7 @@ export function ChatSidebar({
       <div className="p-4 border-b border-border">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-foreground">Conversas</h2>
-          {userRole === "DOCTOR" && (
+          {isDoctor && (
             <Button size="sm" variant="outline" onClick={openNewChat}>
               <Plus className="w-4 h-4 mr-2" />
               Nova
@@ -208,7 +219,6 @@ export function ChatSidebar({
         )}
       </div>
 
-      {/* Dialog: nova conversa */}
       <Dialog open={newChatOpen} onOpenChange={setNewChatOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -225,10 +235,9 @@ export function ChatSidebar({
               </p>
             ) : (
               patients.map((link) => {
-                const name = link.patient
-                  ? `${link.patient.firstName} ${link.patient.lastName}`
-                  : link.patientId;
-                const initials = name.slice(0, 2).toUpperCase();
+                const person = getLinkedPerson(link.patient);
+                const name = getLinkedPersonDisplayName(link.patient, "Paciente");
+                const initials = getPersonInitials(name);
                 const alreadyExists = conversations.some(
                   (c) => c.patientId === link.patientId,
                 );
@@ -246,9 +255,9 @@ export function ChatSidebar({
                     </Avatar>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{name}</p>
-                      {link.patient && (
+                      {person?.email && (
                         <p className="text-xs text-muted-foreground truncate">
-                          {link.patient.email}
+                          {person.email}
                         </p>
                       )}
                     </div>

@@ -28,6 +28,13 @@ export class SearchPatientDoctorUseCase {
       throw new DatabaseException('listar médicos do paciente', error);
     }
   }
+  async findActiveByPatientId(patientId: string): Promise<PatientDoctor[]> {
+    try {
+      return await this.repo.findActiveByPatientId(patientId);
+    } catch (error) {
+      throw new DatabaseException('listar médicos ativos do paciente', error);
+    }
+  }
   async findByDoctorId(doctorId: string): Promise<PatientDoctor[]> {
     try {
       return await this.repo.findByDoctorId(doctorId);

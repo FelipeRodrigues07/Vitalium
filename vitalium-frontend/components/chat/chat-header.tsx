@@ -19,6 +19,7 @@ import {
   Video,
 } from "lucide-react";
 import type { Conversation } from "@/services/api/chat";
+import { getPersonInitials } from "@/services/api/patient-doctors/patientsByDoctor";
 
 interface ChatHeaderProps {
   conversation: Conversation;
@@ -27,13 +28,19 @@ interface ChatHeaderProps {
     name: string;
     role: string;
   };
+  otherPartyName?: string;
+  otherPartyEmail?: string;
 }
 
-export function ChatHeader({ conversation, currentUser }: ChatHeaderProps) {
+export function ChatHeader({
+  conversation,
+  currentUser,
+  otherPartyName,
+  otherPartyEmail,
+}: ChatHeaderProps) {
   const isDoctor = currentUser.role.toUpperCase() === "DOCTOR";
-  const otherId = isDoctor ? conversation.patientId : conversation.doctorId;
-  const otherLabel = isDoctor ? "Paciente" : "Médico";
-  const initials = otherId.slice(0, 2).toUpperCase();
+  const otherLabel = otherPartyName ?? (isDoctor ? "Paciente" : "Médico");
+  const initials = getPersonInitials(otherLabel);
 
   const statusColor =
     conversation.status === "ACTIVE" ? "bg-green-500" : "bg-gray-400";
@@ -69,9 +76,11 @@ export function ChatHeader({ conversation, currentUser }: ChatHeaderProps) {
               {conversation.channel}
             </Badge>
           </div>
-          <p className="text-sm text-muted-foreground truncate max-w-xs">
-            ID: {otherId}
-          </p>
+          {otherPartyEmail && (
+            <p className="text-sm text-muted-foreground truncate max-w-xs">
+              {otherPartyEmail}
+            </p>
+          )}
         </div>
       </div>
 
