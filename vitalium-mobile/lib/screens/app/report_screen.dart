@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/theme/app_colors.dart';
 import '../../models/symptom_log.dart';
 import '../../services/api_client.dart';
 import '../../services/symptom_log_service.dart';
@@ -84,7 +85,7 @@ class _ReportScreenState extends State<ReportScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF22A16C),
+        backgroundColor: AppColors.primary,
         elevation: 0,
         centerTitle: true,
         title: const Text(
@@ -98,15 +99,15 @@ class _ReportScreenState extends State<ReportScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: _loadLogs,
-        color: const Color(0xFF22A16C),
+        color: AppColors.primary,
         child: _isLoading
             ? ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                children: [
-                  const SizedBox(height: 120),
+                children: const [
+                  SizedBox(height: 120),
                   Center(
                     child: CircularProgressIndicator(
-                      color: Color(0xFF22A16C),
+                      color: AppColors.primary,
                     ),
                   ),
                 ],
@@ -129,7 +130,7 @@ class _ReportScreenState extends State<ReportScreen> {
                         child: ElevatedButton(
                           onPressed: _loadLogs,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF016B3A),
+                            backgroundColor: AppColors.primary,
                           ),
                           child: const Text('Tentar novamente', style: TextStyle(color: Colors.white)),
                         ),
@@ -151,9 +152,9 @@ class _ReportScreenState extends State<ReportScreen> {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE0F2F1),
+                          color: AppColors.primaryTint,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFF016B3A)),
+                          border: Border.all(color: AppColors.primary),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,7 +164,7 @@ class _ReportScreenState extends State<ReportScreen> {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF016B3A),
+                                color: AppColors.primary,
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -240,7 +241,7 @@ class _ReportScreenState extends State<ReportScreen> {
             Row(
               children: [
                 CircleAvatar(
-                  backgroundColor: const Color(0xFF22A16C),
+                  backgroundColor: AppColors.primary,
                   child: Text(
                     log.createdAt.day.toString().padLeft(2, '0'),
                     style: const TextStyle(
@@ -270,7 +271,7 @@ class _ReportScreenState extends State<ReportScreen> {
                   ),
                 ),
                 if (imageUrl != null)
-                  const Icon(Icons.image, color: Color(0xFF016B3A), size: 20),
+                  const Icon(Icons.image, color: AppColors.primary, size: 20),
               ],
             ),
             const SizedBox(height: 12),
@@ -297,7 +298,7 @@ class _ReportScreenState extends State<ReportScreen> {
                       child: const Center(
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Color(0xFF22A16C),
+                          color: AppColors.primary,
                         ),
                       ),
                     );
@@ -373,7 +374,7 @@ class _ReportScreenState extends State<ReportScreen> {
           subtitle:
               'IA irá resumir seus registros, identificar padrões de sintomas '
               'e destacar evolução ao longo do tempo.',
-          color: const Color(0xFFE0F2F1),
+          color: AppColors.primaryTint,
         ),
         _buildFutureCard(
           icon: Icons.local_hospital,
@@ -415,7 +416,7 @@ class _ReportScreenState extends State<ReportScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: const Color(0xFF016B3A), size: 28),
+          Icon(icon, color: AppColors.primary, size: 28),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -426,7 +427,7 @@ class _ReportScreenState extends State<ReportScreen> {
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF016B3A),
+                    color: AppColors.primary,
                   ),
                 ),
                 const SizedBox(height: 4),

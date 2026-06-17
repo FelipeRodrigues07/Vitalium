@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/theme/app_colors.dart';
 import '../../core/utils/date_time_utils.dart';
 import '../../models/chat_conversation.dart';
 import '../../models/chat_message.dart';
@@ -18,8 +19,8 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  static const _green = Color(0xFF22A16C);
-  static const _darkGreen = Color(0xFF016B3A);
+  static const _green = AppColors.primary;
+  static const _darkGreen = AppColors.primaryStrong;
   static const _pollInterval = Duration(seconds: 4);
 
   final _chatService = ChatService();
@@ -206,20 +207,69 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  String _initials(String name) {
+    final parts = name.trim().split(RegExp(r'\s+'));
+    if (parts.isEmpty || parts.first.isEmpty) {
+      return 'M';
+    }
+    if (parts.length == 1) {
+      return parts.first.substring(0, 1).toUpperCase();
+    }
+    return (parts.first.substring(0, 1) + parts.last.substring(0, 1))
+        .toUpperCase();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final hasConversation = _conversation != null;
+    final title = hasConversation ? _doctorName : 'Chat';
+
     return Scaffold(
+      backgroundColor: const Color(0xFFF6F7F8),
       appBar: AppBar(
-        title: Text(
-          _conversation == null ? 'Chat' : _doctorName,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-            color: Colors.white,
-          ),
-        ),
         backgroundColor: _green,
-        centerTitle: true,
+        elevation: 0,
+        titleSpacing: 12,
+        title: Row(
+          children: [
+            CircleAvatar(
+              radius: 18,
+              backgroundColor: Colors.white.withOpacity(0.2),
+              child: Text(
+                hasConversation ? _initials(title) : 'V',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                      color: Colors.white,
+                    ),
+                  ),
+                  if (hasConversation)
+                    const Text(
+                      'Médico',
+                      style: TextStyle(fontSize: 12, color: Colors.white70),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white),
@@ -254,6 +304,14 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  Widget _buildStateIcon(IconData icon, Color color, Color background) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(color: background, shape: BoxShape.circle),
+      child: Icon(icon, size: 44, color: color),
+    );
+  }
+
   Widget _buildErrorState() {
     return Center(
       child: Padding(
@@ -261,8 +319,9 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 48, color: Colors.red.shade400),
-            const SizedBox(height: 12),
+            _buildStateIcon(
+                Icons.error_outline, Colors.red.shade400, Colors.red.shade50),
+            const SizedBox(height: 16),
             Text(
               _errorMessage!,
               textAlign: TextAlign.center,
@@ -271,7 +330,12 @@ class _ChatScreenState extends State<ChatScreen> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _initChat,
-              style: ElevatedButton.styleFrom(backgroundColor: _darkGreen),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _green,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
               child: const Text(
                 'Tentar novamente',
                 style: TextStyle(color: Colors.white),
@@ -290,25 +354,36 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.chat_bubble_outline, size: 56, color: Colors.grey.shade400),
+            _buildStateIcon(Icons.chat_bubble_outline, AppColors.primary,
+                AppColors.primaryTint),
             const SizedBox(height: 16),
             const Text(
               'Nenhuma conversa ainda',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.foreground,
+              ),
             ),
             const SizedBox(height: 8),
             const Text(
               'Quando seu médico iniciar uma conversa, ela aparecerá aqui.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.black54),
+              style: TextStyle(color: AppColors.mutedForeground),
             ),
             const SizedBox(height: 16),
             OutlinedButton.icon(
               onPressed: _initChat,
-              icon: const Icon(Icons.refresh, color: _darkGreen),
+              icon: const Icon(Icons.refresh, color: _green),
               label: const Text(
                 'Atualizar',
-                style: TextStyle(color: _darkGreen),
+                style: TextStyle(color: _green),
+              ),
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: _green),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ],
@@ -321,13 +396,18 @@ class _ChatScreenState extends State<ChatScreen> {
     if (_messages.isEmpty) {
       return ListView(
         controller: _scrollController,
-        children: const [
-          SizedBox(height: 120),
+        children: [
+          const SizedBox(height: 100),
           Center(
+            child: _buildStateIcon(Icons.forum_outlined, AppColors.primary,
+                AppColors.primaryTint),
+          ),
+          const SizedBox(height: 16),
+          const Center(
             child: Text(
               'Nenhuma mensagem ainda.\nEnvie a primeira mensagem.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.black54),
+              style: TextStyle(color: AppColors.mutedForeground),
             ),
           ),
         ],
@@ -336,16 +416,69 @@ class _ChatScreenState extends State<ChatScreen> {
 
     return ListView.builder(
       controller: _scrollController,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
       itemCount: _messages.length,
-      itemBuilder: (context, index) => _buildMessageBubble(_messages[index]),
+      itemBuilder: (context, index) {
+        final message = _messages[index];
+        final showDay = index == 0 ||
+            !_isSameDay(_messages[index - 1].timestamp, message.timestamp);
+        return Column(
+          children: [
+            if (showDay) _buildDaySeparator(message.timestamp),
+            _buildMessageBubble(message),
+          ],
+        );
+      },
+    );
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) {
+    final la = DateTimeUtils.toBrasilia(a);
+    final lb = DateTimeUtils.toBrasilia(b);
+    return la.year == lb.year && la.month == lb.month && la.day == lb.day;
+  }
+
+  Widget _buildDaySeparator(DateTime timestamp) {
+    final local = DateTimeUtils.toBrasilia(timestamp);
+    final now = DateTimeUtils.toBrasilia(DateTime.now().toUtc());
+    final today = DateTime(now.year, now.month, now.day);
+    final day = DateTime(local.year, local.month, local.day);
+    final diff = today.difference(day).inDays;
+
+    String label;
+    if (diff == 0) {
+      label = 'Hoje';
+    } else if (diff == 1) {
+      label = 'Ontem';
+    } else {
+      label = '${local.day.toString().padLeft(2, '0')}/'
+          '${local.month.toString().padLeft(2, '0')}/${local.year}';
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.06),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          label,
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: AppColors.mutedForeground,
+          ),
+        ),
+      ),
     );
   }
 
   Widget _buildMessageBubble(ChatMessage message) {
     final isMe = message.isFromPatient;
-    final bubbleColor = isMe ? _green : Colors.grey.shade200;
-    final textColor = isMe ? Colors.white : Colors.black87;
+    final bubbleColor = isMe ? _green : Colors.white;
+    final textColor = isMe ? Colors.white : AppColors.foreground;
 
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
@@ -353,11 +486,23 @@ class _ChatScreenState extends State<ChatScreen> {
         constraints: BoxConstraints(
           maxWidth: MediaQuery.of(context).size.width * 0.75,
         ),
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 13),
         margin: const EdgeInsets.symmetric(vertical: 4),
         decoration: BoxDecoration(
           color: bubbleColor,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(16),
+            topRight: const Radius.circular(16),
+            bottomLeft: Radius.circular(isMe ? 16 : 4),
+            bottomRight: Radius.circular(isMe ? 4 : 16),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment:
@@ -375,13 +520,16 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ),
               ),
-            Text(message.content, style: TextStyle(color: textColor)),
-            const SizedBox(height: 2),
+            Text(
+              message.content,
+              style: TextStyle(color: textColor, height: 1.3),
+            ),
+            const SizedBox(height: 3),
             Text(
               DateTimeUtils.formatHmBrasilia(message.timestamp),
               style: TextStyle(
                 fontSize: 10,
-                color: isMe ? Colors.white70 : Colors.black45,
+                color: isMe ? Colors.white70 : Colors.black38,
               ),
             ),
           ],
@@ -393,9 +541,20 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildComposer() {
     return SafeArea(
       top: false,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Expanded(
               child: TextField(
@@ -404,29 +563,40 @@ class _ChatScreenState extends State<ChatScreen> {
                 maxLines: 4,
                 textInputAction: TextInputAction.send,
                 onSubmitted: (_) => _sendMessage(),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: 'Digite uma mensagem...',
+                  filled: true,
+                  fillColor: const Color(0xFFF1F3F4),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                    borderRadius: BorderRadius.circular(24),
+                    borderSide: BorderSide.none,
                   ),
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 12),
                 ),
               ),
             ),
             const SizedBox(width: 8),
-            IconButton(
-              icon: _isSending
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: _green,
-                      ),
-                    )
-                  : const Icon(Icons.send, color: _green),
-              onPressed: _isSending ? null : _sendMessage,
+            Material(
+              color: _green,
+              shape: const CircleBorder(),
+              child: InkWell(
+                customBorder: const CircleBorder(),
+                onTap: _isSending ? null : _sendMessage,
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: _isSending
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.send, color: Colors.white, size: 20),
+                ),
+              ),
             ),
           ],
         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../core/theme/app_colors.dart';
 import '../providers/auth_provider.dart';
 import '../screens/app/widgets/widget_config_pages.dart';
 import '../screens/auth/login_screen.dart';
@@ -33,7 +34,7 @@ class _AuthGateState extends State<AuthGate> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                CircularProgressIndicator(color: Color(0xFF22A16C)),
+                CircularProgressIndicator(color: AppColors.primary),
                 SizedBox(height: 16),
                 Text('Carregando...'),
               ],

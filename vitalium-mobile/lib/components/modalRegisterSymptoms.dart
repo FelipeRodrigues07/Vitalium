@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../core/theme/app_colors.dart';
 import '../services/api_client.dart';
 import '../services/symptom_log_service.dart';
 
@@ -227,7 +228,7 @@ class _SymptomBottomSheetState extends State<SymptomBottomSheet> {
             icon: const Icon(Icons.add_a_photo),
             label: Text(_imagePath == null ? 'Adicionar Imagem' : 'Trocar Imagem'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF016B3A),
+              backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
@@ -245,7 +246,7 @@ class _SymptomBottomSheetState extends State<SymptomBottomSheet> {
           ElevatedButton(
             onPressed: _isSubmitting ? null : _save,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF016B3A),
+              backgroundColor: AppColors.primary,
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
             child: _isSubmitting

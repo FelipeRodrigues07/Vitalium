@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/core/theme/app_colors.dart';
 import 'package:mobile/screens/app/report_screen.dart';
 import 'package:mobile/screens/app/home_screen.dart';
 import 'package:mobile/screens/app/profile_screen.dart';
@@ -48,7 +49,7 @@ class _HomePageState extends State<ConfigPage> {
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: paginaAtual,
-        selectedItemColor: const Color(0xFF22A16C),
+        selectedItemColor: AppColors.primary,
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Início'),
