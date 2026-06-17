@@ -127,7 +127,6 @@ async function cleanDatabase() {
     await prisma.errorLog.deleteMany();
     await prisma.requestLog.deleteMany();
     await prisma.databaseLog.deleteMany();
-    await prisma.adminUnit.deleteMany();
     await prisma.admin.deleteMany();
     await prisma.nurse.deleteMany();
     await prisma.caregiver.deleteMany();
@@ -334,25 +333,28 @@ async function createAdmins(
       userId: hospitalAdminUser.id,
       role: AdminRole.HOSPITAL_ADMIN,
       isActive: true,
-      units: {
-        create: [
-          {
-            unitId: hospitalUnit.id,
-            isPrimary: true,
-            isActive: true,
-          },
-          ...(clinicUnit.id !== hospitalUnit.id
-            ? [
-                {
-                  unitId: clinicUnit.id,
-                  isPrimary: false,
-                  isActive: true,
-                },
-              ]
-            : []),
-        ],
-      },
     },
+  });
+
+  await prisma.adminUnit.createMany({
+    data: [
+      {
+        adminId: hospitalAdmin.id,
+        unitId: hospitalUnit.id,
+        isPrimary: true,
+        isActive: true,
+      },
+      ...(clinicUnit.id !== hospitalUnit.id
+        ? [
+            {
+              adminId: hospitalAdmin.id,
+              unitId: clinicUnit.id,
+              isPrimary: false,
+              isActive: true,
+            },
+          ]
+        : []),
+    ],
   });
 
   // CLINIC_ADMIN — vinculado à Clínica do Bairro
@@ -361,13 +363,15 @@ async function createAdmins(
       userId: clinicAdminUser.id,
       role: AdminRole.CLINIC_ADMIN,
       isActive: true,
-      units: {
-        create: {
-          unitId: clinicUnit.id,
-          isPrimary: true,
-          isActive: true,
-        },
-      },
+    },
+  });
+
+  await prisma.adminUnit.create({
+    data: {
+      adminId: clinicAdmin.id,
+      unitId: clinicUnit.id,
+      isPrimary: true,
+      isActive: true,
     },
   });
 
