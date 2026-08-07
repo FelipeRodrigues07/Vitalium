@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
@@ -79,10 +80,17 @@ export class PatientController {
   @Get('by-user/:userId')
   @HttpCode(HttpStatus.OK)
   @ApiPatientOperations.findPatientByUserId()
-  @Roles(Role.ADMIN, Role.DOCTOR, Role.NURSE)
+  @Roles(Role.ADMIN, Role.DOCTOR, Role.NURSE, Role.PATIENT)
   async findByUserId(
     @Param('userId') userId: string,
+    @Request() req: RequestWithUser,
   ): Promise<PatientResponseDTO> {
+    if (req.user.role === Role.PATIENT && req.user.sub !== userId) {
+      throw new ForbiddenException(
+        'Pacientes só podem consultar o próprio perfil',
+      );
+    }
+
     const patient = await this.searchPatientUseCase.findByUserId(userId);
 
     return plainToInstance(PatientResponseDTO, patient, {

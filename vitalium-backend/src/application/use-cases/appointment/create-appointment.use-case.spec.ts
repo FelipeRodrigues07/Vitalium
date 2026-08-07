@@ -62,15 +62,27 @@ describe('CreateAppointmentUseCase', () => {
     } as any;
 
     it('should create an appointment successfully', async () => {
+      repo.findByDoctorId.mockResolvedValue([]);
       repo.create.mockResolvedValue(mockAppointment);
 
       const result = await useCase.execute(validDTO);
 
+      expect(repo.findByDoctorId).toHaveBeenCalledWith(validDTO.doctorId);
       expect(repo.create).toHaveBeenCalledWith(validDTO);
       expect(result).toEqual(mockAppointment);
     });
 
+    it('should throw on schedule conflict', async () => {
+      repo.findByDoctorId.mockResolvedValue([mockAppointment]);
+
+      await expect(useCase.execute(validDTO)).rejects.toThrow(
+        'Já existe uma consulta neste horário',
+      );
+      expect(repo.create).not.toHaveBeenCalled();
+    });
+
     it('should throw DatabaseException on repository error', async () => {
+      repo.findByDoctorId.mockResolvedValue([]);
       repo.create.mockRejectedValue(new Error('DB error'));
 
       await expect(useCase.execute(validDTO)).rejects.toThrow(

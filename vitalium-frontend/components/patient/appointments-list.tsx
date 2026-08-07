@@ -1,145 +1,254 @@
 "use client"
 
+import { useCallback, useEffect, useMemo, useState } from "react"
+import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, MapPin, Video, Plus, User } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Calendar, Clock, Loader2, User } from "lucide-react"
+import {
+  APPOINTMENT_STATUS_LABELS,
+  APPOINTMENT_TYPE_LABELS,
+  appointmentsApi,
+  type Appointment,
+} from "@/services/api/appointments"
+import { GetPatientByUserService } from "@/services/api/patients/GetPatientByUser"
+import {
+  getLinkedPersonDisplayName,
+  patientDoctorApi,
+} from "@/services/api/patient-doctors/patientsByDoctor"
+import { useAuth } from "@/providers/auth-provider"
+import { isOnOrAfterToday } from "@/lib/appointment-date"
 
-export function AppointmentsList() {
-  const appointments = [
-    {
-      id: 1,
-      doctor: "Dr. João Santos",
-      specialty: "Cardiologia",
-      date: "2024-01-25",
-      time: "14:00",
-      type: "Presencial",
-      location: "Consultório - Sala 205",
-      status: "confirmed",
-    },
-    {
-      id: 2,
-      doctor: "Dra. Maria Oliveira",
-      specialty: "Endocrinologia",
-      date: "2024-02-02",
-      time: "09:30",
-      type: "Telemedicina",
-      location: "Consulta online",
-      status: "confirmed",
-    },
-    {
-      id: 3,
-      doctor: "Dr. Pedro Silva",
-      specialty: "Clínico Geral",
-      date: "2024-02-15",
-      time: "16:00",
-      type: "Presencial",
-      location: "Consultório - Sala 101",
-      status: "pending",
-    },
-  ]
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "confirmed":
-        return <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Confirmada</Badge>
-      case "pending":
-        return <Badge variant="outline">Pendente</Badge>
-      default:
-        return <Badge variant="secondary">{status}</Badge>
-    }
+function statusVariant(status: Appointment["status"]) {
+  switch (status) {
+    case "CONFIRMED":
+    case "SCHEDULED":
+      return "default" as const
+    case "CANCELLED":
+    case "NO_SHOW":
+      return "destructive" as const
+    default:
+      return "secondary" as const
   }
+}
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString("pt-BR", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })
-  }
+function AppointmentCard({
+  appointment,
+  doctorName,
+}: {
+  appointment: Appointment
+  doctorName: string
+}) {
+  const scheduled = new Date(appointment.scheduledAt)
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
+    <div className="space-y-3 rounded-lg border border-border p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center space-x-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+            <User className="h-5 w-5 text-primary" />
+          </div>
           <div>
-            <CardTitle className="flex items-center space-x-2">
-              <Calendar className="w-5 h-5 text-primary" />
-              <span>Próximas Consultas</span>
-            </CardTitle>
-            <CardDescription>Suas consultas agendadas</CardDescription>
+            <h3 className="font-medium text-foreground">{doctorName}</h3>
+            <p className="text-sm text-muted-foreground">{appointment.title}</p>
           </div>
-          <Button variant="outline" size="sm">
-            <Plus className="w-4 h-4 mr-2" />
-            Agendar
-          </Button>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {appointments.map((appointment) => (
-          <div key={appointment.id} className="p-4 border border-border rounded-lg space-y-3">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                  <User className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-foreground">{appointment.doctor}</h3>
-                  <p className="text-sm text-muted-foreground">{appointment.specialty}</p>
-                </div>
-              </div>
-              {getStatusBadge(appointment.status)}
-            </div>
+        <Badge variant={statusVariant(appointment.status)}>
+          {APPOINTMENT_STATUS_LABELS[appointment.status]}
+        </Badge>
+      </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
-              <div className="flex items-center space-x-2">
-                <Calendar className="w-4 h-4 text-muted-foreground" />
-                <span>{formatDate(appointment.date)}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Clock className="w-4 h-4 text-muted-foreground" />
-                <span>{appointment.time}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                {appointment.type === "Telemedicina" ? (
-                  <Video className="w-4 h-4 text-muted-foreground" />
-                ) : (
-                  <MapPin className="w-4 h-4 text-muted-foreground" />
-                )}
-                <span>{appointment.location}</span>
-              </div>
-            </div>
+      <div className="grid grid-cols-1 gap-3 text-sm md:grid-cols-3">
+        <div className="flex items-center space-x-2">
+          <Calendar className="h-4 w-4 text-muted-foreground" />
+          <span>
+            {scheduled.toLocaleDateString("pt-BR", {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
+            })}
+          </span>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Clock className="h-4 w-4 text-muted-foreground" />
+          <span>
+            {scheduled.toLocaleTimeString("pt-BR", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}{" "}
+            ({appointment.duration} min)
+          </span>
+        </div>
+        <div className="text-muted-foreground">
+          {APPOINTMENT_TYPE_LABELS[appointment.type]}
+        </div>
+      </div>
+    </div>
+  )
+}
 
-            <div className="flex space-x-2 pt-2">
-              {appointment.type === "Telemedicina" && (
-                <Button size="sm" variant="outline">
-                  <Video className="w-4 h-4 mr-2" />
-                  Entrar na Consulta
-                </Button>
-              )}
-              <Button size="sm" variant="outline">
-                Ver Detalhes
-              </Button>
-              <Button size="sm" variant="outline">
-                Reagendar
-              </Button>
-            </div>
-          </div>
-        ))}
+export function AppointmentsList() {
+  const { user } = useAuth()
+  const [appointments, setAppointments] = useState<Appointment[]>([])
+  const [doctorNames, setDoctorNames] = useState<Record<string, string>>({})
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-        {appointments.length === 0 && (
-          <div className="text-center py-8">
-            <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground mb-4">Nenhuma consulta agendada</p>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Agendar Primeira Consulta
+  const load = useCallback(async () => {
+    if (!user?.id) return
+
+    try {
+      setLoading(true)
+      setError(null)
+
+      const [patient, doctorLinks] = await Promise.all([
+        GetPatientByUserService.getByUserId(user.id),
+        patientDoctorApi.listDoctorsByUserPatient(user.id),
+      ])
+
+      const names: Record<string, string> = {}
+      for (const link of doctorLinks) {
+        names[link.doctorId] = getLinkedPersonDisplayName(
+          link.doctor,
+          "Médico",
+        )
+      }
+      setDoctorNames(names)
+
+      const list = await appointmentsApi.listByPatient(patient.id)
+      setAppointments(
+        [...list].sort(
+          (a, b) =>
+            new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime(),
+        ),
+      )
+    } catch {
+      setError("Não foi possível carregar suas consultas.")
+      setAppointments([])
+    } finally {
+      setLoading(false)
+    }
+  }, [user?.id])
+
+  useEffect(() => {
+    void load()
+  }, [load])
+
+  const { upcoming, history } = useMemo(() => {
+    const upcomingItems = appointments
+      .filter(
+        (item) =>
+          isOnOrAfterToday(item.scheduledAt) &&
+          item.status !== "CANCELLED" &&
+          item.status !== "COMPLETED" &&
+          item.status !== "NO_SHOW",
+      )
+      .sort(
+        (a, b) =>
+          new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime(),
+      )
+
+    const historyItems = appointments
+      .filter(
+        (item) =>
+          item.status === "COMPLETED" ||
+          item.status === "CANCELLED" ||
+          item.status === "NO_SHOW" ||
+          !isOnOrAfterToday(item.scheduledAt),
+      )
+      .sort(
+        (a, b) =>
+          new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime(),
+      )
+
+    return { upcoming: upcomingItems, history: historyItems }
+  }, [appointments])
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <CardTitle className="flex items-center space-x-2">
+                <Calendar className="h-5 w-5 text-primary" />
+                <span>Próximas Consultas</span>
+              </CardTitle>
+              <CardDescription>
+                Consultas a partir de hoje (agendadas/confirmadas)
+              </CardDescription>
+            </div>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/work/patient/appointments">Ver calendário</Link>
             </Button>
           </div>
-        )}
-      </CardContent>
-    </Card>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {loading && (
+            <div className="flex items-center justify-center gap-2 py-8 text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Carregando consultas...
+            </div>
+          )}
+
+          {error && <p className="text-sm text-red-600">{error}</p>}
+
+          {!loading &&
+            upcoming.map((appointment) => (
+              <AppointmentCard
+                key={appointment.id}
+                appointment={appointment}
+                doctorName={doctorNames[appointment.doctorId] ?? "Médico"}
+              />
+            ))}
+
+          {!loading && upcoming.length === 0 && !error && (
+            <div className="py-8 text-center">
+              <Calendar className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+              <p className="text-muted-foreground">
+                Nenhuma consulta futura. Quando o médico marcar, ela aparece
+                aqui.
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Clock className="h-5 w-5 text-primary" />
+            <span>Histórico</span>
+          </CardTitle>
+          <CardDescription>
+            Consultas concluídas, canceladas e anteriores
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {loading && (
+            <div className="flex items-center justify-center gap-2 py-8 text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Carregando histórico...
+            </div>
+          )}
+
+          {!loading &&
+            history.map((appointment) => (
+              <AppointmentCard
+                key={appointment.id}
+                appointment={appointment}
+                doctorName={doctorNames[appointment.doctorId] ?? "Médico"}
+              />
+            ))}
+
+          {!loading && history.length === 0 && !error && (
+            <p className="py-6 text-center text-muted-foreground">
+              Nenhum histórico de consultas ainda.
+            </p>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   )
 }
