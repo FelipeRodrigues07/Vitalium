@@ -24,6 +24,7 @@ import {
   Stethoscope,
   Activity,
   FileText,
+  Pill,
 } from "lucide-react"
 
 const navigation = [
@@ -70,6 +71,12 @@ const navigation = [
     name: "Prontuário",
     href: "/work/doctor/medical-records",
     icon: FileText,
+    roles: ["doctor"],
+  },
+  {
+    name: "Prescrições",
+    href: "/work/doctor/prescriptions",
+    icon: Pill,
     roles: ["doctor"],
   },
   {
