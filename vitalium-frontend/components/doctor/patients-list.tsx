@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,7 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { User, MessageCircle, Phone, Video } from 'lucide-react';
+import { User, MessageCircle, FileText } from 'lucide-react';
 import {
   GetPatientsService,
   type PatientListItemModel,
@@ -132,7 +133,7 @@ export function PatientsList({
           return (
             <Card
               key={patient.id}
-              className="hover:shadow-lg transition-shadow cursor-pointer"
+              className="hover:shadow-lg transition-shadow"
             >
               <CardContent className="p-6">
                 <div className="flex items-start justify-between mb-4">
@@ -176,20 +177,13 @@ export function PatientsList({
                       <MessageCircle className="w-4 h-4 mr-2" />
                       Chat
                     </Button>
-                    <Button variant="ghost" size="sm">
-                      <Phone className="w-4 h-4 mr-2" />
-                      Ligar
-                    </Button>
-                    <Button variant="ghost" size="sm">
-                      <Video className="w-4 h-4 mr-2" />
-                      Vídeo
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onSelectPatient(patient.id)}
-                    >
-                      Ver detalhes
+                    <Button variant="outline" size="sm" asChild>
+                      <Link
+                        href={`/work/doctor/medical-records?patientId=${patient.id}`}
+                      >
+                        <FileText className="w-4 h-4 mr-2" />
+                        Prontuário
+                      </Link>
                     </Button>
                   </div>
                 </div>
