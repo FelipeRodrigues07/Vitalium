@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, MessageCircle } from "lucide-react"
+import { Activity, Calendar, MessageCircle } from "lucide-react"
 import { AppointmentsList } from "@/components/patient/appointments-list"
 import { AppLayout } from "@/components/app-layout"
 import { useAuth } from "@/providers/auth-provider"
@@ -36,6 +36,12 @@ export default function PatientDashboard() {
             <Link href="/work/chat" className="inline-flex items-center gap-2">
               <MessageCircle className="h-4 w-4" />
               Falar com médico
+            </Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href="/work/patient/symptoms" className="inline-flex items-center gap-2">
+              <Activity className="h-4 w-4" />
+              Relatar sintomas
             </Link>
           </Button>
         </div>

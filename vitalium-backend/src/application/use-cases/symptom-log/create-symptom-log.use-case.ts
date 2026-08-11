@@ -26,7 +26,7 @@ export class CreateSymptomLogUseCase {
   ): Promise<SymptomLog> {
     if (authUser.role !== Role.PATIENT) {
       throw new ForbiddenException(
-        'Apenas pacientes podem registrar sintomas pelo aplicativo',
+        'Apenas pacientes podem registrar sintomas',
       );
     }
 

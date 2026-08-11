@@ -80,9 +80,21 @@ const navigation = [
     roles: ["doctor"],
   },
   {
+    name: "Sintomas",
+    href: "/work/doctor/symptoms",
+    icon: Activity,
+    roles: ["doctor"],
+  },
+  {
     name: "Meus agendamentos",
     href: "/work/patient/appointments",
     icon: Calendar,
+    roles: ["patient"],
+  },
+  {
+    name: "Meus sintomas",
+    href: "/work/patient/symptoms",
+    icon: Activity,
     roles: ["patient"],
   },
   {

@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   Request,
   UploadedFile,
@@ -94,6 +95,25 @@ export class SymptomLogController {
     @Request() req: RequestWithUser,
   ): Promise<SymptomLogResponseDTO[]> {
     const logs = await this.listSymptomLogsUseCase.executeForAuthUser(req.user);
+
+    return plainToInstance(SymptomLogResponseDTO, logs, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  @Get('patient/:patientId')
+  @HttpCode(HttpStatus.OK)
+  @Roles(Role.DOCTOR, Role.ADMIN)
+  @ApiOperation({ summary: 'Listar sintomas de um paciente (médico)' })
+  @ApiResponse({ status: 200, type: [SymptomLogResponseDTO] })
+  async listByPatient(
+    @Param('patientId') patientId: string,
+    @Request() req: RequestWithUser,
+  ): Promise<SymptomLogResponseDTO[]> {
+    const logs = await this.listSymptomLogsUseCase.executeForDoctor(
+      patientId,
+      req.user,
+    );
 
     return plainToInstance(SymptomLogResponseDTO, logs, {
       excludeExtraneousValues: true,

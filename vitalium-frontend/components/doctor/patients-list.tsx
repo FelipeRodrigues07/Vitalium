@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { User, MessageCircle, FileText, Pill } from 'lucide-react';
+import { User, MessageCircle, FileText, Pill, Activity } from 'lucide-react';
 import {
   GetPatientsService,
   type PatientListItemModel,
@@ -191,6 +191,14 @@ export function PatientsList({
                       >
                         <Pill className="w-4 h-4 mr-2" />
                         Receitas
+                      </Link>
+                    </Button>
+                    <Button variant="outline" size="sm" asChild>
+                      <Link
+                        href={`/work/doctor/symptoms?patientId=${patient.id}`}
+                      >
+                        <Activity className="w-4 h-4 mr-2" />
+                        Sintomas
                       </Link>
                     </Button>
                   </div>
