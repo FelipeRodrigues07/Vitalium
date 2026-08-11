@@ -1,6 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { SecurityLevel, UserRole } from '@prisma/client';
 import { PrismaProvider } from '../../../infrastructure/database/prisma.provider';
+import {
+  getScopedUnitIds,
+  isSuperAdmin,
+  isUnitScopedAdmin,
+} from '../../../shared/auth/auth-scope.helper';
+import type { AuthJwtPayload } from '../../../shared/types/auth-jwt-payload.interface';
 
 export interface AdminDashboardActivity {
   id: string;
@@ -18,6 +24,7 @@ export interface AdminDashboardResponse {
     pendingApprovals: number;
     totalDoctors: number;
     totalPatients: number;
+    totalUnits: number;
     systemUptime: string;
     criticalAlerts: number;
     dataBackupStatus: 'Completed' | 'Pending';
@@ -35,11 +42,93 @@ export interface AdminDashboardResponse {
 export class GetAdminDashboardUseCase {
   constructor(private readonly prisma: PrismaProvider) {}
 
-  async execute(): Promise<AdminDashboardResponse> {
+  async execute(
+    authUser: AuthJwtPayload,
+    filterUnitId?: string,
+  ): Promise<AdminDashboardResponse> {
+    const unitIds = this.resolveUnitFilter(authUser, filterUnitId);
+
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
 
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+    if (!unitIds) {
+      return this.buildGlobalDashboard(todayStart, oneDayAgo);
+    }
+
+    return this.buildUnitDashboard(unitIds, todayStart, oneDayAgo);
+  }
+
+  private resolveUnitFilter(
+    authUser: AuthJwtPayload,
+    filterUnitId?: string,
+  ): string[] | null {
+    const scopedUnitIds = getScopedUnitIds(authUser);
+
+    if (filterUnitId) {
+      if (isSuperAdmin(authUser)) {
+        return [filterUnitId];
+      }
+
+      if (isUnitScopedAdmin(authUser)) {
+        if (!scopedUnitIds.includes(filterUnitId)) {
+          throw new ForbiddenException(
+            'Unidade não permitida para este administrador',
+          );
+        }
+        return [filterUnitId];
+      }
+    }
+
+    if (isUnitScopedAdmin(authUser) && scopedUnitIds.length > 0) {
+      return scopedUnitIds;
+    }
+
+    return null;
+  }
+
+  private usersInUnitsWhere(unitIds: string[]) {
+    return {
+      OR: [
+        {
+          admin: {
+            units: {
+              some: { unitId: { in: unitIds }, isActive: true },
+            },
+          },
+        },
+        {
+          doctor: {
+            units: {
+              some: { unitId: { in: unitIds }, isActive: true },
+            },
+          },
+        },
+        {
+          patient: {
+            units: {
+              some: { unitId: { in: unitIds }, isActive: true },
+            },
+          },
+        },
+        {
+          nurse: {
+            units: {
+              some: { unitId: { in: unitIds }, isActive: true },
+            },
+          },
+        },
+      ],
+    };
+  }
+
+  private async buildUnitDashboard(
+    unitIds: string[],
+    todayStart: Date,
+    oneDayAgo: Date,
+  ): Promise<AdminDashboardResponse> {
+    const unitFilter = this.usersInUnitsWhere(unitIds);
 
     const [
       totalUsers,
@@ -48,6 +137,99 @@ export class GetAdminDashboardUseCase {
       pendingApprovals,
       totalDoctors,
       totalPatients,
+      totalUnits,
+      recentUsers,
+    ] = await Promise.all([
+      this.prisma.user.count({ where: unitFilter }),
+      this.prisma.user.count({
+        where: { isActive: true, ...unitFilter },
+      }),
+      this.prisma.user.count({
+        where: { createdAt: { gte: todayStart }, ...unitFilter },
+      }),
+      this.prisma.user.count({
+        where: {
+          role: UserRole.DOCTOR,
+          isActive: false,
+          ...unitFilter,
+        },
+      }),
+      this.prisma.doctor.count({
+        where: {
+          units: {
+            some: { unitId: { in: unitIds }, isActive: true },
+          },
+        },
+      }),
+      this.prisma.patient.count({
+        where: {
+          units: {
+            some: { unitId: { in: unitIds }, isActive: true },
+          },
+        },
+      }),
+      this.prisma.unit.count({
+        where: { id: { in: unitIds }, isActive: true },
+      }),
+      this.prisma.user.findMany({
+        where: unitFilter,
+        take: 8,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          createdAt: true,
+          role: true,
+        },
+      }),
+    ]);
+
+    const recentActivity: AdminDashboardActivity[] = recentUsers.map(
+      (user) => ({
+        id: `user-${user.id}`,
+        type: 'user_registration' as const,
+        severity: 'info' as const,
+        message: `Novo ${this.getRoleLabel(user.role)} cadastrado: ${user.firstName} ${user.lastName}`,
+        occurredAt: user.createdAt,
+      }),
+    );
+
+    return {
+      systemStats: {
+        totalUsers,
+        activeUsers,
+        newUsersToday,
+        pendingApprovals,
+        totalDoctors,
+        totalPatients,
+        totalUnits,
+        systemUptime: this.formatUptime(process.uptime()),
+        criticalAlerts: 0,
+        dataBackupStatus: 'Completed',
+        lastBackup: oneDayAgo,
+      },
+      systemStatus: {
+        server: 'Online',
+        database: 'Saudavel',
+        lgpdCompliance: 'Ativa',
+      },
+      recentActivity,
+    };
+  }
+
+  private async buildGlobalDashboard(
+    todayStart: Date,
+    oneDayAgo: Date,
+  ): Promise<AdminDashboardResponse> {
+    const [
+      totalUsers,
+      activeUsers,
+      newUsersToday,
+      pendingApprovals,
+      totalDoctors,
+      totalPatients,
+      totalUnits,
       criticalSecurityAlerts,
       unresolvedErrors,
       latestBackup,
@@ -66,6 +248,7 @@ export class GetAdminDashboardUseCase {
       }),
       this.prisma.doctor.count(),
       this.prisma.patient.count(),
+      this.prisma.unit.count({ where: { isActive: true } }),
       this.prisma.securityLog.count({
         where: {
           severity: SecurityLevel.CRITICAL,
@@ -168,6 +351,7 @@ export class GetAdminDashboardUseCase {
         pendingApprovals,
         totalDoctors,
         totalPatients,
+        totalUnits,
         systemUptime: this.formatUptime(process.uptime()),
         criticalAlerts,
         dataBackupStatus:

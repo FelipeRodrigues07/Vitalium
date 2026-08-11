@@ -16,6 +16,7 @@ export interface AdminDashboardData {
     pendingApprovals: number;
     totalDoctors: number;
     totalPatients: number;
+    totalUnits: number;
     systemUptime: string;
     criticalAlerts: number;
     dataBackupStatus: 'Completed' | 'Pending';
@@ -30,8 +31,10 @@ export interface AdminDashboardData {
 }
 
 export const GetAdminDashboardService = {
-  getDashboard: async (): Promise<AdminDashboardData> => {
-    const response = await api.get('/admin/dashboard');
+  getDashboard: async (unitId?: string): Promise<AdminDashboardData> => {
+    const response = await api.get('/admin/dashboard', {
+      params: unitId ? { unitId } : undefined,
+    });
     return response.data;
   },
 };
