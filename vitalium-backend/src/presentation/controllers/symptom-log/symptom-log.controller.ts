@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Query,
   Request,
   UploadedFile,
   UseGuards,
@@ -24,6 +25,7 @@ import { plainToInstance } from 'class-transformer';
 import type { Request as ExpressRequest } from 'express';
 import { memoryStorage } from 'multer';
 import { CreateSymptomLogUseCase } from '../../../application/use-cases/symptom-log/create-symptom-log.use-case';
+import { GenerateSymptomMonthlyReportUseCase } from '../../../application/use-cases/symptom-log/generate-symptom-monthly-report.use-case';
 import { ListSymptomLogsUseCase } from '../../../application/use-cases/symptom-log/list-symptom-logs.use-case';
 import { Roles } from '../../../shared/decorators/roles.decorator';
 import { Role } from '../../../shared/enums';
@@ -46,6 +48,7 @@ export class SymptomLogController {
   constructor(
     private readonly createSymptomLogUseCase: CreateSymptomLogUseCase,
     private readonly listSymptomLogsUseCase: ListSymptomLogsUseCase,
+    private readonly generateSymptomMonthlyReportUseCase: GenerateSymptomMonthlyReportUseCase,
   ) {}
 
   @Post()
@@ -118,5 +121,28 @@ export class SymptomLogController {
     return plainToInstance(SymptomLogResponseDTO, logs, {
       excludeExtraneousValues: true,
     });
+  }
+
+  @Post('patient/:patientId/monthly-report')
+  @HttpCode(HttpStatus.OK)
+  @Roles(Role.DOCTOR, Role.ADMIN)
+  @ApiOperation({
+    summary: 'Gerar relatório mensal de sintomas do paciente (IA)',
+  })
+  async monthlyReport(
+    @Param('patientId') patientId: string,
+    @Query('month') month: string | undefined,
+    @Request() req: RequestWithUser,
+  ) {
+    const resolvedMonth =
+      month && month.trim().length > 0
+        ? month.trim()
+        : new Date().toISOString().slice(0, 7);
+
+    return this.generateSymptomMonthlyReportUseCase.execute(
+      patientId,
+      resolvedMonth,
+      req.user,
+    );
   }
 }

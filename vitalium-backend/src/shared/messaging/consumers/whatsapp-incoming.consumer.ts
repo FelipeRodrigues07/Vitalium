@@ -7,7 +7,6 @@ import type { MessagePayloadDTO } from '../../../presentation/dto/chatDTO/messag
 import { MessageChannel } from '../../enums/message-channel.enum';
 import { MessageOrigin } from '../../enums/message-origin.enum';
 import { ChatGateway } from '../../gateways/chat.gateway';
-import { ChatProducer } from '../producers/chat.producer';
 import { QUEUES, RabbitMQService } from '../rabbitmq.service';
 
 /**
@@ -17,7 +16,6 @@ import { QUEUES, RabbitMQService } from '../rabbitmq.service';
  *   2. Localiza conversa pelo patientId (ou cria se não existir)
  *   3. Persiste a mensagem no banco
  *   4. Emite via WebSocket para o médico responsável
- *   5. Encaminha para IA (chat.to_ai)
  */
 @Injectable()
 export class WhatsappIncomingConsumer implements OnModuleInit {
@@ -26,7 +24,6 @@ export class WhatsappIncomingConsumer implements OnModuleInit {
   constructor(
     private readonly rabbitmq: RabbitMQService,
     private readonly chatGateway: ChatGateway,
-    private readonly chatProducer: ChatProducer,
     private readonly sendMessageUseCase: SendMessageUseCase,
     private readonly createConversationUseCase: CreateConversationUseCase,
     @Inject('IPatientRepository')
@@ -97,12 +94,5 @@ export class WhatsappIncomingConsumer implements OnModuleInit {
 
     // Notifica médico em tempo real via WebSocket
     this.chatGateway.emitNewMessage(conversationId, message);
-
-    // Encaminha para IA processar (com patientId resolvido para o ID do banco)
-    await this.chatProducer.publishToAI({
-      ...payload,
-      patientId: resolvedPatientId,
-      conversationId,
-    });
   }
 }

@@ -10,6 +10,15 @@ export interface SymptomLog {
   createdAt: string
 }
 
+export interface SymptomMonthlyReport {
+  patientId: string
+  patientName: string
+  month: string
+  summary: string
+  source: string
+  symptomCount: number
+}
+
 function getApiBaseUrl(): string {
   return (process.env.NEXT_PUBLIC_API_BASE_URL ?? "").replace(/\/$/, "")
 }
@@ -60,5 +69,17 @@ export const symptomLogsApi = {
   listByPatient: (patientId: string): Promise<SymptomLog[]> =>
     api
       .get<SymptomLog[]>(`/symptom-logs/patient/${patientId}`)
+      .then((r) => r.data),
+
+  monthlyReport: (
+    patientId: string,
+    month?: string,
+  ): Promise<SymptomMonthlyReport> =>
+    api
+      .post<SymptomMonthlyReport>(
+        `/symptom-logs/patient/${patientId}/monthly-report`,
+        {},
+        { params: month ? { month } : undefined },
+      )
       .then((r) => r.data),
 }

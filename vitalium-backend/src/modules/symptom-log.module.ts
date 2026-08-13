@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { CreateSymptomLogUseCase } from '../application/use-cases/symptom-log/create-symptom-log.use-case';
+import { GenerateSymptomMonthlyReportUseCase } from '../application/use-cases/symptom-log/generate-symptom-monthly-report.use-case';
 import { ListSymptomLogsUseCase } from '../application/use-cases/symptom-log/list-symptom-logs.use-case';
 import { PrismaModule } from '../infrastructure/database/prisma.module';
 import { DoctorRepository } from '../infrastructure/repositories/doctor/doctor.repository';
@@ -16,6 +17,7 @@ import { SymptomLogController } from '../presentation/controllers/symptom-log/sy
     SymptomImageStorageService,
     CreateSymptomLogUseCase,
     ListSymptomLogsUseCase,
+    GenerateSymptomMonthlyReportUseCase,
     {
       provide: 'ISymptomLogRepository',
       useClass: SymptomLogRepository,

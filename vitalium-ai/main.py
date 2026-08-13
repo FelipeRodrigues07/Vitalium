@@ -1,21 +1,47 @@
 """
 Vitalium AI Service
-Microserviço de IA para processamento de mensagens de chat
-
-Autor: Vitalium Team
-Versão: 1.0.0
+Análise de sintomas relatados pelo paciente (relatório para o médico)
 """
 import logging
-import colorlog
-import signal
-import sys
-from config import Config
-from consumers.ai_consumer import AIConsumer
 
-# ─── Configuração de Logging ──────────────────────────────
+import colorlog
+import uvicorn
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel, Field
+
+from config import Config
+from services.symptom_report_service import SymptomReportService
+
+app = FastAPI(
+    title="Vitalium AI",
+    description="Serviço de análise de sintomas do paciente",
+    version="2.0.0",
+)
+
+report_service = SymptomReportService()
+
+
+class SymptomItem(BaseModel):
+    description: str = Field(..., min_length=1)
+    createdAt: str
+
+
+class SymptomMonthlyReportRequest(BaseModel):
+    patientId: str
+    patientName: str = "Paciente"
+    month: str = Field(..., description="YYYY-MM")
+    symptoms: list[SymptomItem] = Field(default_factory=list)
+
+
+class SymptomMonthlyReportResponse(BaseModel):
+    summary: str
+    source: str
+    symptomCount: int
+    patientId: str
+    month: str
+
 
 def setup_logging():
-    """Configura logging colorido"""
     handler = colorlog.StreamHandler()
     handler.setFormatter(
         colorlog.ColoredFormatter(
@@ -30,53 +56,79 @@ def setup_logging():
             },
         )
     )
-
     logger = logging.getLogger()
+    logger.handlers.clear()
     logger.addHandler(handler)
-    logger.setLevel(getattr(logging, Config.LOG_LEVEL))
+    logger.setLevel(getattr(logging, Config.LOG_LEVEL, logging.INFO))
 
 
-# ─── Main ─────────────────────────────────────────────────
-
-def main():
-    """Entry point do serviço"""
+@app.on_event("startup")
+def on_startup():
     setup_logging()
     logger = logging.getLogger(__name__)
+    Config.validate()
+    logger.info("Vitalium AI iniciado — modo análise de sintomas")
+    if Config.has_llm_credentials():
+        logger.info("LLM habilitado (%s)", Config.AI_PROVIDER)
+    else:
+        logger.warning("LLM sem credenciais — fallback local ativo")
 
-    logger.info("=" * 60)
-    logger.info("🚀 Vitalium AI Service")
-    logger.info("=" * 60)
 
-    # Valida configurações (avisos, não fatal quando LLM ainda não configurado)
-    try:
-        Config.validate()
-        logger.info("✅ Configurações validadas")
-    except ValueError as e:
-        logger.warning(f"⚠️  {e} — o serviço vai iniciar mas respostas de IA estarão desabilitadas")
+@app.get("/health")
+def health():
+    return {
+        "status": "ok",
+        "service": "vitalium-ai",
+        "mode": "symptom-reports",
+        "llmConfigured": Config.has_llm_credentials(),
+        "provider": Config.AI_PROVIDER,
+    }
 
-    # Inicializa consumer
-    consumer = AIConsumer()
 
-    # Graceful shutdown
-    def signal_handler(sig, frame):
-        logger.info(f"\n⚠️ Sinal {sig} recebido, encerrando...")
-        consumer.stop()
-        sys.exit(0)
+@app.post(
+    "/reports/symptoms-monthly",
+    response_model=SymptomMonthlyReportResponse,
+)
+def create_symptom_monthly_report(payload: SymptomMonthlyReportRequest):
+    logger = logging.getLogger(__name__)
 
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.signal(signal.SIGTERM, signal_handler)
+    if len(payload.month) != 7 or payload.month[4] != "-":
+        raise HTTPException(
+            status_code=400,
+            detail="month deve estar no formato YYYY-MM",
+        )
 
-    # Inicia serviço
-    try:
-        consumer.start()
-    except KeyboardInterrupt:
-        logger.info("Serviço interrompido pelo usuário")
-    except Exception as e:
-        logger.error(f"Erro fatal: {e}", exc_info=True)
-        sys.exit(1)
-    finally:
-        consumer.stop()
-        logger.info("👋 Serviço encerrado")
+    logger.info(
+        "Gerando relatório | patient=%s | month=%s | symptoms=%s",
+        payload.patientId,
+        payload.month,
+        len(payload.symptoms),
+    )
+
+    result = report_service.generate(
+        patient_name=payload.patientName,
+        month=payload.month,
+        symptoms=[item.model_dump() for item in payload.symptoms],
+    )
+
+    return SymptomMonthlyReportResponse(
+        summary=result["summary"],
+        source=result["source"],
+        symptomCount=result["symptomCount"],
+        patientId=payload.patientId,
+        month=payload.month,
+    )
+
+
+def main():
+    setup_logging()
+    uvicorn.run(
+        "main:app",
+        host=Config.HOST,
+        port=Config.PORT,
+        reload=False,
+        log_level=Config.LOG_LEVEL.lower(),
+    )
 
 
 if __name__ == "__main__":

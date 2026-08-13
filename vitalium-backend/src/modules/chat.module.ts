@@ -14,7 +14,6 @@ import { ChatController } from '../presentation/controllers/chat/chat.controller
 
 // Gateway
 import { ChatGateway } from '../shared/gateways/chat.gateway';
-import { AiResponseConsumer } from '../shared/messaging/consumers/ai-response.consumer';
 
 // Consumers
 import { WhatsappIncomingConsumer } from '../shared/messaging/consumers/whatsapp-incoming.consumer';
@@ -40,7 +39,6 @@ import { RabbitMQModule } from '../shared/messaging/rabbitmq.module';
 
     // Queue consumers (auto-inicializam via OnModuleInit)
     WhatsappIncomingConsumer,
-    AiResponseConsumer,
   ],
   exports: [ChatGateway, SendMessageUseCase],
 })

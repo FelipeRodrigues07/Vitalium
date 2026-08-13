@@ -65,6 +65,7 @@ services:
       - NODE_ENV=production
       - PORT=3002
       - RABBITMQ_URL=amqp://${RABBITMQ_USER:-vitalium}:${RABBITMQ_PASS}@rabbitmq:5672
+      - AI_SERVICE_URL=http://vitalium-ai:3003
       - WHATSAPP_ACCESS_TOKEN=${WHATSAPP_ACCESS_TOKEN}
       - WHATSAPP_PHONE_NUMBER_ID=${WHATSAPP_PHONE_NUMBER_ID}
       - WHATSAPP_VERIFY_TOKEN=${WHATSAPP_VERIFY_TOKEN:-vitalium_webhook_verify}
@@ -99,30 +100,33 @@ services:
       dockerfile: Dockerfile
     container_name: vitalium-ai
     restart: unless-stopped
+    ports:
+      - "3003:3003"
     environment:
-      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-vitalium}:${RABBITMQ_PASS}@rabbitmq:5672/
-      - RABBITMQ_QUEUE_TO_AI=chat.to_ai
-      - RABBITMQ_QUEUE_FROM_AI=chat.from_ai
+      - PORT=3003
+      - HOST=0.0.0.0
       - AI_PROVIDER=${AI_PROVIDER:-openai}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o}
-      - OPENAI_MAX_TOKENS=${OPENAI_MAX_TOKENS:-500}
-      - OPENAI_TEMPERATURE=${OPENAI_TEMPERATURE:-0.7}
+      - OPENAI_MAX_TOKENS=${OPENAI_MAX_TOKENS:-900}
+      - OPENAI_TEMPERATURE=${OPENAI_TEMPERATURE:-0.3}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-claude-3-5-sonnet-20241022}
       - LOG_LEVEL=${AI_LOG_LEVEL:-INFO}
-      - SYSTEM_PROMPT=${AI_SYSTEM_PROMPT:-Você é um assistente médico virtual chamado VitaliumAI. Sua função é ajudar pacientes com informações gerais sobre saúde, agendar consultas e responder dúvidas não emergenciais. Seja empático, claro e objetivo. NUNCA faça diagnósticos médicos. Em casos graves, oriente buscar atendimento presencial imediato.}
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
     networks:
       - vitalium-network
     healthcheck:
-      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:3003/health')",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 20s
 
   # ========================
   # PostgreSQL Database
