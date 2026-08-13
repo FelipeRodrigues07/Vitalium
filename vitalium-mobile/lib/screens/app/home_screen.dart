@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/components/modalRegisterSymptoms.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/navigation/main_tab_controller.dart';
 import '../../core/theme/app_colors.dart';
 import '../../models/symptom_log.dart';
 import '../../providers/auth_provider.dart';
@@ -138,7 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.chat_bubble_outline, color: Colors.white),
-            onPressed: () {},
+            onPressed: MainTabController.goToChat,
           ),
         ],
       ),

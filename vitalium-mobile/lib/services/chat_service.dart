@@ -2,8 +2,20 @@ import 'dart:convert';
 
 import '../models/chat_conversation.dart';
 import '../models/chat_message.dart';
-import 'api_client.dart';
 import '../storage/auth_storage.dart';
+import 'api_client.dart';
+
+class LinkedDoctor {
+  LinkedDoctor({
+    required this.patientId,
+    required this.doctorId,
+    required this.name,
+  });
+
+  final String patientId;
+  final String doctorId;
+  final String name;
+}
 
 class ChatService {
   ChatService({
@@ -13,8 +25,6 @@ class ChatService {
 
   final ApiClient _api;
 
-  /// Lista as conversas do paciente logado.
-  /// O backend resolve o paciente a partir do userId informado.
   Future<List<ChatConversation>> listMyConversations(String userId) async {
     final response = await _api.get('/chat/conversations/patient/$userId');
 
@@ -31,11 +41,35 @@ class ChatService {
         .toList();
   }
 
-  /// Busca as mensagens de uma conversa (ordem cronológica, mais antigas primeiro).
+  /// Carrega as mensagens mais recentes (última página em ordem cronológica).
   Future<List<ChatMessage>> getMessages(
     String conversationId, {
-    int page = 1,
-    int limit = 100,
+    int limit = 80,
+  }) async {
+    final first = await _fetchMessagesPage(
+      conversationId,
+      page: 1,
+      limit: limit,
+    );
+
+    final total = first.total;
+    if (total <= limit) {
+      return first.messages;
+    }
+
+    final lastPage = (total / limit).ceil();
+    final last = await _fetchMessagesPage(
+      conversationId,
+      page: lastPage,
+      limit: limit,
+    );
+    return last.messages;
+  }
+
+  Future<({List<ChatMessage> messages, int total})> _fetchMessagesPage(
+    String conversationId, {
+    required int page,
+    required int limit,
   }) async {
     final response = await _api.get(
       '/chat/conversations/$conversationId/messages?page=$page&limit=$limit',
@@ -49,17 +83,16 @@ class ChatService {
     }
 
     final data = jsonDecode(response.body) as Map<String, dynamic>;
-    final messages = data['messages'] as List<dynamic>? ?? [];
-    return messages
+    final messages = (data['messages'] as List<dynamic>? ?? [])
         .map((item) => ChatMessage.fromJson(item as Map<String, dynamic>))
         .toList();
+    final total = (data['total'] as num?)?.toInt() ?? messages.length;
+    return (messages: messages, total: total);
   }
 
-  /// Envia uma mensagem como paciente.
   Future<ChatMessage> sendMessage({
     required String conversationId,
     required String content,
-    String? senderId,
   }) async {
     final response = await _api.post(
       '/chat/conversations/$conversationId/messages',
@@ -67,7 +100,6 @@ class ChatService {
         'content': content.trim(),
         'origin': 'PATIENT',
         'channel': 'WEB',
-        if (senderId != null) 'senderId': senderId,
       },
     );
 
@@ -82,29 +114,64 @@ class ChatService {
     return ChatMessage.fromJson(data);
   }
 
-  /// Mapa doctorId -> nome do médico, para exibir nas conversas do paciente.
-  Future<Map<String, String>> getDoctorNamesByDoctorId(String userId) async {
+  Future<ChatConversation> createConversation({
+    required String patientId,
+    required String doctorId,
+  }) async {
+    final response = await _api.post(
+      '/chat/conversations',
+      body: {
+        'patientId': patientId,
+        'doctorId': doctorId,
+        'channel': 'WEB',
+      },
+    );
+
+    if (response.statusCode == 409) {
+      // Já existe: recarrega lista e devolve a conversa correspondente.
+      throw ApiException(
+        'Conversa já existe',
+        statusCode: 409,
+      );
+    }
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw ApiException(
+        ApiClient.parseErrorMessage(response),
+        statusCode: response.statusCode,
+      );
+    }
+
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    return ChatConversation.fromJson(data);
+  }
+
+  Future<List<LinkedDoctor>> getLinkedDoctors(String userId) async {
     final response =
         await _api.get('/patient-doctors/patient/by-user/$userId');
 
     if (response.statusCode != 200) {
-      // Sem nomes não é fatal: o chat ainda funciona com rótulo genérico.
-      return {};
+      return [];
     }
 
     final data = jsonDecode(response.body) as List<dynamic>;
-    final result = <String, String>{};
+    final result = <LinkedDoctor>[];
 
     for (final item in data) {
       if (item is! Map<String, dynamic>) continue;
+      final patientId = item['patientId'] as String?;
       final doctorId = item['doctorId'] as String?;
-      final doctor = item['doctor'] as Map<String, dynamic>?;
-      if (doctorId == null) continue;
+      if (patientId == null || doctorId == null) continue;
 
-      final name = _personName(doctor);
-      if (name != null) {
-        result[doctorId] = name;
-      }
+      final doctor = item['doctor'] as Map<String, dynamic>?;
+      final name = _personName(doctor) ?? 'Médico';
+      result.add(
+        LinkedDoctor(
+          patientId: patientId,
+          doctorId: doctorId,
+          name: name,
+        ),
+      );
     }
 
     return result;
