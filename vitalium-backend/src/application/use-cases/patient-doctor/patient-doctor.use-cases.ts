@@ -35,9 +35,12 @@ export class SearchPatientDoctorUseCase {
       throw new DatabaseException('listar médicos ativos do paciente', error);
     }
   }
-  async findByDoctorId(doctorId: string): Promise<PatientDoctor[]> {
+  async findByDoctorId(
+    doctorId: string,
+    unitId?: string,
+  ): Promise<PatientDoctor[]> {
     try {
-      return await this.repo.findByDoctorId(doctorId);
+      return await this.repo.findByDoctorId(doctorId, unitId);
     } catch (error) {
       throw new DatabaseException('listar pacientes do médico', error);
     }

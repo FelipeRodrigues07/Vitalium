@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import type { IMedicalRecordRepository } from '../../../domain/interfaces/repositories/medical-record/medical-record.repository.interface';
+import { ClinicMembershipService } from '../../../shared/clinic/clinic-membership.service';
 import { RecordType } from '../../../shared/enums/record-type.enum';
 import { MedicalRecordNotFoundException } from '../../../shared/execeptions/medical-record/medical-record-not-found.exception';
 import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
@@ -12,6 +13,7 @@ const mockMedicalRecord = {
   id: 'record-id-1',
   patientId: 'patient-id-1',
   doctorId: 'doctor-id-1',
+  unitId: 'unit-id-1',
   title: 'Consulta de Rotina',
   description: 'Paciente em bom estado geral',
   symptoms: [],
@@ -41,6 +43,12 @@ describe('CreateMedicalRecordUseCase', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CreateMedicalRecordUseCase,
+        {
+          provide: ClinicMembershipService,
+          useValue: {
+            assertDoctorAndPatientInUnit: jest.fn().mockResolvedValue(undefined),
+          },
+        },
         { provide: 'IMedicalRecordRepository', useValue: { ...mockRepoValue } },
       ],
     }).compile();
@@ -61,6 +69,7 @@ describe('CreateMedicalRecordUseCase', () => {
     const result = await useCase.execute({
       patientId: 'patient-id-1',
       doctorId: 'doctor-id-1',
+      unitId: 'unit-id-1',
       title: 'Consulta de Rotina',
       description: 'Paciente em bom estado geral',
       recordType: RecordType.CONSULTATION,

@@ -239,6 +239,33 @@ export const ApiDoctorOperations = {
       }),
     ),
 
+  findMyDoctor: () =>
+    applyDecorators(
+      ApiTags('doctors'),
+      ApiBearerAuth('JWT-auth'),
+      ApiOperation({
+        summary: 'Buscar o médico autenticado',
+        description:
+          'Retorna o perfil do médico logado, com as unidades vinculadas. Requer role **DOCTOR**.',
+      }),
+      ApiResponse({
+        status: 200,
+        description: 'Médico autenticado encontrado com sucesso',
+      }),
+      ApiResponse({
+        status: 401,
+        description: 'Não autenticado — token JWT ausente ou inválido',
+      }),
+      ApiResponse({
+        status: 403,
+        description: 'Sem permissão — requer role DOCTOR',
+      }),
+      ApiResponse({
+        status: 404,
+        description: 'Perfil de médico não encontrado para o usuário autenticado',
+      }),
+    ),
+
   findDoctorById: () =>
     applyDecorators(
       ApiTags('doctors'),

@@ -35,6 +35,10 @@ export class MedicalRecordResponseDTO {
   @Expose()
   doctorId: string;
 
+  @ApiProperty({ example: 'clxyz123456789' })
+  @Expose()
+  unitId: string;
+
   @ApiProperty({ example: 'Consulta de rotina' })
   @Expose()
   title: string;

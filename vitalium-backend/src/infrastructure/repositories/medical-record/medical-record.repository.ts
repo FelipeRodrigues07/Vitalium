@@ -21,6 +21,7 @@ const includeRelations = {
       },
     },
   },
+  unit: { select: { id: true, name: true, type: true } },
   attachments: true,
 };
 
@@ -33,6 +34,7 @@ export class MedicalRecordRepository implements IMedicalRecordRepository {
       data: {
         patientId: dto.patientId,
         doctorId: dto.doctorId,
+        unitId: dto.unitId,
         title: dto.title,
         description: dto.description,
         diagnosis: dto.diagnosis ?? null,
@@ -55,18 +57,24 @@ export class MedicalRecordRepository implements IMedicalRecordRepository {
     return record ? plainToInstance(MedicalRecord, record) : null;
   }
 
-  async findByPatientId(patientId: string): Promise<MedicalRecord[]> {
+  async findByPatientId(
+    patientId: string,
+    unitId?: string,
+  ): Promise<MedicalRecord[]> {
     const records = await this.prisma.medicalRecord.findMany({
-      where: { patientId },
+      where: { patientId, ...(unitId ? { unitId } : {}) },
       include: includeRelations,
       orderBy: { recordDate: 'desc' },
     });
     return plainToInstance(MedicalRecord, records);
   }
 
-  async findByDoctorId(doctorId: string): Promise<MedicalRecord[]> {
+  async findByDoctorId(
+    doctorId: string,
+    unitId?: string,
+  ): Promise<MedicalRecord[]> {
     const records = await this.prisma.medicalRecord.findMany({
-      where: { doctorId },
+      where: { doctorId, ...(unitId ? { unitId } : {}) },
       include: includeRelations,
       orderBy: { recordDate: 'desc' },
     });

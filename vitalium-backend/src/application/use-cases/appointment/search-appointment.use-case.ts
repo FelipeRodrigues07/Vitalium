@@ -22,17 +22,26 @@ export class SearchAppointmentUseCase {
     }
   }
 
-  async findByPatientId(patientId: string): Promise<Appointment[]> {
+  async findByPatientId(
+    patientId: string,
+    unitId?: string,
+  ): Promise<Appointment[]> {
     try {
-      return await this.appointmentRepository.findByPatientId(patientId);
+      return await this.appointmentRepository.findByPatientId(
+        patientId,
+        unitId,
+      );
     } catch (error) {
       throw new DatabaseException('listar consultas do paciente', error);
     }
   }
 
-  async findByDoctorId(doctorId: string): Promise<Appointment[]> {
+  async findByDoctorId(
+    doctorId: string,
+    unitId?: string,
+  ): Promise<Appointment[]> {
     try {
-      return await this.appointmentRepository.findByDoctorId(doctorId);
+      return await this.appointmentRepository.findByDoctorId(doctorId, unitId);
     } catch (error) {
       throw new DatabaseException('listar consultas do médico', error);
     }

@@ -56,18 +56,24 @@ export class AppointmentRepository implements IAppointmentRepository {
     return appointment ? plainToInstance(Appointment, appointment) : null;
   }
 
-  async findByPatientId(patientId: string): Promise<Appointment[]> {
+  async findByPatientId(
+    patientId: string,
+    unitId?: string,
+  ): Promise<Appointment[]> {
     const appointments = await this.prisma.appointment.findMany({
-      where: { patientId },
+      where: { patientId, ...(unitId ? { unitId } : {}) },
       include: includeRelations,
       orderBy: { scheduledAt: 'desc' },
     });
     return plainToInstance(Appointment, appointments);
   }
 
-  async findByDoctorId(doctorId: string): Promise<Appointment[]> {
+  async findByDoctorId(
+    doctorId: string,
+    unitId?: string,
+  ): Promise<Appointment[]> {
     const appointments = await this.prisma.appointment.findMany({
-      where: { doctorId },
+      where: { doctorId, ...(unitId ? { unitId } : {}) },
       include: includeRelations,
       orderBy: { scheduledAt: 'desc' },
     });

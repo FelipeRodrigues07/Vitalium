@@ -40,9 +40,10 @@ export class ListSymptomLogsUseCase {
   async executeForDoctor(
     patientId: string,
     authUser: AuthJwtPayload,
+    unitId?: string,
   ): Promise<SymptomLog[]> {
     if (authUser.role === Role.ADMIN) {
-      return this.findByPatientId(patientId);
+      return this.findByPatientId(patientId, unitId);
     }
 
     if (authUser.role !== Role.DOCTOR) {
@@ -68,12 +69,15 @@ export class ListSymptomLogsUseCase {
       );
     }
 
-    return this.findByPatientId(patientId);
+    return this.findByPatientId(patientId, unitId);
   }
 
-  private async findByPatientId(patientId: string): Promise<SymptomLog[]> {
+  private async findByPatientId(
+    patientId: string,
+    unitId?: string,
+  ): Promise<SymptomLog[]> {
     try {
-      return await this.symptomLogRepository.findByPatientId(patientId);
+      return await this.symptomLogRepository.findByPatientId(patientId, unitId);
     } catch (error) {
       throw new DatabaseException('listar sintomas', error);
     }

@@ -151,6 +151,22 @@ describe('Prescriptions API (e2e)', () => {
       },
     });
     unitId = unit.id;
+
+    await prisma.doctorUnit.create({
+      data: {
+        doctorId: doctor.id,
+        unitId: unit.id,
+        consultationPrice: 150,
+        isPrimary: true,
+      },
+    });
+    await prisma.patientUnit.create({
+      data: {
+        patientId: patient.id,
+        unitId: unit.id,
+        isPrimary: true,
+      },
+    });
   });
 
   // ─── POST /prescriptions ───────────────────────────────────────────────────

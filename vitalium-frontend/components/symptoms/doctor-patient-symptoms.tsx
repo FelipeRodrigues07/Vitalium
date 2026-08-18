@@ -24,6 +24,7 @@ import {
   type SymptomMonthlyReport,
 } from "@/services/api/symptom-logs"
 import { useAuth } from "@/providers/auth-provider"
+import { useDoctorActiveUnit } from "@/components/doctor/doctor-unit-provider"
 
 const MONTH_OPTIONS = [
   { value: "01", label: "Janeiro" },
@@ -72,6 +73,7 @@ export function DoctorPatientSymptoms() {
   const { user } = useAuth()
   const searchParams = useSearchParams()
   const patientFromQuery = searchParams.get("patientId")
+  const { activeUnitId: unitId, isLoading: loadingDoctor } = useDoctorActiveUnit()
 
   const [patients, setPatients] = useState<PatientDoctorLink[]>([])
   const [selectedPatientId, setSelectedPatientId] = useState("")
@@ -100,12 +102,15 @@ export function DoctorPatientSymptoms() {
   }, [patients])
 
   const loadPatients = useCallback(async () => {
-    if (!user?.id) return
+    if (!user?.id || loadingDoctor || !unitId) return
 
     try {
       setLoadingPatients(true)
       setError(null)
-      const links = await patientDoctorApi.listPatientsByUserDoctor(user.id)
+      const links = await patientDoctorApi.listPatientsByUserDoctor(
+        user.id,
+        unitId,
+      )
       setPatients(links)
 
       const preferred =
@@ -121,10 +126,10 @@ export function DoctorPatientSymptoms() {
     } finally {
       setLoadingPatients(false)
     }
-  }, [user?.id, patientFromQuery])
+  }, [user?.id, patientFromQuery, unitId, loadingDoctor])
 
   const loadLogs = useCallback(async (patientId: string) => {
-    if (!patientId) {
+    if (!patientId || !unitId) {
       setLogs([])
       return
     }
@@ -132,7 +137,7 @@ export function DoctorPatientSymptoms() {
     try {
       setLoadingLogs(true)
       setError(null)
-      const list = await symptomLogsApi.listByPatient(patientId)
+      const list = await symptomLogsApi.listByPatient(patientId, unitId)
       setLogs(list)
     } catch {
       setError("Não foi possível carregar os sintomas deste paciente.")
@@ -140,7 +145,7 @@ export function DoctorPatientSymptoms() {
     } finally {
       setLoadingLogs(false)
     }
-  }, [])
+  }, [unitId])
 
   useEffect(() => {
     void loadPatients()
@@ -163,6 +168,7 @@ export function DoctorPatientSymptoms() {
       const result = await symptomLogsApi.monthlyReport(
         selectedPatientId,
         reportMonth,
+        unitId,
       )
       setReport(result)
     } catch {
@@ -180,7 +186,7 @@ export function DoctorPatientSymptoms() {
           <CardTitle className="text-lg">Paciente</CardTitle>
         </CardHeader>
         <CardContent>
-          {loadingPatients ? (
+          {loadingPatients || loadingDoctor ? (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
               Carregando pacientes...

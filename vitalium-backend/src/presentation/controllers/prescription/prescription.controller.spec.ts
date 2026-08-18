@@ -3,6 +3,7 @@ import { CreatePrescriptionUseCase } from '../../../application/use-cases/prescr
 import { DeletePrescriptionUseCase } from '../../../application/use-cases/prescription/delete-prescription.use-case';
 import { SearchPrescriptionUseCase } from '../../../application/use-cases/prescription/search-prescription.use-case';
 import { UpdatePrescriptionUseCase } from '../../../application/use-cases/prescription/update-prescription.use-case';
+import { ClinicMembershipService } from '../../../shared/clinic/clinic-membership.service';
 import { PrescriptionNotFoundException } from '../../../shared/execeptions/prescription/prescription-not-found.exception';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
@@ -18,6 +19,7 @@ describe('PrescriptionController', () => {
     id: 'prescription-id-1',
     patientId: 'patient-id-1',
     doctorId: 'doctor-id-1',
+    unitId: 'unit-id-1',
     medications: [{ name: 'Paracetamol', dosage: '500mg' }],
     isActive: true,
     createdAt: '2025-01-01',
@@ -47,6 +49,14 @@ describe('PrescriptionController', () => {
         {
           provide: DeletePrescriptionUseCase,
           useValue: { execute: jest.fn() },
+        },
+        {
+          provide: ClinicMembershipService,
+          useValue: {
+            resolveDoctorListUnitId: jest.fn(async (_user, unitId) => unitId),
+            assertCanAccessUnitRecord: jest.fn().mockResolvedValue(undefined),
+            assertDoctorLinkedToUnit: jest.fn().mockResolvedValue(undefined),
+          },
         },
       ],
     })
@@ -82,10 +92,16 @@ describe('PrescriptionController', () => {
     });
   });
 
+  const adminReq = { user: { sub: 'admin-1', role: 'ADMIN' } } as any;
+
   describe('findByPatient', () => {
     it('should return prescriptions by patient', async () => {
       searchUseCase.findByPatientId.mockResolvedValue([mockPrescription]);
-      const result = await controller.findByPatient('patient-id-1');
+      const result = await controller.findByPatient(
+        'patient-id-1',
+        undefined,
+        adminReq,
+      );
       expect(Array.isArray(result)).toBe(true);
     });
   });
@@ -93,7 +109,11 @@ describe('PrescriptionController', () => {
   describe('findOne', () => {
     it('should return prescription by id', async () => {
       searchUseCase.findById.mockResolvedValue(mockPrescription);
-      const result = await controller.findOne('prescription-id-1');
+      const result = await controller.findOne(
+        'prescription-id-1',
+        undefined,
+        adminReq,
+      );
       expect(result).toBeDefined();
     });
 
@@ -101,9 +121,9 @@ describe('PrescriptionController', () => {
       searchUseCase.findById.mockRejectedValue(
         new PrescriptionNotFoundException('nonexistent'),
       );
-      await expect(controller.findOne('nonexistent')).rejects.toThrow(
-        PrescriptionNotFoundException,
-      );
+      await expect(
+        controller.findOne('nonexistent', undefined, adminReq),
+      ).rejects.toThrow(PrescriptionNotFoundException);
     });
   });
 

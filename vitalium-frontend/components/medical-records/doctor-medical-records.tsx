@@ -25,14 +25,20 @@ import {
 } from "@/services/api/patient-doctors/patientsByDoctor"
 import { MedicalRecordFormDialog } from "@/components/medical-records/medical-record-form-dialog"
 import { useAuth } from "@/providers/auth-provider"
+import { useDoctorActiveUnit } from "@/components/doctor/doctor-unit-provider"
 
 export function DoctorMedicalRecords() {
   const { user } = useAuth()
   const searchParams = useSearchParams()
   const patientFromQuery = searchParams.get("patientId")
+  const {
+    doctorId,
+    activeUnitId: unitId,
+    activeUnit,
+    isLoading: loadingDoctor,
+  } = useDoctorActiveUnit()
 
   const [patients, setPatients] = useState<PatientDoctorLink[]>([])
-  const [doctorId, setDoctorId] = useState<string | null>(null)
   const [selectedPatientId, setSelectedPatientId] = useState<string>("")
   const [records, setRecords] = useState<MedicalRecord[]>([])
   const [loadingPatients, setLoadingPatients] = useState(true)
@@ -52,14 +58,16 @@ export function DoctorMedicalRecords() {
   }, [patients])
 
   const loadPatients = useCallback(async () => {
-    if (!user?.id) return
+    if (!user?.id || loadingDoctor || !unitId) return
 
     try {
       setLoadingPatients(true)
       setError(null)
-      const links = await patientDoctorApi.listPatientsByUserDoctor(user.id)
+      const links = await patientDoctorApi.listPatientsByUserDoctor(
+        user.id,
+        unitId,
+      )
       setPatients(links)
-      setDoctorId(links[0]?.doctorId ?? null)
 
       const preferred =
         (patientFromQuery &&
@@ -71,14 +79,13 @@ export function DoctorMedicalRecords() {
     } catch {
       setError("Não foi possível carregar seus pacientes.")
       setPatients([])
-      setDoctorId(null)
     } finally {
       setLoadingPatients(false)
     }
-  }, [user?.id, patientFromQuery])
+  }, [user?.id, patientFromQuery, unitId, loadingDoctor])
 
   const loadRecords = useCallback(async (patientId: string) => {
-    if (!patientId) {
+    if (!patientId || !unitId) {
       setRecords([])
       return
     }
@@ -86,7 +93,7 @@ export function DoctorMedicalRecords() {
     try {
       setLoadingRecords(true)
       setError(null)
-      const list = await medicalRecordsApi.listByPatient(patientId)
+      const list = await medicalRecordsApi.listByPatient(patientId, unitId)
       setRecords(
         [...list].sort(
           (a, b) =>
@@ -99,7 +106,7 @@ export function DoctorMedicalRecords() {
     } finally {
       setLoadingRecords(false)
     }
-  }, [])
+  }, [unitId])
 
   useEffect(() => {
     void loadPatients()
@@ -108,6 +115,8 @@ export function DoctorMedicalRecords() {
   useEffect(() => {
     if (selectedPatientId) {
       void loadRecords(selectedPatientId)
+    } else {
+      setRecords([])
     }
   }, [selectedPatientId, loadRecords])
 
@@ -120,7 +129,7 @@ export function DoctorMedicalRecords() {
     )
   }
 
-  if (loadingPatients) {
+  if (loadingPatients || loadingDoctor) {
     return (
       <div className="flex items-center justify-center gap-2 py-16 text-muted-foreground">
         <Loader2 className="h-5 w-5 animate-spin" />
@@ -152,19 +161,27 @@ export function DoctorMedicalRecords() {
           </Select>
         </div>
 
-        {doctorId && selectedPatientId ? (
-          <MedicalRecordFormDialog
-            mode="create"
-            doctorId={doctorId}
-            patients={patients}
-            initialPatientId={selectedPatientId}
-            onSaved={upsertRecord}
-          >
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              Novo registro
-            </Button>
-          </MedicalRecordFormDialog>
+        {doctorId && unitId && selectedPatientId ? (
+          <div className="flex flex-col items-stretch gap-1 sm:items-end">
+            <MedicalRecordFormDialog
+              mode="create"
+              doctorId={doctorId}
+              unitId={unitId}
+              patients={patients}
+              initialPatientId={selectedPatientId}
+              onSaved={upsertRecord}
+            >
+              <Button className="gap-2">
+                <Plus className="h-4 w-4" />
+                Novo registro
+              </Button>
+            </MedicalRecordFormDialog>
+            {activeUnit && (
+              <p className="text-xs text-muted-foreground">
+                Registrando em {activeUnit.name}
+              </p>
+            )}
+          </div>
         ) : (
           <Button disabled className="gap-2">
             <Plus className="h-4 w-4" />

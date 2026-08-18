@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import type { IPrescriptionRepository } from '../../../domain/interfaces/repositories/prescription/prescription.repository.interface';
+import { ClinicMembershipService } from '../../../shared/clinic/clinic-membership.service';
 import { PrescriptionNotFoundException } from '../../../shared/execeptions/prescription/prescription-not-found.exception';
 import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
 import { CreatePrescriptionUseCase } from './create-prescription.use-case';
@@ -11,6 +12,7 @@ const mockPrescription = {
   id: 'prescription-id-1',
   patientId: 'patient-id-1',
   doctorId: 'doctor-id-1',
+  unitId: 'unit-id-1',
   medications: [{ name: 'Paracetamol', dosage: '500mg' }],
   isActive: true,
   createdAt: '2025-01-01',
@@ -36,6 +38,12 @@ describe('CreatePrescriptionUseCase', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CreatePrescriptionUseCase,
+        {
+          provide: ClinicMembershipService,
+          useValue: {
+            assertDoctorAndPatientInUnit: jest.fn().mockResolvedValue(undefined),
+          },
+        },
         { provide: 'IPrescriptionRepository', useValue: { ...mockRepoValue } },
       ],
     }).compile();

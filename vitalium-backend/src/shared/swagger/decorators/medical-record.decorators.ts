@@ -16,7 +16,7 @@ export const ApiMedicalRecordOperations = {
       ApiOperation({
         summary: 'Criar prontuário médico',
         description:
-          'Cria um novo prontuário para um paciente. Requer role **DOCTOR** ou **ADMIN**.',
+          'Cria um novo prontuário para um paciente na unidade informada. Médico e paciente precisam estar vinculados a essa unitId. Requer role **DOCTOR** ou **ADMIN**.',
       }),
       ApiBody({
         schema: {
@@ -24,6 +24,7 @@ export const ApiMedicalRecordOperations = {
           required: [
             'patientId',
             'doctorId',
+            'unitId',
             'title',
             'description',
             'recordType',
@@ -31,6 +32,7 @@ export const ApiMedicalRecordOperations = {
           properties: {
             patientId: { type: 'string', example: 'clxyz123456789' },
             doctorId: { type: 'string', example: 'clxyz123456789' },
+            unitId: { type: 'string', example: 'clxyz123456789' },
             title: { type: 'string', example: 'Consulta de rotina' },
             description: {
               type: 'string',

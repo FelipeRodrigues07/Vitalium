@@ -22,17 +22,26 @@ export class SearchPrescriptionUseCase {
     }
   }
 
-  async findByPatientId(patientId: string): Promise<Prescription[]> {
+  async findByPatientId(
+    patientId: string,
+    unitId?: string,
+  ): Promise<Prescription[]> {
     try {
-      return await this.prescriptionRepository.findByPatientId(patientId);
+      return await this.prescriptionRepository.findByPatientId(
+        patientId,
+        unitId,
+      );
     } catch (error) {
       throw new DatabaseException('listar prescrições do paciente', error);
     }
   }
 
-  async findByDoctorId(doctorId: string): Promise<Prescription[]> {
+  async findByDoctorId(
+    doctorId: string,
+    unitId?: string,
+  ): Promise<Prescription[]> {
     try {
-      return await this.prescriptionRepository.findByDoctorId(doctorId);
+      return await this.prescriptionRepository.findByDoctorId(doctorId, unitId);
     } catch (error) {
       throw new DatabaseException('listar prescrições do médico', error);
     }

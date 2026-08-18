@@ -7,6 +7,7 @@ export class MedicalRecord {
   id: string;
   patientId: string;
   doctorId: string;
+  unitId: string;
   title: string;
   description: string;
   diagnosis?: string;

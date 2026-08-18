@@ -127,7 +127,7 @@ export function PrescriptionFormDialog({
           duration: duration.trim(),
           instructions: instructions.trim() || undefined,
           prescribedAt,
-        })
+        }, unitId)
         onSaved(updated)
       } else {
         const created = await prescriptionsApi.create({

@@ -14,6 +14,7 @@ describe('Medical Records API (e2e)', () => {
   let adminAccessToken: string;
   let patientId: string;
   let doctorId: string;
+  let unitId: string;
 
   const adminEmail = 'test-e2e-medical-admin@example.com';
   const password = 'TestPassword123!';
@@ -55,6 +56,9 @@ describe('Medical Records API (e2e)', () => {
     });
     await prisma.doctor.deleteMany({
       where: { crm: { contains: 'test-e2e-medical' } },
+    });
+    await prisma.unit.deleteMany({
+      where: { name: { contains: 'test-e2e-medical' } },
     });
     await prisma.user.deleteMany({
       where: { email: { contains: 'test-e2e-medical' } },
@@ -138,6 +142,35 @@ describe('Medical Records API (e2e)', () => {
       },
     });
     doctorId = doctor.id;
+
+    const unit = await prisma.unit.create({
+      data: {
+        name: 'test-e2e-medical-Unit',
+        type: 'HOSPITAL',
+        address: 'Rua Prontuario, 1',
+        city: 'São Paulo',
+        state: 'SP',
+        zipCode: '01234567',
+        cnpj: `${Date.now()}`.padEnd(14, '0').slice(0, 14),
+      },
+    });
+    unitId = unit.id;
+
+    await prisma.doctorUnit.create({
+      data: {
+        doctorId: doctor.id,
+        unitId: unit.id,
+        consultationPrice: 150,
+        isPrimary: true,
+      },
+    });
+    await prisma.patientUnit.create({
+      data: {
+        patientId: patient.id,
+        unitId: unit.id,
+        isPrimary: true,
+      },
+    });
   });
 
   // ─── POST /medical-records ─────────────────────────────────────────────────
@@ -150,6 +183,7 @@ describe('Medical Records API (e2e)', () => {
         .send({
           patientId,
           doctorId,
+          unitId,
           title: 'test-e2e-medical Consulta Geral',
           description: 'Consulta de rotina',
           recordType: RecordType.CONSULTATION,
@@ -159,6 +193,7 @@ describe('Medical Records API (e2e)', () => {
       expect(response.body.id).toBeDefined();
       expect(response.body.patientId).toBe(patientId);
       expect(response.body.doctorId).toBe(doctorId);
+      expect(response.body.unitId).toBe(unitId);
       expect(response.body.recordType).toBe(RecordType.CONSULTATION);
     });
 
@@ -168,6 +203,7 @@ describe('Medical Records API (e2e)', () => {
         .send({
           patientId,
           doctorId,
+          unitId,
           title: 'x',
           description: 'y',
           recordType: RecordType.CONSULTATION,
@@ -182,6 +218,33 @@ describe('Medical Records API (e2e)', () => {
         .send({ patientId })
         .expect(400);
     });
+
+    it('should return 400 when doctor or patient is not in the unit', async () => {
+      const otherUnit = await prisma.unit.create({
+        data: {
+          name: 'test-e2e-medical-OtherUnit',
+          type: 'CLINIC',
+          address: 'Rua Outra, 2',
+          city: 'São Paulo',
+          state: 'SP',
+          zipCode: '01311000',
+          cnpj: `${Date.now() + 1}`.padEnd(14, '0').slice(0, 14),
+        },
+      });
+
+      await request(app.getHttpServer())
+        .post('/medical-records')
+        .set('Authorization', `Bearer ${adminAccessToken}`)
+        .send({
+          patientId,
+          doctorId,
+          unitId: otherUnit.id,
+          title: 'test-e2e-medical Fora da unidade',
+          description: 'Não deve criar',
+          recordType: RecordType.CONSULTATION,
+        })
+        .expect(400);
+    });
   });
 
   // ─── GET /medical-records/patient/:patientId ───────────────────────────────
@@ -192,6 +255,7 @@ describe('Medical Records API (e2e)', () => {
         data: {
           patientId,
           doctorId,
+          unitId,
           title: 'test-e2e-medical Exame',
           description: 'Hemograma',
           recordType: RecordType.EXAMINATION,
@@ -229,6 +293,7 @@ describe('Medical Records API (e2e)', () => {
         data: {
           patientId,
           doctorId,
+          unitId,
           title: 'test-e2e-medical Single',
           description: 'Avaliação',
           recordType: RecordType.ROUTINE_CHECKUP,
@@ -259,6 +324,7 @@ describe('Medical Records API (e2e)', () => {
         data: {
           patientId,
           doctorId,
+          unitId,
           title: 'test-e2e-medical Update',
           description: 'Antes',
           recordType: RecordType.FOLLOW_UP,
@@ -283,6 +349,7 @@ describe('Medical Records API (e2e)', () => {
         data: {
           patientId,
           doctorId,
+          unitId,
           title: 'test-e2e-medical Delete',
           description: 'Para deletar',
           recordType: RecordType.OTHER,
@@ -306,6 +373,7 @@ describe('Medical Records API (e2e)', () => {
         data: {
           patientId,
           doctorId,
+          unitId,
           title: 'test-e2e-medical Attachments',
           description: 'Para anexos',
           recordType: RecordType.EXAMINATION,

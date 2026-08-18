@@ -17,8 +17,10 @@ export interface PatientListItemModel {
 }
 
 export const GetPatientsService = {
-  getMyPatients: async (): Promise<PatientListItemModel[]> => {
-    const response = await api.get<PatientListItemModel[]>('/patients');
+  getMyPatients: async (unitId?: string | null): Promise<PatientListItemModel[]> => {
+    const response = await api.get<PatientListItemModel[]>('/patients', {
+      params: unitId ? { unitId } : undefined,
+    });
     return response.data;
   },
 };

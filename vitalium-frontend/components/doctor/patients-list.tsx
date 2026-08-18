@@ -19,6 +19,7 @@ import {
   type PatientListItemModel,
 } from '@/services/api/patients/GetPatients';
 import { useSession } from '@/services/auth/use-session';
+import { useDoctorActiveUnit } from '@/components/doctor/doctor-unit-provider';
 
 interface PatientsListProps {
   searchQuery: string;
@@ -51,13 +52,19 @@ export function PatientsList({
   onSelectPatient,
 }: PatientsListProps) {
   const { isReady, accessToken, user } = useSession();
+  const { activeUnitId, isLoading: loadingDoctor } = useDoctorActiveUnit();
   const [patients, setPatients] = useState<PatientListItemModel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState('name');
 
   const fetchPatients = useCallback(async () => {
-    if (!accessToken || user?.role !== 'DOCTOR') {
+    if (!accessToken || user?.role !== 'DOCTOR' || loadingDoctor) {
+      return;
+    }
+
+    if (!activeUnitId) {
+      setPatients([]);
       setIsLoading(false);
       return;
     }
@@ -65,7 +72,7 @@ export function PatientsList({
     try {
       setIsLoading(true);
       setLoadError(null);
-      const list = await GetPatientsService.getMyPatients();
+      const list = await GetPatientsService.getMyPatients(activeUnitId);
       setPatients(list);
     } catch (error) {
       console.error('Falha ao carregar pacientes do médico:', error);
@@ -74,7 +81,7 @@ export function PatientsList({
     } finally {
       setIsLoading(false);
     }
-  }, [accessToken, user?.role]);
+  }, [accessToken, user?.role, activeUnitId, loadingDoctor]);
 
   useEffect(() => {
     if (!isReady) {
@@ -99,9 +106,17 @@ export function PatientsList({
     });
   }, [patients, searchQuery, sortBy]);
 
-  if (isLoading) {
+  if (loadingDoctor || isLoading) {
     return (
       <p className="text-sm text-muted-foreground">Carregando pacientes...</p>
+    );
+  }
+
+  if (!activeUnitId) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        Selecione uma unidade no header para ver os pacientes desta clínica.
+      </p>
     );
   }
 

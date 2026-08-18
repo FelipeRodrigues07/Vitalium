@@ -12,7 +12,7 @@ export interface IPatientDoctorRepository {
   findById(id: string): Promise<PatientDoctor | null>;
   findByPatientId(patientId: string): Promise<PatientDoctor[]>;
   findActiveByPatientId(patientId: string): Promise<PatientDoctor[]>;
-  findByDoctorId(doctorId: string): Promise<PatientDoctor[]>;
+  findByDoctorId(doctorId: string, unitId?: string): Promise<PatientDoctor[]>;
   findByPatientAndDoctor(
     patientId: string,
     doctorId: string,

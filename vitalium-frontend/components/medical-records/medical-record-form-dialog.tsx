@@ -53,6 +53,7 @@ function toLocalDateInput(value?: string) {
 interface MedicalRecordFormDialogProps {
   mode: "create" | "edit"
   doctorId: string
+  unitId?: string
   patients: PatientDoctorLink[]
   initialPatientId?: string
   record?: MedicalRecord
@@ -65,6 +66,7 @@ interface MedicalRecordFormDialogProps {
 export function MedicalRecordFormDialog({
   mode,
   doctorId,
+  unitId,
   patients,
   initialPatientId,
   record,
@@ -129,6 +131,11 @@ export function MedicalRecordFormDialog({
       return
     }
 
+    if (mode === "create" && !unitId) {
+      setError("Selecione uma unidade no header para criar o registro.")
+      return
+    }
+
     try {
       setSubmitting(true)
       setError(null)
@@ -145,12 +152,13 @@ export function MedicalRecordFormDialog({
           observations: observations.trim() || undefined,
           recordType,
           recordDate,
-        })
+        }, unitId)
         onSaved(updated)
       } else {
         const created = await medicalRecordsApi.create({
           patientId,
           doctorId,
+          unitId: unitId as string,
           title: title.trim(),
           description: description.trim(),
           diagnosis: diagnosis.trim() || undefined,

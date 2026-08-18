@@ -201,9 +201,11 @@ model Unit {
   nurses        NurseUnit[]
   patients      PatientUnit[]
   admins        AdminUnit[]
-  appointments  Appointment[]
-  prescriptions Prescription[]
-  wards         Ward[]
+  appointments    Appointment[]
+  prescriptions   Prescription[]
+  medicalRecords  MedicalRecord[]
+  symptomLogs     SymptomLog[]
+  wards           Ward[]
 
   @@map("units")
 }
@@ -396,6 +398,7 @@ model Patient {
 model SymptomLog {
   id            String   @id @default(cuid())
   patientId     String
+  unitId        String
   description   String
   imageUrl      String?
   imageFileName String?
@@ -403,8 +406,10 @@ model SymptomLog {
   createdAt     DateTime @default(now())
 
   patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  unit    Unit    @relation(fields: [unitId], references: [id])
 
   @@index([patientId])
+  @@index([unitId])
   @@index([createdAt])
   @@map("symptom_logs")
 }
@@ -478,6 +483,7 @@ model MedicalRecord {
   id           String     @id @default(cuid())
   patientId    String
   doctorId     String
+  unitId       String
   title        String
   description  String
   diagnosis    String?
@@ -491,10 +497,12 @@ model MedicalRecord {
 
   patient     Patient             @relation(fields: [patientId], references: [id])
   doctor      Doctor              @relation(fields: [doctorId], references: [id])
+  unit        Unit                @relation(fields: [unitId], references: [id])
   attachments MedicalAttachment[]
 
   @@index([patientId])
   @@index([doctorId])
+  @@index([unitId])
   @@map("medical_records")
 }
 

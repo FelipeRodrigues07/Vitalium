@@ -8,6 +8,7 @@ import { CreateMedicalRecordUseCase } from '../application/use-cases/medical-rec
 import { DeleteMedicalRecordUseCase } from '../application/use-cases/medical-record/delete-medical-record.use-case';
 import { SearchMedicalRecordUseCase } from '../application/use-cases/medical-record/search-medical-record.use-case';
 import { UpdateMedicalRecordUseCase } from '../application/use-cases/medical-record/update-medical-record.use-case';
+import { ClinicMembershipModule } from '../shared/clinic/clinic-membership.module';
 import { PrismaModule } from '../infrastructure/database/prisma.module';
 import { MedicalAttachmentRepository } from '../infrastructure/repositories/medical-attachment/medical-attachment.repository';
 import { MedicalRecordRepository } from '../infrastructure/repositories/medical-record/medical-record.repository';
@@ -15,7 +16,7 @@ import { MedicalAttachmentController } from '../presentation/controllers/medical
 import { MedicalRecordController } from '../presentation/controllers/medical-record/medical-record.controller';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, ClinicMembershipModule],
   controllers: [MedicalRecordController, MedicalAttachmentController],
   providers: [
     CreateMedicalRecordUseCase,

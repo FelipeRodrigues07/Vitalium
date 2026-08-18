@@ -5,8 +5,8 @@ import type { UpdateMedicalRecordDTO } from '../../../../presentation/dto/medica
 export interface IMedicalRecordRepository {
   create(dto: CreateMedicalRecordDTO): Promise<MedicalRecord>;
   findById(id: string): Promise<MedicalRecord | null>;
-  findByPatientId(patientId: string): Promise<MedicalRecord[]>;
-  findByDoctorId(doctorId: string): Promise<MedicalRecord[]>;
+  findByPatientId(patientId: string, unitId?: string): Promise<MedicalRecord[]>;
+  findByDoctorId(doctorId: string, unitId?: string): Promise<MedicalRecord[]>;
   update(id: string, dto: UpdateMedicalRecordDTO): Promise<MedicalRecord>;
   delete(id: string): Promise<void>;
 }

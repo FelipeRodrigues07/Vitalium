@@ -9,6 +9,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -21,6 +22,7 @@ import {
   UpdatePatientDoctorUseCase,
 } from '../../../application/use-cases/patient-doctor/patient-doctor.use-cases';
 import { PrismaProvider } from '../../../infrastructure/database/prisma.provider';
+import { ClinicMembershipService } from '../../../shared/clinic/clinic-membership.service';
 import { Roles } from '../../../shared/decorators/roles.decorator';
 import { Role } from '../../../shared/enums';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
@@ -49,6 +51,7 @@ export class PatientDoctorController {
     private readonly updateUseCase: UpdatePatientDoctorUseCase,
     private readonly deleteUseCase: DeletePatientDoctorUseCase,
     private readonly prisma: PrismaProvider,
+    private readonly clinicMembershipService: ClinicMembershipService,
   ) {}
 
   @Post()
@@ -92,11 +95,20 @@ export class PatientDoctorController {
   @Roles(Role.ADMIN, Role.DOCTOR)
   async findByDoctorUserId(
     @Param('userId') userId: string,
+    @Query('unitId') unitId: string | undefined,
+    @Request() req: RequestWithUser,
   ): Promise<PatientDoctorResponseDTO[]> {
+    const scopedUnitId = await this.clinicMembershipService.resolveDoctorListUnitId(
+      req.user,
+      unitId,
+    );
     const doctor = await this.prisma.doctor.findFirst({ where: { userId } });
     if (!doctor)
       throw new NotFoundException('Médico não encontrado para este usuário');
-    const links = await this.searchUseCase.findByDoctorId(doctor.id);
+    const links = await this.searchUseCase.findByDoctorId(
+      doctor.id,
+      scopedUnitId,
+    );
     return toPatientDoctorResponseList(links);
   }
 
@@ -106,8 +118,17 @@ export class PatientDoctorController {
   @Roles(Role.ADMIN, Role.DOCTOR)
   async findByDoctor(
     @Param('doctorId') doctorId: string,
+    @Query('unitId') unitId: string | undefined,
+    @Request() req: RequestWithUser,
   ): Promise<PatientDoctorResponseDTO[]> {
-    const links = await this.searchUseCase.findByDoctorId(doctorId);
+    const scopedUnitId = await this.clinicMembershipService.resolveDoctorListUnitId(
+      req.user,
+      unitId,
+    );
+    const links = await this.searchUseCase.findByDoctorId(
+      doctorId,
+      scopedUnitId,
+    );
     return toPatientDoctorResponseList(links);
   }
 

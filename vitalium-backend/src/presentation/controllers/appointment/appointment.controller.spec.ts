@@ -5,6 +5,7 @@ import { SearchAppointmentUseCase } from '../../../application/use-cases/appoint
 import { UpdateAppointmentUseCase } from '../../../application/use-cases/appointment/update-appointment.use-case';
 import { AppointmentStatus } from '../../../shared/enums/appointment-status.enum';
 import { AppointmentType } from '../../../shared/enums/appointment-type.enum';
+import { ClinicMembershipService } from '../../../shared/clinic/clinic-membership.service';
 import { AppointmentNotFoundException } from '../../../shared/execeptions/appointment/appointment-not-found.exception';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
@@ -47,6 +48,14 @@ describe('AppointmentController', () => {
         },
         { provide: UpdateAppointmentUseCase, useValue: { execute: jest.fn() } },
         { provide: DeleteAppointmentUseCase, useValue: { execute: jest.fn() } },
+        {
+          provide: ClinicMembershipService,
+          useValue: {
+            resolveDoctorListUnitId: jest.fn(async (_user, unitId) => unitId),
+            assertCanAccessUnitRecord: jest.fn().mockResolvedValue(undefined),
+            assertDoctorLinkedToUnit: jest.fn().mockResolvedValue(undefined),
+          },
+        },
       ],
     })
       .overrideGuard(AuthGuard)
@@ -84,10 +93,16 @@ describe('AppointmentController', () => {
     });
   });
 
+  const adminReq = { user: { sub: 'admin-1', role: 'ADMIN' } } as any;
+
   describe('findByPatient', () => {
     it('should return appointments by patient', async () => {
       searchUseCase.findByPatientId.mockResolvedValue([mockAppointment]);
-      const result = await controller.findByPatient('patient-id-1');
+      const result = await controller.findByPatient(
+        'patient-id-1',
+        undefined,
+        adminReq,
+      );
       expect(Array.isArray(result)).toBe(true);
     });
   });
@@ -95,7 +110,11 @@ describe('AppointmentController', () => {
   describe('findByDoctor', () => {
     it('should return appointments by doctor', async () => {
       searchUseCase.findByDoctorId.mockResolvedValue([mockAppointment]);
-      const result = await controller.findByDoctor('doctor-id-1');
+      const result = await controller.findByDoctor(
+        'doctor-id-1',
+        undefined,
+        adminReq,
+      );
       expect(Array.isArray(result)).toBe(true);
     });
   });
@@ -103,7 +122,11 @@ describe('AppointmentController', () => {
   describe('findOne', () => {
     it('should return appointment by id', async () => {
       searchUseCase.findById.mockResolvedValue(mockAppointment);
-      const result = await controller.findOne('appointment-id-1');
+      const result = await controller.findOne(
+        'appointment-id-1',
+        undefined,
+        adminReq,
+      );
       expect(result).toBeDefined();
     });
 
@@ -111,9 +134,9 @@ describe('AppointmentController', () => {
       searchUseCase.findById.mockRejectedValue(
         new AppointmentNotFoundException('nonexistent'),
       );
-      await expect(controller.findOne('nonexistent')).rejects.toThrow(
-        AppointmentNotFoundException,
-      );
+      await expect(
+        controller.findOne('nonexistent', undefined, adminReq),
+      ).rejects.toThrow(AppointmentNotFoundException);
     });
   });
 
@@ -123,10 +146,16 @@ describe('AppointmentController', () => {
         ...mockAppointment,
         status: AppointmentStatus.CONFIRMED,
       };
+      searchUseCase.findById.mockResolvedValue(mockAppointment);
       updateUseCase.execute.mockResolvedValue(updated);
-      const result = await controller.update('appointment-id-1', {
-        status: AppointmentStatus.CONFIRMED,
-      });
+      const result = await controller.update(
+        'appointment-id-1',
+        {
+          status: AppointmentStatus.CONFIRMED,
+        },
+        undefined,
+        adminReq,
+      );
       expect(result).toBeDefined();
     });
   });

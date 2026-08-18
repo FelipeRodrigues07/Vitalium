@@ -10,6 +10,8 @@ import { Bell, Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { useSession } from "@/services/auth/use-session"
 import { UnitContextBar } from "@/components/admin/unit-context-bar"
+import { DoctorUnitSwitcher } from "@/components/doctor/doctor-unit-switcher"
+import { DoctorUnitProvider } from "@/components/doctor/doctor-unit-provider"
 import { getPostLoginPath } from "@/lib/auth-routes"
 import { needsUnitSelection, isUnitScopedAdmin } from "@/lib/admin-auth"
 
@@ -97,33 +99,36 @@ export function AppLayout({ children, userRole, showSidebar = true }: AppLayoutP
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar userRole={userRole} />
+    <DoctorUnitProvider>
+      <div className="min-h-screen bg-background">
+        <Sidebar userRole={userRole} />
 
-      <div className="lg:pl-64">
-        <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="flex h-14 sm:h-16 items-center gap-2 sm:gap-4 px-3 sm:px-4 lg:px-6">
-            <MobileSidebar userRole={userRole} />
+        <div className="lg:pl-64">
+          <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="flex h-14 sm:h-16 items-center gap-2 sm:gap-4 px-3 sm:px-4 lg:px-6">
+              <MobileSidebar userRole={userRole} />
 
-            <div className="flex-1 max-w-xs sm:max-w-md">
-              <div className="relative">
-                <Search className="absolute left-2 sm:left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input placeholder="Buscar..." className="pl-8 sm:pl-10 text-sm h-9 sm:h-10" />
+              <div className="flex-1 max-w-xs sm:max-w-md">
+                <div className="relative">
+                  <Search className="absolute left-2 sm:left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input placeholder="Buscar..." className="pl-8 sm:pl-10 text-sm h-9 sm:h-10" />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 sm:gap-3">
+                <UnitContextBar />
+                <DoctorUnitSwitcher />
+                <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10">
+                  <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="sr-only">Notificações</span>
+                </Button>
               </div>
             </div>
+          </header>
 
-            <div className="flex items-center gap-2 sm:gap-3">
-              <UnitContextBar />
-              <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10">
-                <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
-                <span className="sr-only">Notificações</span>
-              </Button>
-            </div>
-          </div>
-        </header>
-
-        <main className="flex-1 p-3 sm:p-4 lg:p-6">{children}</main>
+          <main className="flex-1 p-3 sm:p-4 lg:p-6">{children}</main>
+        </div>
       </div>
-    </div>
+    </DoctorUnitProvider>
   )
 }

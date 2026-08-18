@@ -20,6 +20,7 @@ import { CreatePatientUseCase } from '../../../application/use-cases/patient/cre
 import { DeletePatientUseCase } from '../../../application/use-cases/patient/delete-patient.use-case';
 import { SearchPatientUseCase } from '../../../application/use-cases/patient/search-patient.use-case';
 import { UpdatePatientUseCase } from '../../../application/use-cases/patient/update-patient.use-case';
+import { ClinicMembershipService } from '../../../shared/clinic/clinic-membership.service';
 import { Roles } from '../../../shared/decorators/roles.decorator';
 import { Role } from '../../../shared/enums';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
@@ -43,6 +44,7 @@ export class PatientController {
     private readonly searchPatientUseCase: SearchPatientUseCase,
     private readonly updatePatientUseCase: UpdatePatientUseCase,
     private readonly deletePatientUseCase: DeletePatientUseCase,
+    private readonly clinicMembershipService: ClinicMembershipService,
   ) {}
 
   @Post()
@@ -66,10 +68,16 @@ export class PatientController {
   async findAll(
     @Request() req: RequestWithUser,
     @Query('doctorId') doctorId?: string,
+    @Query('unitId') unitId?: string,
   ): Promise<PatientResponseDTO[]> {
+    const scopedUnitId = await this.clinicMembershipService.resolveDoctorListUnitId(
+      req.user,
+      unitId,
+    );
     const patients = await this.searchPatientUseCase.findAllForAuthUser(
       req.user,
       doctorId,
+      scopedUnitId,
     );
 
     return plainToInstance(PatientResponseDTO, patients, {

@@ -8,22 +8,31 @@ import {
   Param,
   Patch,
   Post,
+  Query,
+  Request,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
+import type { Request as ExpressRequest } from 'express';
 import { CreatePrescriptionUseCase } from '../../../application/use-cases/prescription/create-prescription.use-case';
 import { DeletePrescriptionUseCase } from '../../../application/use-cases/prescription/delete-prescription.use-case';
 import { SearchPrescriptionUseCase } from '../../../application/use-cases/prescription/search-prescription.use-case';
 import { UpdatePrescriptionUseCase } from '../../../application/use-cases/prescription/update-prescription.use-case';
+import { ClinicMembershipService } from '../../../shared/clinic/clinic-membership.service';
 import { Roles } from '../../../shared/decorators/roles.decorator';
 import { Role } from '../../../shared/enums';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
 import { ApiPrescriptionOperations } from '../../../shared/swagger/decorators/prescription.decorators';
+import type { AuthJwtPayload } from '../../../shared/types/auth-jwt-payload.interface';
 import { CreatePrescriptionDTO } from '../../dto/prescriptionDTO/create-prescription.dto';
 import { PrescriptionResponseDTO } from '../../dto/prescriptionDTO/response/prescription-response.dto';
 import { UpdatePrescriptionDTO } from '../../dto/prescriptionDTO/update-prescription.dto';
+
+interface RequestWithUser extends ExpressRequest {
+  user: AuthJwtPayload;
+}
 
 @ApiTags('prescriptions')
 @Controller('prescriptions')
@@ -34,6 +43,7 @@ export class PrescriptionController {
     private readonly searchPrescriptionUseCase: SearchPrescriptionUseCase,
     private readonly updatePrescriptionUseCase: UpdatePrescriptionUseCase,
     private readonly deletePrescriptionUseCase: DeletePrescriptionUseCase,
+    private readonly clinicMembershipService: ClinicMembershipService,
   ) {}
 
   @Post()
@@ -55,9 +65,18 @@ export class PrescriptionController {
   @Roles(Role.DOCTOR, Role.ADMIN, Role.NURSE, Role.PATIENT)
   async findByPatient(
     @Param('patientId') patientId: string,
+    @Query('unitId') unitId: string | undefined,
+    @Request() req: RequestWithUser,
   ): Promise<PrescriptionResponseDTO[]> {
+    const scopedUnitId = await this.clinicMembershipService.resolveDoctorListUnitId(
+      req.user,
+      unitId,
+    );
     const prescriptions =
-      await this.searchPrescriptionUseCase.findByPatientId(patientId);
+      await this.searchPrescriptionUseCase.findByPatientId(
+        patientId,
+        scopedUnitId,
+      );
     return plainToInstance(PrescriptionResponseDTO, prescriptions, {
       excludeExtraneousValues: true,
     });
@@ -69,9 +88,18 @@ export class PrescriptionController {
   @Roles(Role.DOCTOR, Role.ADMIN)
   async findByDoctor(
     @Param('doctorId') doctorId: string,
+    @Query('unitId') unitId: string | undefined,
+    @Request() req: RequestWithUser,
   ): Promise<PrescriptionResponseDTO[]> {
+    const scopedUnitId = await this.clinicMembershipService.resolveDoctorListUnitId(
+      req.user,
+      unitId,
+    );
     const prescriptions =
-      await this.searchPrescriptionUseCase.findByDoctorId(doctorId);
+      await this.searchPrescriptionUseCase.findByDoctorId(
+        doctorId,
+        scopedUnitId,
+      );
     return plainToInstance(PrescriptionResponseDTO, prescriptions, {
       excludeExtraneousValues: true,
     });
@@ -81,8 +109,17 @@ export class PrescriptionController {
   @HttpCode(HttpStatus.OK)
   @ApiPrescriptionOperations.findById()
   @Roles(Role.DOCTOR, Role.ADMIN, Role.NURSE, Role.PATIENT)
-  async findOne(@Param('id') id: string): Promise<PrescriptionResponseDTO> {
+  async findOne(
+    @Param('id') id: string,
+    @Query('unitId') unitId: string | undefined,
+    @Request() req: RequestWithUser,
+  ): Promise<PrescriptionResponseDTO> {
     const prescription = await this.searchPrescriptionUseCase.findById(id);
+    await this.clinicMembershipService.assertCanAccessUnitRecord(
+      req.user,
+      prescription.unitId,
+      unitId,
+    );
     return plainToInstance(PrescriptionResponseDTO, prescription, {
       excludeExtraneousValues: true,
     });
@@ -95,7 +132,15 @@ export class PrescriptionController {
   async update(
     @Param('id') id: string,
     @Body() dto: UpdatePrescriptionDTO,
+    @Query('unitId') unitId: string | undefined,
+    @Request() req: RequestWithUser,
   ): Promise<PrescriptionResponseDTO> {
+    const existing = await this.searchPrescriptionUseCase.findById(id);
+    await this.clinicMembershipService.assertCanAccessUnitRecord(
+      req.user,
+      existing.unitId,
+      unitId,
+    );
     const prescription = await this.updatePrescriptionUseCase.execute(id, dto);
     return plainToInstance(PrescriptionResponseDTO, prescription, {
       excludeExtraneousValues: true,

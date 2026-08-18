@@ -4,6 +4,7 @@ import { DeletePatientUseCase } from '../application/use-cases/patient/delete-pa
 import { SearchPatientUseCase } from '../application/use-cases/patient/search-patient.use-case';
 import { UpdatePatientUseCase } from '../application/use-cases/patient/update-patient.use-case';
 import { PrismaModule } from '../infrastructure/database/prisma.module';
+import { ClinicMembershipModule } from '../shared/clinic/clinic-membership.module';
 import { DoctorRepository } from '../infrastructure/repositories/doctor/doctor.repository';
 
 import { PatientRepository } from '../infrastructure/repositories/patient/patient.repository';
@@ -12,7 +13,7 @@ import { UserDataRepository } from '../infrastructure/repositories/user/user-dat
 import { PatientController } from '../presentation/controllers/patient/patient.controller';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, ClinicMembershipModule],
   controllers: [PatientController],
   providers: [
     CreatePatientUseCase,

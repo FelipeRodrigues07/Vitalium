@@ -3,6 +3,7 @@ import { CreatePatientUseCase } from '../../../application/use-cases/patient/cre
 import { DeletePatientUseCase } from '../../../application/use-cases/patient/delete-patient.use-case';
 import { SearchPatientUseCase } from '../../../application/use-cases/patient/search-patient.use-case';
 import { UpdatePatientUseCase } from '../../../application/use-cases/patient/update-patient.use-case';
+import { ClinicMembershipService } from '../../../shared/clinic/clinic-membership.service';
 import { PatientAlreadyExistsException } from '../../../shared/execeptions/patient/patient-already-exists.exception';
 import { PatientNotFoundException } from '../../../shared/execeptions/patient/patient-not-found.exception';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
@@ -54,6 +55,12 @@ describe('PatientController', () => {
         },
         { provide: UpdatePatientUseCase, useValue: { execute: jest.fn() } },
         { provide: DeletePatientUseCase, useValue: { execute: jest.fn() } },
+        {
+          provide: ClinicMembershipService,
+          useValue: {
+            resolveDoctorListUnitId: jest.fn(async (_user, unitId) => unitId),
+          },
+        },
       ],
     })
       .overrideGuard(AuthGuard)

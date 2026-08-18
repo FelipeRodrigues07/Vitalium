@@ -3,6 +3,7 @@ import { CreateSymptomLogUseCase } from '../application/use-cases/symptom-log/cr
 import { GenerateSymptomMonthlyReportUseCase } from '../application/use-cases/symptom-log/generate-symptom-monthly-report.use-case';
 import { ListSymptomLogsUseCase } from '../application/use-cases/symptom-log/list-symptom-logs.use-case';
 import { PrismaModule } from '../infrastructure/database/prisma.module';
+import { ClinicMembershipModule } from '../shared/clinic/clinic-membership.module';
 import { DoctorRepository } from '../infrastructure/repositories/doctor/doctor.repository';
 import { PatientDoctorRepository } from '../infrastructure/repositories/patient-doctor/patient-doctor.repository';
 import { PatientRepository } from '../infrastructure/repositories/patient/patient.repository';
@@ -11,7 +12,7 @@ import { SymptomImageStorageService } from '../infrastructure/storage/symptom-im
 import { SymptomLogController } from '../presentation/controllers/symptom-log/symptom-log.controller';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, ClinicMembershipModule],
   controllers: [SymptomLogController],
   providers: [
     SymptomImageStorageService,

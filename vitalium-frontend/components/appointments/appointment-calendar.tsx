@@ -17,6 +17,7 @@ import {
   patientDoctorApi,
 } from "@/services/api/patient-doctors/patientsByDoctor"
 import { useAuth } from "@/providers/auth-provider"
+import { useDoctorActiveUnit } from "@/components/doctor/doctor-unit-provider"
 
 const daysOfWeek = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"]
 const months = [
@@ -49,6 +50,7 @@ export function AppointmentCalendar({
   viewer = "patient",
 }: AppointmentCalendarProps) {
   const { user } = useAuth()
+  const { doctorId, activeUnitId, isLoading: loadingDoctor } = useDoctorActiveUnit()
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [appointments, setAppointments] = useState<Appointment[]>([])
@@ -58,19 +60,23 @@ export function AppointmentCalendar({
 
   const load = useCallback(async () => {
     if (!user?.id) return
+    if (viewer === "doctor" && (loadingDoctor || !activeUnitId)) return
 
     try {
       setLoading(true)
       setError(null)
 
       if (viewer === "doctor") {
-        const links = await patientDoctorApi.listPatientsByUserDoctor(user.id)
-        const doctorId = links[0]?.doctorId
         if (!doctorId) {
           setAppointments([])
           setContactNames({})
           return
         }
+
+        const links = await patientDoctorApi.listPatientsByUserDoctor(
+          user.id,
+          activeUnitId,
+        )
 
         const names: Record<string, string> = {}
         for (const link of links) {
@@ -81,7 +87,7 @@ export function AppointmentCalendar({
         }
         setContactNames(names)
 
-        const list = await appointmentsApi.listByDoctor(doctorId)
+        const list = await appointmentsApi.listByDoctor(doctorId, activeUnitId)
         setAppointments(list)
         return
       }
@@ -108,7 +114,7 @@ export function AppointmentCalendar({
     } finally {
       setLoading(false)
     }
-  }, [user?.id, viewer])
+  }, [user?.id, viewer, doctorId, activeUnitId, loadingDoctor])
 
   useEffect(() => {
     void load()

@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import type { IAppointmentRepository } from '../../../domain/interfaces/repositories/appointment/appointment.repository.interface';
 import { AppointmentStatus } from '../../../shared/enums/appointment-status.enum';
 import { AppointmentType } from '../../../shared/enums/appointment-type.enum';
+import { ClinicMembershipService } from '../../../shared/clinic/clinic-membership.service';
 import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
 import { CreateAppointmentUseCase } from './create-appointment.use-case';
 
@@ -27,6 +28,12 @@ describe('CreateAppointmentUseCase', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CreateAppointmentUseCase,
+        {
+          provide: ClinicMembershipService,
+          useValue: {
+            assertDoctorAndPatientInUnit: jest.fn().mockResolvedValue(undefined),
+          },
+        },
         {
           provide: 'IAppointmentRepository',
           useValue: {

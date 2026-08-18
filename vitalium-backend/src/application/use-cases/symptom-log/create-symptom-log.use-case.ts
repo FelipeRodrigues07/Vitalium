@@ -6,6 +6,7 @@ import { SymptomImageStorageService } from '../../../infrastructure/storage/symp
 import type { CreateSymptomLogDTO } from '../../../presentation/dto/symptomLogDTO/create-symptom-log.dto';
 import { Role } from '../../../shared/enums';
 import { DatabaseException } from '../../../shared/execeptions/system/database.exception';
+import { ValidationException } from '../../../shared/execeptions/system/validation.exception';
 import type { AuthJwtPayload } from '../../../shared/types/auth-jwt-payload.interface';
 import type { UploadedImageFile } from '../../../shared/types/uploaded-file.interface';
 
@@ -37,6 +38,22 @@ export class CreateSymptomLogUseCase {
     }
 
     const description = dto.description.trim();
+    const unitId = await this.patientRepository.findPrimaryActiveUnitId(
+      patient.id,
+    );
+
+    if (!unitId) {
+      throw new ValidationException([
+        {
+          field: 'unitId',
+          value: unitId,
+          constraints: [
+            'Paciente não tem unidade vinculada para registrar o sintoma',
+          ],
+        },
+      ]);
+    }
+
     const savedImage = imageFile
       ? await this.symptomImageStorage.save(imageFile, patient.id)
       : undefined;
@@ -44,12 +61,14 @@ export class CreateSymptomLogUseCase {
     try {
       return await this.symptomLogRepository.create({
         patientId: patient.id,
+        unitId,
         description,
         imageUrl: savedImage?.imageUrl,
         imageFileName: savedImage?.imageFileName,
         imageMimeType: savedImage?.imageMimeType,
       });
     } catch (error) {
+      if (error instanceof ValidationException) throw error;
       throw new DatabaseException('registrar sintoma', error);
     }
   }

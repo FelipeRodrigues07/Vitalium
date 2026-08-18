@@ -35,7 +35,11 @@ describe('DoctorController', () => {
         },
         {
           provide: SearchDoctorUseCase,
-          useValue: { findById: jest.fn(), findAll: jest.fn() },
+          useValue: {
+            findById: jest.fn(),
+            findAll: jest.fn(),
+            findByUserId: jest.fn(),
+          },
         },
         {
           provide: UpdateDoctorUseCase,
@@ -100,6 +104,21 @@ describe('DoctorController', () => {
       await expect(controller.create(createDoctorDTO)).rejects.toThrow(
         'Unexpected error',
       );
+    });
+  });
+
+  describe('findMe', () => {
+    it('should find the authenticated doctor by user id', async () => {
+      searchDoctorUseCase.findByUserId.mockResolvedValue(mockDoctor);
+
+      const result = await controller.findMe({
+        user: { sub: 'user-id-1' },
+      } as never);
+
+      expect(searchDoctorUseCase.findByUserId).toHaveBeenCalledWith(
+        'user-id-1',
+      );
+      expect(result.id).toBe('doctor-id-1');
     });
   });
 

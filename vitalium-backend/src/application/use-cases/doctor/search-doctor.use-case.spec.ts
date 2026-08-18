@@ -68,6 +68,31 @@ describe('SearchDoctorUseCase', () => {
     });
   });
 
+  describe('findByUserId', () => {
+    it('should return a doctor by user id', async () => {
+      doctorRepository.findByUserId.mockResolvedValue(mockDoctor);
+
+      const result = await useCase.findByUserId('user-id-1');
+
+      expect(doctorRepository.findByUserId).toHaveBeenCalledWith('user-id-1');
+      expect(result).toEqual(mockDoctor);
+    });
+
+    it('should throw ValidationException when userId is empty', async () => {
+      await expect(useCase.findByUserId('')).rejects.toThrow(
+        ValidationException,
+      );
+    });
+
+    it('should throw DoctorNotFoundException when doctor does not exist', async () => {
+      doctorRepository.findByUserId.mockResolvedValue(null);
+
+      await expect(useCase.findByUserId('missing-user')).rejects.toThrow(
+        DoctorNotFoundException,
+      );
+    });
+  });
+
   describe('findAll', () => {
     it('should return all doctors', async () => {
       const doctors = [mockDoctor, { ...mockDoctor, id: 'doctor-id-2' }];

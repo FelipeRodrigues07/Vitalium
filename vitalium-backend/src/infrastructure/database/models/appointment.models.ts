@@ -8,7 +8,7 @@ export class Appointment {
   id: string;
   patientId: string;
   doctorId: string;
-  unitId?: string;
+  unitId: string;
   title: string;
   description?: string;
   scheduledAt: string;

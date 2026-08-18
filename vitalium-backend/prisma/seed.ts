@@ -79,6 +79,19 @@ async function main() {
   console.log('📊 Criando associações médico-paciente...');
   await createPatientDoctors(patients);
 
+  // medico1 fica em 2 unidades depois do vínculo paciente↔médico,
+  // para o seletor de clínica não alterar quem atende na clínica.
+  if (doctors[0] && clinicUnit.id !== hospitalUnit.id) {
+    await prisma.doctorUnit.create({
+      data: {
+        doctorId: doctors[0].id,
+        unitId: clinicUnit.id,
+        consultationPrice: 160.0,
+        isPrimary: false,
+      },
+    });
+  }
+
   // Criar agendamentos
   console.log('📅 Criando agendamentos...');
   await createAppointments(patients);
@@ -104,6 +117,7 @@ async function main() {
   console.log('📌 Vínculos por unidade (para testar admin):');
   console.log(`   Hospital (${hospitalUnit.name}): medico1-2, paciente1-3, enfermeira1`);
   console.log(`   Clínica (${clinicUnit.name}): medico3, paciente4-5, enfermeira2`);
+  console.log('   medico1 também atende na Clínica (trocar unidade no header)');
   console.log('   Paciente ↔ médico: mesmo vínculo de unidade (PatientDoctor)');
 }
 
@@ -615,7 +629,11 @@ async function createMedicalRecords(patients) {
       where: { patientId: patients[i].id },
     });
 
-    if (!patientDoctor) {
+    const patientUnit = await prisma.patientUnit.findFirst({
+      where: { patientId: patients[i].id, isActive: true },
+    });
+
+    if (!patientDoctor || !patientUnit) {
       continue;
     }
 
@@ -626,6 +644,7 @@ async function createMedicalRecords(patients) {
         data: {
           patientId: patients[i].id,
           doctorId: patientDoctor.doctorId,
+          unitId: patientUnit.unitId,
           recordType: recordTypes[typeIndex],
           title: `Registro Médico ${j + 1}`,
           description: `Descrição do registro médico número ${j + 1}`,

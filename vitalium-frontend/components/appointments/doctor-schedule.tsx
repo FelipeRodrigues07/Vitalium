@@ -12,7 +12,6 @@ import {
   type Appointment,
   type AppointmentStatus,
 } from "@/services/api/appointments"
-import { GetDoctorByIdService } from "@/services/api/doctors/GetDoctorById"
 import {
   getLinkedPersonDisplayName,
   patientDoctorApi,
@@ -20,6 +19,7 @@ import {
 } from "@/services/api/patient-doctors/patientsByDoctor"
 import { AppointmentFormDialog } from "@/components/appointments/appointment-form-dialog"
 import { useAuth } from "@/providers/auth-provider"
+import { useDoctorActiveUnit } from "@/components/doctor/doctor-unit-provider"
 import { isOnOrAfterToday } from "@/lib/appointment-date"
 
 function isSameDay(date: Date, other: Date) {
@@ -72,10 +72,14 @@ function canManageAppointment(status: AppointmentStatus) {
 
 export function DoctorSchedule() {
   const { user } = useAuth()
+  const {
+    doctorId,
+    activeUnitId: unitId,
+    activeUnit,
+    isLoading: loadingDoctor,
+  } = useDoctorActiveUnit()
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [patients, setPatients] = useState<PatientDoctorLink[]>([])
-  const [doctorId, setDoctorId] = useState<string | null>(null)
-  const [unitId, setUnitId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
@@ -109,31 +113,24 @@ export function DoctorSchedule() {
   }
 
   const load = useCallback(async () => {
-    if (!user?.id) return
+    if (!user?.id || loadingDoctor || !unitId) return
 
     try {
       setLoading(true)
       setError(null)
 
-      const links = await patientDoctorApi.listPatientsByUserDoctor(user.id)
+      const links = await patientDoctorApi.listPatientsByUserDoctor(
+        user.id,
+        unitId,
+      )
       setPatients(links)
 
-      const resolvedDoctorId = links[0]?.doctorId
-      if (!resolvedDoctorId) {
-        setDoctorId(null)
-        setUnitId(null)
+      if (!doctorId) {
         setAppointments([])
         return
       }
 
-      setDoctorId(resolvedDoctorId)
-
-      const [doctor, list] = await Promise.all([
-        GetDoctorByIdService.getById(resolvedDoctorId),
-        appointmentsApi.listByDoctor(resolvedDoctorId),
-      ])
-
-      setUnitId(doctor.units?.[0]?.id ?? null)
+      const list = await appointmentsApi.listByDoctor(doctorId, unitId)
       setAppointments(sortAppointments(list))
     } catch {
       setError("Não foi possível carregar a agenda.")
@@ -141,7 +138,7 @@ export function DoctorSchedule() {
     } finally {
       setLoading(false)
     }
-  }, [user?.id])
+  }, [user?.id, doctorId, unitId, loadingDoctor])
 
   useEffect(() => {
     void load()
@@ -191,7 +188,7 @@ export function DoctorSchedule() {
     try {
       setUpdatingId(appointmentId)
       setError(null)
-      const updated = await appointmentsApi.update(appointmentId, { status })
+      const updated = await appointmentsApi.update(appointmentId, { status }, unitId)
       upsertAppointment(updated)
     } catch {
       setError(errorMessage)
@@ -245,7 +242,7 @@ export function DoctorSchedule() {
     )
   }
 
-  if (loading) {
+  if (loading || loadingDoctor) {
     return (
       <div className="flex items-center justify-center gap-2 py-16 text-muted-foreground">
         <Loader2 className="h-5 w-5 animate-spin" />
@@ -285,19 +282,26 @@ export function DoctorSchedule() {
         </div>
 
         {doctorId && unitId ? (
-          <AppointmentFormDialog
-            mode="create"
-            doctorId={doctorId}
-            unitId={unitId}
-            patients={patients}
-            existingAppointments={appointments}
-            onSaved={upsertAppointment}
-          >
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              Nova consulta
-            </Button>
-          </AppointmentFormDialog>
+          <div className="flex flex-col items-stretch gap-1 sm:items-end">
+            <AppointmentFormDialog
+              mode="create"
+              doctorId={doctorId}
+              unitId={unitId}
+              patients={patients}
+              existingAppointments={appointments}
+              onSaved={upsertAppointment}
+            >
+              <Button className="gap-2">
+                <Plus className="h-4 w-4" />
+                Nova consulta
+              </Button>
+            </AppointmentFormDialog>
+            {activeUnit && (
+              <p className="text-xs text-muted-foreground">
+                Agendando em {activeUnit.name}
+              </p>
+            )}
+          </div>
         ) : (
           <Button disabled className="gap-2">
             <Plus className="h-4 w-4" />
@@ -311,7 +315,7 @@ export function DoctorSchedule() {
       {!doctorId && (
         <Card className="border-emerald-200">
           <CardContent className="py-10 text-center text-muted-foreground">
-            Vincule pacientes a você para começar a usar a agenda.
+            Não encontramos seu perfil de médico. Peça ao admin para concluir o cadastro.
           </CardContent>
         </Card>
       )}

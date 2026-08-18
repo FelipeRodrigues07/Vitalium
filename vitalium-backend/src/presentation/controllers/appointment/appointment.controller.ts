@@ -8,22 +8,31 @@ import {
   Param,
   Patch,
   Post,
+  Query,
+  Request,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
+import type { Request as ExpressRequest } from 'express';
 import { CreateAppointmentUseCase } from '../../../application/use-cases/appointment/create-appointment.use-case';
 import { DeleteAppointmentUseCase } from '../../../application/use-cases/appointment/delete-appointment.use-case';
 import { SearchAppointmentUseCase } from '../../../application/use-cases/appointment/search-appointment.use-case';
 import { UpdateAppointmentUseCase } from '../../../application/use-cases/appointment/update-appointment.use-case';
+import { ClinicMembershipService } from '../../../shared/clinic/clinic-membership.service';
 import { Roles } from '../../../shared/decorators/roles.decorator';
 import { Role } from '../../../shared/enums';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
 import { ApiAppointmentOperations } from '../../../shared/swagger/decorators/appointment.decorators';
+import type { AuthJwtPayload } from '../../../shared/types/auth-jwt-payload.interface';
 import { CreateAppointmentDTO } from '../../dto/appointmentDTO/create-appointment.dto';
 import { AppointmentResponseDTO } from '../../dto/appointmentDTO/response/appointment-response.dto';
 import { UpdateAppointmentDTO } from '../../dto/appointmentDTO/update-appointment.dto';
+
+interface RequestWithUser extends ExpressRequest {
+  user: AuthJwtPayload;
+}
 
 @ApiTags('appointments')
 @Controller('appointments')
@@ -34,6 +43,7 @@ export class AppointmentController {
     private readonly searchAppointmentUseCase: SearchAppointmentUseCase,
     private readonly updateAppointmentUseCase: UpdateAppointmentUseCase,
     private readonly deleteAppointmentUseCase: DeleteAppointmentUseCase,
+    private readonly clinicMembershipService: ClinicMembershipService,
   ) {}
 
   @Post()
@@ -55,9 +65,18 @@ export class AppointmentController {
   @Roles(Role.DOCTOR, Role.ADMIN, Role.NURSE, Role.PATIENT)
   async findByPatient(
     @Param('patientId') patientId: string,
+    @Query('unitId') unitId: string | undefined,
+    @Request() req: RequestWithUser,
   ): Promise<AppointmentResponseDTO[]> {
+    const scopedUnitId = await this.clinicMembershipService.resolveDoctorListUnitId(
+      req.user,
+      unitId,
+    );
     const appointments =
-      await this.searchAppointmentUseCase.findByPatientId(patientId);
+      await this.searchAppointmentUseCase.findByPatientId(
+        patientId,
+        scopedUnitId,
+      );
     return plainToInstance(AppointmentResponseDTO, appointments, {
       excludeExtraneousValues: true,
     });
@@ -69,9 +88,18 @@ export class AppointmentController {
   @Roles(Role.DOCTOR, Role.ADMIN)
   async findByDoctor(
     @Param('doctorId') doctorId: string,
+    @Query('unitId') unitId: string | undefined,
+    @Request() req: RequestWithUser,
   ): Promise<AppointmentResponseDTO[]> {
+    const scopedUnitId = await this.clinicMembershipService.resolveDoctorListUnitId(
+      req.user,
+      unitId,
+    );
     const appointments =
-      await this.searchAppointmentUseCase.findByDoctorId(doctorId);
+      await this.searchAppointmentUseCase.findByDoctorId(
+        doctorId,
+        scopedUnitId,
+      );
     return plainToInstance(AppointmentResponseDTO, appointments, {
       excludeExtraneousValues: true,
     });
@@ -83,7 +111,12 @@ export class AppointmentController {
   @Roles(Role.DOCTOR, Role.ADMIN, Role.NURSE)
   async findByUnit(
     @Param('unitId') unitId: string,
+    @Request() req: RequestWithUser,
   ): Promise<AppointmentResponseDTO[]> {
+    await this.clinicMembershipService.assertDoctorLinkedToUnit(
+      req.user,
+      unitId,
+    );
     const appointments =
       await this.searchAppointmentUseCase.findByUnitId(unitId);
     return plainToInstance(AppointmentResponseDTO, appointments, {
@@ -95,8 +128,17 @@ export class AppointmentController {
   @HttpCode(HttpStatus.OK)
   @ApiAppointmentOperations.findById()
   @Roles(Role.DOCTOR, Role.ADMIN, Role.NURSE, Role.PATIENT)
-  async findOne(@Param('id') id: string): Promise<AppointmentResponseDTO> {
+  async findOne(
+    @Param('id') id: string,
+    @Query('unitId') unitId: string | undefined,
+    @Request() req: RequestWithUser,
+  ): Promise<AppointmentResponseDTO> {
     const appointment = await this.searchAppointmentUseCase.findById(id);
+    await this.clinicMembershipService.assertCanAccessUnitRecord(
+      req.user,
+      appointment.unitId,
+      unitId,
+    );
     return plainToInstance(AppointmentResponseDTO, appointment, {
       excludeExtraneousValues: true,
     });
@@ -109,7 +151,15 @@ export class AppointmentController {
   async update(
     @Param('id') id: string,
     @Body() dto: UpdateAppointmentDTO,
+    @Query('unitId') unitId: string | undefined,
+    @Request() req: RequestWithUser,
   ): Promise<AppointmentResponseDTO> {
+    const existing = await this.searchAppointmentUseCase.findById(id);
+    await this.clinicMembershipService.assertCanAccessUnitRecord(
+      req.user,
+      existing.unitId,
+      unitId,
+    );
     const appointment = await this.updateAppointmentUseCase.execute(id, dto);
     return plainToInstance(AppointmentResponseDTO, appointment, {
       excludeExtraneousValues: true,

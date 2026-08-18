@@ -39,24 +39,35 @@ export const prescriptionsApi = {
   create: (payload: CreatePrescriptionPayload): Promise<Prescription> =>
     api.post<Prescription>("/prescriptions", payload).then((r) => r.data),
 
-  listByPatient: (patientId: string): Promise<Prescription[]> =>
+  listByPatient: (patientId: string, unitId?: string | null): Promise<Prescription[]> =>
     api
-      .get<Prescription[]>(`/prescriptions/patient/${patientId}`)
+      .get<Prescription[]>(`/prescriptions/patient/${patientId}`, {
+        params: unitId ? { unitId } : undefined,
+      })
       .then((r) => r.data),
 
-  listByDoctor: (doctorId: string): Promise<Prescription[]> =>
+  listByDoctor: (doctorId: string, unitId?: string | null): Promise<Prescription[]> =>
     api
-      .get<Prescription[]>(`/prescriptions/doctor/${doctorId}`)
+      .get<Prescription[]>(`/prescriptions/doctor/${doctorId}`, {
+        params: unitId ? { unitId } : undefined,
+      })
       .then((r) => r.data),
 
-  getById: (id: string): Promise<Prescription> =>
-    api.get<Prescription>(`/prescriptions/${id}`).then((r) => r.data),
+  getById: (id: string, unitId?: string | null): Promise<Prescription> =>
+    api
+      .get<Prescription>(`/prescriptions/${id}`, {
+        params: unitId ? { unitId } : undefined,
+      })
+      .then((r) => r.data),
 
   update: (
     id: string,
     payload: UpdatePrescriptionPayload,
+    unitId?: string | null,
   ): Promise<Prescription> =>
     api
-      .patch<Prescription>(`/prescriptions/${id}`, payload)
+      .patch<Prescription>(`/prescriptions/${id}`, payload, {
+        params: unitId ? { unitId } : undefined,
+      })
       .then((r) => r.data),
 }

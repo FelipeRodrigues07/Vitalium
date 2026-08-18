@@ -5,6 +5,8 @@ export class Prescription {
   id: string;
   patientId: string;
   doctorId: string;
+  unitId: string;
+  medication?: string;
   medications: any;
   instructions?: string;
   validUntil?: string;

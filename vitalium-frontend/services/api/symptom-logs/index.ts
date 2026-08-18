@@ -3,6 +3,7 @@ import { api } from "@/services/api/api"
 export interface SymptomLog {
   id: string
   patientId: string
+  unitId?: string
   description: string
   imageUrl?: string
   imageFileName?: string
@@ -66,20 +67,31 @@ export const symptomLogsApi = {
   listMine: (): Promise<SymptomLog[]> =>
     api.get<SymptomLog[]>("/symptom-logs").then((r) => r.data),
 
-  listByPatient: (patientId: string): Promise<SymptomLog[]> =>
+  listByPatient: (
+    patientId: string,
+    unitId?: string | null,
+  ): Promise<SymptomLog[]> =>
     api
-      .get<SymptomLog[]>(`/symptom-logs/patient/${patientId}`)
+      .get<SymptomLog[]>(`/symptom-logs/patient/${patientId}`, {
+        params: unitId ? { unitId } : undefined,
+      })
       .then((r) => r.data),
 
   monthlyReport: (
     patientId: string,
     month?: string,
+    unitId?: string | null,
   ): Promise<SymptomMonthlyReport> =>
     api
       .post<SymptomMonthlyReport>(
         `/symptom-logs/patient/${patientId}/monthly-report`,
         {},
-        { params: month ? { month } : undefined },
+        {
+          params: {
+            ...(month ? { month } : {}),
+            ...(unitId ? { unitId } : {}),
+          },
+        },
       )
       .then((r) => r.data),
 }

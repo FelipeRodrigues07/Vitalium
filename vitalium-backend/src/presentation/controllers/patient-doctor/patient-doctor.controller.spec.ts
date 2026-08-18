@@ -1,10 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { CreatePatientDoctorUseCase } from '../../../application/use-cases/patient-doctor/create-patient-doctor.use-case';
 import {
-  CreatePatientDoctorUseCase,
   DeletePatientDoctorUseCase,
   SearchPatientDoctorUseCase,
   UpdatePatientDoctorUseCase,
 } from '../../../application/use-cases/patient-doctor/patient-doctor.use-cases';
+import { PrismaProvider } from '../../../infrastructure/database/prisma.provider';
+import { ClinicMembershipService } from '../../../shared/clinic/clinic-membership.service';
 import { PatientDoctorNotFoundException } from '../../../shared/execeptions/patient-doctor/patient-doctor-not-found.exception';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
@@ -47,6 +49,19 @@ describe('PatientDoctorController', () => {
         {
           provide: DeletePatientDoctorUseCase,
           useValue: { execute: jest.fn() },
+        },
+        {
+          provide: PrismaProvider,
+          useValue: {
+            doctor: { findFirst: jest.fn() },
+            patient: { findFirst: jest.fn() },
+          },
+        },
+        {
+          provide: ClinicMembershipService,
+          useValue: {
+            resolveDoctorListUnitId: jest.fn(async (_user, unitId) => unitId),
+          },
         },
       ],
     })
@@ -91,7 +106,11 @@ describe('PatientDoctorController', () => {
   describe('findByDoctor', () => {
     it('should return links by doctor', async () => {
       searchUseCase.findByDoctorId.mockResolvedValue([mockLink]);
-      const result = await controller.findByDoctor('doctor-id-1');
+      const result = await controller.findByDoctor(
+        'doctor-id-1',
+        undefined,
+        { user: { sub: 'admin-1', role: 'ADMIN' } } as any,
+      );
       expect(Array.isArray(result)).toBe(true);
     });
   });

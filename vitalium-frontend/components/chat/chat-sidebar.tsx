@@ -21,6 +21,7 @@ import {
 } from "@/services/api/patient-doctors/patientsByDoctor";
 import type { ChatContactInfo } from "@/hooks/use-chat-contact-names";
 import { normalizeRole } from "@/lib/auth-routes";
+import { useDoctorActiveUnit } from "@/components/doctor/doctor-unit-provider";
 import type { UserRole } from "@/types/auth";
 
 interface ChatSidebarProps {
@@ -42,6 +43,7 @@ export function ChatSidebar({
   getOtherParty,
   isDoctor,
 }: ChatSidebarProps) {
+  const { activeUnitId } = useDoctorActiveUnit();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [doctorEntityId, setDoctorEntityId] = useState<string | null>(null);
@@ -81,9 +83,16 @@ export function ChatSidebar({
 
   const openNewChat = async () => {
     setNewChatOpen(true);
+    if (!activeUnitId) {
+      setPatients([]);
+      return;
+    }
     setLoadingPatients(true);
     try {
-      const data = await patientDoctorApi.listPatientsByUserDoctor(userId);
+      const data = await patientDoctorApi.listPatientsByUserDoctor(
+        userId,
+        activeUnitId,
+      );
       setPatients(data);
       if (data.length > 0) {
         setDoctorEntityId((prev) => prev ?? data[0].doctorId);

@@ -14,6 +14,7 @@ export interface MedicalRecord {
   id: string
   patientId: string
   doctorId: string
+  unitId: string
   title: string
   description: string
   diagnosis?: string
@@ -29,6 +30,7 @@ export interface MedicalRecord {
 export interface CreateMedicalRecordPayload {
   patientId: string
   doctorId: string
+  unitId: string
   title: string
   description: string
   diagnosis?: string
@@ -65,24 +67,35 @@ export const medicalRecordsApi = {
   create: (payload: CreateMedicalRecordPayload): Promise<MedicalRecord> =>
     api.post<MedicalRecord>("/medical-records", payload).then((r) => r.data),
 
-  listByPatient: (patientId: string): Promise<MedicalRecord[]> =>
+  listByPatient: (patientId: string, unitId?: string | null): Promise<MedicalRecord[]> =>
     api
-      .get<MedicalRecord[]>(`/medical-records/patient/${patientId}`)
+      .get<MedicalRecord[]>(`/medical-records/patient/${patientId}`, {
+        params: unitId ? { unitId } : undefined,
+      })
       .then((r) => r.data),
 
-  listByDoctor: (doctorId: string): Promise<MedicalRecord[]> =>
+  listByDoctor: (doctorId: string, unitId?: string | null): Promise<MedicalRecord[]> =>
     api
-      .get<MedicalRecord[]>(`/medical-records/doctor/${doctorId}`)
+      .get<MedicalRecord[]>(`/medical-records/doctor/${doctorId}`, {
+        params: unitId ? { unitId } : undefined,
+      })
       .then((r) => r.data),
 
-  getById: (id: string): Promise<MedicalRecord> =>
-    api.get<MedicalRecord>(`/medical-records/${id}`).then((r) => r.data),
+  getById: (id: string, unitId?: string | null): Promise<MedicalRecord> =>
+    api
+      .get<MedicalRecord>(`/medical-records/${id}`, {
+        params: unitId ? { unitId } : undefined,
+      })
+      .then((r) => r.data),
 
   update: (
     id: string,
     payload: UpdateMedicalRecordPayload,
+    unitId?: string | null,
   ): Promise<MedicalRecord> =>
     api
-      .patch<MedicalRecord>(`/medical-records/${id}`, payload)
+      .patch<MedicalRecord>(`/medical-records/${id}`, payload, {
+        params: unitId ? { unitId } : undefined,
+      })
       .then((r) => r.data),
 }

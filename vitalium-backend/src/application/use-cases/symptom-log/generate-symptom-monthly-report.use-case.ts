@@ -44,6 +44,7 @@ export class GenerateSymptomMonthlyReportUseCase {
     patientId: string,
     month: string,
     authUser: AuthJwtPayload,
+    unitId?: string,
   ): Promise<SymptomMonthlyReportResult> {
     await this.assertDoctorAccess(patientId, authUser);
 
@@ -57,7 +58,10 @@ export class GenerateSymptomMonthlyReportUseCase {
     }
 
     const patientName = this.resolvePatientName(patient);
-    const logs = await this.symptomLogRepository.findByPatientId(patientId);
+    const logs = await this.symptomLogRepository.findByPatientId(
+      patientId,
+      unitId,
+    );
     const monthLogs = logs.filter((log) => this.isInMonth(log.createdAt, month));
 
     const fromAi = await this.tryGenerateWithAi(

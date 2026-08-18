@@ -12,6 +12,10 @@ export class SymptomLogResponseDTO {
 
   @ApiProperty()
   @Expose()
+  unitId: string;
+
+  @ApiProperty()
+  @Expose()
   description: string;
 
   @ApiProperty({ required: false })

@@ -63,6 +63,7 @@ services:
       - ./vitalium-frontend/components:/app/components:cached
       - ./vitalium-frontend/hooks:/app/hooks:cached
       - ./vitalium-frontend/lib:/app/lib:cached
+      - ./vitalium-frontend/providers:/app/providers:cached
       - ./vitalium-frontend/services:/app/services:cached
       - ./vitalium-frontend/styles:/app/styles:cached
       - ./vitalium-frontend/public:/app/public:cached

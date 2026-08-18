@@ -22,17 +22,29 @@ export class SearchMedicalRecordUseCase {
     }
   }
 
-  async findByPatientId(patientId: string): Promise<MedicalRecord[]> {
+  async findByPatientId(
+    patientId: string,
+    unitId?: string,
+  ): Promise<MedicalRecord[]> {
     try {
-      return await this.medicalRecordRepository.findByPatientId(patientId);
+      return await this.medicalRecordRepository.findByPatientId(
+        patientId,
+        unitId,
+      );
     } catch (error) {
       throw new DatabaseException('listar prontuários do paciente', error);
     }
   }
 
-  async findByDoctorId(doctorId: string): Promise<MedicalRecord[]> {
+  async findByDoctorId(
+    doctorId: string,
+    unitId?: string,
+  ): Promise<MedicalRecord[]> {
     try {
-      return await this.medicalRecordRepository.findByDoctorId(doctorId);
+      return await this.medicalRecordRepository.findByDoctorId(
+        doctorId,
+        unitId,
+      );
     } catch (error) {
       throw new DatabaseException('listar prontuários do médico', error);
     }

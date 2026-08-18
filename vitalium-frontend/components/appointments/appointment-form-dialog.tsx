@@ -160,7 +160,7 @@ export function AppointmentFormDialog({
           duration: durationMinutes,
           notes: notes.trim() || undefined,
           status: "CONFIRMED",
-        })
+        }, unitId)
         onSaved(updated)
       } else {
         const created = await appointmentsApi.create({

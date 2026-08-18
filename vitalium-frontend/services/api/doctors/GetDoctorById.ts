@@ -25,4 +25,8 @@ export const GetDoctorByIdService = {
     const response = await api.get<DoctorDetailModel>(`/doctors/${doctorId}`)
     return response.data
   },
+  getMine: async (): Promise<DoctorDetailModel> => {
+    const response = await api.get<DoctorDetailModel>('/doctors/me')
+    return response.data
+  },
 }

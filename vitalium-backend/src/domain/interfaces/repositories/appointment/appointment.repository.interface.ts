@@ -5,8 +5,8 @@ import type { UpdateAppointmentDTO } from '../../../../presentation/dto/appointm
 export interface IAppointmentRepository {
   create(dto: CreateAppointmentDTO): Promise<Appointment>;
   findById(id: string): Promise<Appointment | null>;
-  findByPatientId(patientId: string): Promise<Appointment[]>;
-  findByDoctorId(doctorId: string): Promise<Appointment[]>;
+  findByPatientId(patientId: string, unitId?: string): Promise<Appointment[]>;
+  findByDoctorId(doctorId: string, unitId?: string): Promise<Appointment[]>;
   findByUnitId(unitId: string): Promise<Appointment[]>;
   update(id: string, dto: UpdateAppointmentDTO): Promise<Appointment>;
   delete(id: string): Promise<void>;

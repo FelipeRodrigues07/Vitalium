@@ -71,9 +71,14 @@ export const getPatientDisplayName = (
 ) => getLinkedPersonDisplayName(patient, "Paciente");
 
 export const patientDoctorApi = {
-  listPatientsByUserDoctor: (userId: string): Promise<PatientDoctorLink[]> =>
+  listPatientsByUserDoctor: (
+    userId: string,
+    unitId?: string | null,
+  ): Promise<PatientDoctorLink[]> =>
     api
-      .get<PatientDoctorLink[]>(`/patient-doctors/doctor/by-user/${userId}`)
+      .get<PatientDoctorLink[]>(`/patient-doctors/doctor/by-user/${userId}`, {
+        params: unitId ? { unitId } : undefined,
+      })
       .then((r) => r.data),
 
   listDoctorsByUserPatient: (userId: string): Promise<PatientDoctorLink[]> =>

@@ -65,9 +65,11 @@ export const appointmentsApi = {
   create: (payload: CreateAppointmentPayload): Promise<Appointment> =>
     api.post<Appointment>("/appointments", payload).then((r) => r.data),
 
-  listByDoctor: (doctorId: string): Promise<Appointment[]> =>
+  listByDoctor: (doctorId: string, unitId?: string | null): Promise<Appointment[]> =>
     api
-      .get<Appointment[]>(`/appointments/doctor/${doctorId}`)
+      .get<Appointment[]>(`/appointments/doctor/${doctorId}`, {
+        params: unitId ? { unitId } : undefined,
+      })
       .then((r) => r.data),
 
   listByPatient: (patientId: string): Promise<Appointment[]> =>
@@ -75,11 +77,23 @@ export const appointmentsApi = {
       .get<Appointment[]>(`/appointments/patient/${patientId}`)
       .then((r) => r.data),
 
-  getById: (id: string): Promise<Appointment> =>
-    api.get<Appointment>(`/appointments/${id}`).then((r) => r.data),
+  getById: (id: string, unitId?: string | null): Promise<Appointment> =>
+    api
+      .get<Appointment>(`/appointments/${id}`, {
+        params: unitId ? { unitId } : undefined,
+      })
+      .then((r) => r.data),
 
-  update: (id: string, payload: UpdateAppointmentPayload): Promise<Appointment> =>
-    api.patch<Appointment>(`/appointments/${id}`, payload).then((r) => r.data),
+  update: (
+    id: string,
+    payload: UpdateAppointmentPayload,
+    unitId?: string | null,
+  ): Promise<Appointment> =>
+    api
+      .patch<Appointment>(`/appointments/${id}`, payload, {
+        params: unitId ? { unitId } : undefined,
+      })
+      .then((r) => r.data),
 }
 
 export const APPOINTMENT_TYPE_LABELS: Record<AppointmentType, string> = {

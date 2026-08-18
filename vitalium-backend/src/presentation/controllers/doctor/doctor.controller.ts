@@ -9,10 +9,12 @@ import {
   Patch,
   Post,
   Query,
+  Request,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
+import type { Request as ExpressRequest } from 'express';
 import { CreateDoctorUseCase } from '../../../application/use-cases/doctor/create-doctor.use-case';
 import { DeleteDoctorUseCase } from '../../../application/use-cases/doctor/delete-doctor.use-case';
 import { SearchDoctorUseCase } from '../../../application/use-cases/doctor/search-doctor.use-case';
@@ -24,7 +26,12 @@ import { Role } from '../../../shared/enums';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
 import { RolesGuard } from '../../../shared/guards/roles.guard';
 import { ApiDoctorOperations } from '../../../shared/swagger/decorators';
+import type { AuthJwtPayload } from '../../../shared/types/auth-jwt-payload.interface';
 import { UpdateDoctorDTO } from '../../dto/doctorDTO/update-doctor.dto';
+
+interface RequestWithUser extends ExpressRequest {
+  user: AuthJwtPayload;
+}
 
 @ApiTags('doctors')
 @Controller('doctors')
@@ -61,6 +68,18 @@ export class DoctorController {
     const doctors = await this.searchDoctorUseCase.findAll(unitId);
 
     return plainToInstance(DoctorResponseDTO, doctors, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  @Get('me')
+  @HttpCode(HttpStatus.OK)
+  @ApiDoctorOperations.findMyDoctor()
+  @Roles(Role.DOCTOR)
+  async findMe(@Request() req: RequestWithUser): Promise<DoctorResponseDTO> {
+    const doctor = await this.searchDoctorUseCase.findByUserId(req.user.sub);
+
+    return plainToInstance(DoctorResponseDTO, doctor, {
       excludeExtraneousValues: true,
     });
   }

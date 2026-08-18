@@ -15,6 +15,7 @@ export class SymptomLogRepository implements ISymptomLogRepository {
     const log = await this.prisma.symptomLog.create({
       data: {
         patientId: data.patientId,
+        unitId: data.unitId,
         description: data.description,
         imageUrl: data.imageUrl,
         imageFileName: data.imageFileName,
@@ -25,9 +26,12 @@ export class SymptomLogRepository implements ISymptomLogRepository {
     return plainToInstance(SymptomLog, log);
   }
 
-  async findByPatientId(patientId: string): Promise<SymptomLog[]> {
+  async findByPatientId(
+    patientId: string,
+    unitId?: string,
+  ): Promise<SymptomLog[]> {
     const logs = await this.prisma.symptomLog.findMany({
-      where: { patientId },
+      where: { patientId, ...(unitId ? { unitId } : {}) },
       orderBy: { createdAt: 'desc' },
     });
 

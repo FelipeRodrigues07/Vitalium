@@ -56,18 +56,24 @@ export class PrescriptionRepository implements IPrescriptionRepository {
     return prescription ? plainToInstance(Prescription, prescription) : null;
   }
 
-  async findByPatientId(patientId: string): Promise<Prescription[]> {
+  async findByPatientId(
+    patientId: string,
+    unitId?: string,
+  ): Promise<Prescription[]> {
     const prescriptions = await this.prisma.prescription.findMany({
-      where: { patientId },
+      where: { patientId, ...(unitId ? { unitId } : {}) },
       include: includeRelations,
       orderBy: { prescribedAt: 'desc' },
     });
     return plainToInstance(Prescription, prescriptions);
   }
 
-  async findByDoctorId(doctorId: string): Promise<Prescription[]> {
+  async findByDoctorId(
+    doctorId: string,
+    unitId?: string,
+  ): Promise<Prescription[]> {
     const prescriptions = await this.prisma.prescription.findMany({
-      where: { doctorId },
+      where: { doctorId, ...(unitId ? { unitId } : {}) },
       include: includeRelations,
       orderBy: { prescribedAt: 'desc' },
     });

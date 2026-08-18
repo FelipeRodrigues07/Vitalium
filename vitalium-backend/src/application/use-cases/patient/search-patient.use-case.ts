@@ -49,19 +49,23 @@ export class SearchPatientUseCase {
   async findAllForAuthUser(
     authUser?: AuthJwtPayload,
     doctorId?: string,
+    unitId?: string,
   ): Promise<Patient[]> {
     if (authUser?.role === Role.DOCTOR) {
-      return this.findAllByDoctorUserId(authUser.sub);
+      return this.findAllByDoctorUserId(authUser.sub, unitId);
     }
 
     if (doctorId) {
-      return this.findAllByDoctorId(doctorId);
+      return this.findAllByDoctorId(doctorId, unitId);
     }
 
     return this.findAll();
   }
 
-  async findAllByDoctorUserId(userId: string): Promise<Patient[]> {
+  async findAllByDoctorUserId(
+    userId: string,
+    unitId?: string,
+  ): Promise<Patient[]> {
     if (!userId) {
       throw new ValidationException([
         {
@@ -78,10 +82,13 @@ export class SearchPatientUseCase {
       return [];
     }
 
-    return this.patientRepository.findAllByDoctorId(doctor.id);
+    return this.patientRepository.findAllByDoctorId(doctor.id, unitId);
   }
 
-  async findAllByDoctorId(doctorId: string): Promise<Patient[]> {
+  async findAllByDoctorId(
+    doctorId: string,
+    unitId?: string,
+  ): Promise<Patient[]> {
     if (!doctorId) {
       throw new ValidationException([
         {
@@ -104,7 +111,7 @@ export class SearchPatientUseCase {
       ]);
     }
 
-    return this.patientRepository.findAllByDoctorId(doctorId);
+    return this.patientRepository.findAllByDoctorId(doctorId, unitId);
   }
 
   async findByUserId(userId: string): Promise<Patient> {

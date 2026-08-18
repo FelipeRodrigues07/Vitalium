@@ -3,6 +3,7 @@ import { CreateMedicalRecordUseCase } from '../../../application/use-cases/medic
 import { DeleteMedicalRecordUseCase } from '../../../application/use-cases/medical-record/delete-medical-record.use-case';
 import { SearchMedicalRecordUseCase } from '../../../application/use-cases/medical-record/search-medical-record.use-case';
 import { UpdateMedicalRecordUseCase } from '../../../application/use-cases/medical-record/update-medical-record.use-case';
+import { ClinicMembershipService } from '../../../shared/clinic/clinic-membership.service';
 import { RecordType } from '../../../shared/enums/record-type.enum';
 import { MedicalRecordNotFoundException } from '../../../shared/execeptions/medical-record/medical-record-not-found.exception';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
@@ -19,6 +20,7 @@ describe('MedicalRecordController', () => {
     id: 'record-id-1',
     patientId: 'patient-id-1',
     doctorId: 'doctor-id-1',
+    unitId: 'unit-id-1',
     title: 'Consulta de Rotina',
     description: 'Tudo bem',
     symptoms: [],
@@ -53,6 +55,14 @@ describe('MedicalRecordController', () => {
           provide: DeleteMedicalRecordUseCase,
           useValue: { execute: jest.fn() },
         },
+        {
+          provide: ClinicMembershipService,
+          useValue: {
+            resolveDoctorListUnitId: jest.fn(async (_user, unitId) => unitId),
+            assertCanAccessUnitRecord: jest.fn().mockResolvedValue(undefined),
+            assertDoctorLinkedToUnit: jest.fn().mockResolvedValue(undefined),
+          },
+        },
       ],
     })
       .overrideGuard(AuthGuard)
@@ -77,6 +87,7 @@ describe('MedicalRecordController', () => {
       const result = await controller.create({
         patientId: 'patient-id-1',
         doctorId: 'doctor-id-1',
+        unitId: 'unit-id-1',
         title: 'Consulta de Rotina',
         description: 'Tudo bem',
         recordType: RecordType.CONSULTATION,
@@ -85,10 +96,16 @@ describe('MedicalRecordController', () => {
     });
   });
 
+  const adminReq = { user: { sub: 'admin-1', role: 'ADMIN' } } as any;
+
   describe('findByPatient', () => {
     it('should return records for a patient', async () => {
       searchUseCase.findByPatientId.mockResolvedValue([mockRecord]);
-      const result = await controller.findByPatient('patient-id-1');
+      const result = await controller.findByPatient(
+        'patient-id-1',
+        undefined,
+        adminReq,
+      );
       expect(Array.isArray(result)).toBe(true);
     });
   });
@@ -96,16 +113,18 @@ describe('MedicalRecordController', () => {
   describe('findOne', () => {
     it('should return record by id', async () => {
       searchUseCase.findById.mockResolvedValue(mockRecord);
-      expect(await controller.findOne('record-id-1')).toBeDefined();
+      expect(
+        await controller.findOne('record-id-1', undefined, adminReq),
+      ).toBeDefined();
     });
 
     it('should propagate MedicalRecordNotFoundException', async () => {
       searchUseCase.findById.mockRejectedValue(
         new MedicalRecordNotFoundException('nonexistent'),
       );
-      await expect(controller.findOne('nonexistent')).rejects.toThrow(
-        MedicalRecordNotFoundException,
-      );
+      await expect(
+        controller.findOne('nonexistent', undefined, adminReq),
+      ).rejects.toThrow(MedicalRecordNotFoundException);
     });
   });
 

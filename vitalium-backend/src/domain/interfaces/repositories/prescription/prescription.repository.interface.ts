@@ -5,8 +5,8 @@ import type { UpdatePrescriptionDTO } from '../../../../presentation/dto/prescri
 export interface IPrescriptionRepository {
   create(dto: CreatePrescriptionDTO): Promise<Prescription>;
   findById(id: string): Promise<Prescription | null>;
-  findByPatientId(patientId: string): Promise<Prescription[]>;
-  findByDoctorId(doctorId: string): Promise<Prescription[]>;
+  findByPatientId(patientId: string, unitId?: string): Promise<Prescription[]>;
+  findByDoctorId(doctorId: string, unitId?: string): Promise<Prescription[]>;
   update(id: string, dto: UpdatePrescriptionDTO): Promise<Prescription>;
   delete(id: string): Promise<void>;
 }

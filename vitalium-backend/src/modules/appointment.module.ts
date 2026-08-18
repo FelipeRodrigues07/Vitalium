@@ -3,12 +3,13 @@ import { CreateAppointmentUseCase } from '../application/use-cases/appointment/c
 import { DeleteAppointmentUseCase } from '../application/use-cases/appointment/delete-appointment.use-case';
 import { SearchAppointmentUseCase } from '../application/use-cases/appointment/search-appointment.use-case';
 import { UpdateAppointmentUseCase } from '../application/use-cases/appointment/update-appointment.use-case';
+import { ClinicMembershipModule } from '../shared/clinic/clinic-membership.module';
 import { PrismaModule } from '../infrastructure/database/prisma.module';
 import { AppointmentRepository } from '../infrastructure/repositories/appointment/appointment.repository';
 import { AppointmentController } from '../presentation/controllers/appointment/appointment.controller';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, ClinicMembershipModule],
   controllers: [AppointmentController],
   providers: [
     CreateAppointmentUseCase,

@@ -4,6 +4,7 @@ const ACCESS_TOKEN_KEY = 'accessToken';
 const REFRESH_TOKEN_KEY = 'refreshToken';
 const AUTH_USER_KEY = 'authUser';
 const ACTIVE_UNIT_KEY = 'activeUnitId';
+const DOCTOR_ACTIVE_UNIT_KEY = 'doctorActiveUnitId';
 
 let onSessionCleared: (() => void) | null = null;
 let onAccessTokenUpdated: ((token: string) => void) | null = null;
@@ -92,6 +93,21 @@ export function clearActiveUnitId(): void {
   window.localStorage.removeItem(ACTIVE_UNIT_KEY);
 }
 
+export function getDoctorActiveUnitId(): string | null {
+  if (!isBrowser()) return null;
+  return window.localStorage.getItem(DOCTOR_ACTIVE_UNIT_KEY);
+}
+
+export function setDoctorActiveUnitId(unitId: string): void {
+  if (!isBrowser()) return;
+  window.localStorage.setItem(DOCTOR_ACTIVE_UNIT_KEY, unitId);
+}
+
+export function clearDoctorActiveUnitId(): void {
+  if (!isBrowser()) return;
+  window.localStorage.removeItem(DOCTOR_ACTIVE_UNIT_KEY);
+}
+
 export function clearAuthSession(): void {
   if (!isBrowser()) return;
 
@@ -99,5 +115,6 @@ export function clearAuthSession(): void {
   window.localStorage.removeItem(REFRESH_TOKEN_KEY);
   window.localStorage.removeItem(AUTH_USER_KEY);
   window.localStorage.removeItem(ACTIVE_UNIT_KEY);
+  window.localStorage.removeItem(DOCTOR_ACTIVE_UNIT_KEY);
   onSessionCleared?.();
 }

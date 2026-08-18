@@ -17,6 +17,10 @@ export class CreateMedicalRecordDTO {
   @IsString()
   doctorId: string;
 
+  @ApiProperty({ example: 'clxyz123456789' })
+  @IsString()
+  unitId: string;
+
   @ApiProperty({ example: 'Consulta de rotina' })
   @IsString()
   title: string;

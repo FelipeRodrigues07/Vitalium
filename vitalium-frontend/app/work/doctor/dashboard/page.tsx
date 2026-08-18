@@ -11,13 +11,22 @@ import { AlertsPanel } from "@/components/doctor/alerts-panel"
 import { DoctorAppointments } from "@/components/doctor/doctor-appointments"
 import { AppLayout } from "@/components/app-layout"
 import { useSession } from "@/services/auth/use-session"
+import { useDoctorActiveUnit } from "@/components/doctor/doctor-unit-provider"
 import { GetPatientsService } from "@/services/api/patients/GetPatients"
 import { appointmentsApi } from "@/services/api/appointments"
-import { patientDoctorApi } from "@/services/api/patient-doctors/patientsByDoctor"
 
 export default function DoctorDashboard() {
+  return (
+    <AppLayout userRole="doctor">
+      <DoctorDashboardContent />
+    </AppLayout>
+  )
+}
+
+function DoctorDashboardContent() {
   const [selectedPatient, setSelectedPatient] = useState<string | null>(null)
   const { isReady, accessToken, user } = useSession()
+  const { doctorId, activeUnitId, isLoading: loadingDoctor } = useDoctorActiveUnit()
   const [linkedPatientsCount, setLinkedPatientsCount] = useState(0)
   const [appointmentsToday, setAppointmentsToday] = useState(0)
 
@@ -26,12 +35,18 @@ export default function DoctorDashboard() {
     : "Médico"
 
   const loadDashboardCounts = useCallback(async () => {
-    if (!accessToken || user?.role !== "DOCTOR" || !user.id) {
+    if (!accessToken || user?.role !== "DOCTOR" || !user.id || loadingDoctor) {
+      return
+    }
+
+    if (!activeUnitId) {
+      setLinkedPatientsCount(0)
+      setAppointmentsToday(0)
       return
     }
 
     try {
-      const patients = await GetPatientsService.getMyPatients()
+      const patients = await GetPatientsService.getMyPatients(activeUnitId)
       setLinkedPatientsCount(patients.length)
     } catch (error) {
       console.error("Falha ao contar pacientes do médico:", error)
@@ -39,14 +54,15 @@ export default function DoctorDashboard() {
     }
 
     try {
-      const links = await patientDoctorApi.listPatientsByUserDoctor(user.id)
-      const doctorId = links[0]?.doctorId
       if (!doctorId) {
         setAppointmentsToday(0)
         return
       }
 
-      const appointments = await appointmentsApi.listByDoctor(doctorId)
+      const appointments = await appointmentsApi.listByDoctor(
+        doctorId,
+        activeUnitId,
+      )
       const today = new Date()
       const count = appointments.filter((item) => {
         if (item.status === "CANCELLED") return false
@@ -62,7 +78,7 @@ export default function DoctorDashboard() {
       console.error("Falha ao contar consultas do médico:", error)
       setAppointmentsToday(0)
     }
-  }, [accessToken, user?.id, user?.role])
+  }, [accessToken, user?.id, user?.role, doctorId, activeUnitId, loadingDoctor])
 
   useEffect(() => {
     if (!isReady) {
@@ -78,7 +94,6 @@ export default function DoctorDashboard() {
   }
 
   return (
-    <AppLayout userRole="doctor">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <div className="flex items-center space-x-3 mb-4">
@@ -171,6 +186,5 @@ export default function DoctorDashboard() {
           </TabsContent>
         </Tabs>
       </div>
-    </AppLayout>
   )
 }

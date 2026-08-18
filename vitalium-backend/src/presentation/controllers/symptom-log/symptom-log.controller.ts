@@ -27,6 +27,7 @@ import { memoryStorage } from 'multer';
 import { CreateSymptomLogUseCase } from '../../../application/use-cases/symptom-log/create-symptom-log.use-case';
 import { GenerateSymptomMonthlyReportUseCase } from '../../../application/use-cases/symptom-log/generate-symptom-monthly-report.use-case';
 import { ListSymptomLogsUseCase } from '../../../application/use-cases/symptom-log/list-symptom-logs.use-case';
+import { ClinicMembershipService } from '../../../shared/clinic/clinic-membership.service';
 import { Roles } from '../../../shared/decorators/roles.decorator';
 import { Role } from '../../../shared/enums';
 import { AuthGuard } from '../../../shared/guards/auth.guard';
@@ -49,6 +50,7 @@ export class SymptomLogController {
     private readonly createSymptomLogUseCase: CreateSymptomLogUseCase,
     private readonly listSymptomLogsUseCase: ListSymptomLogsUseCase,
     private readonly generateSymptomMonthlyReportUseCase: GenerateSymptomMonthlyReportUseCase,
+    private readonly clinicMembershipService: ClinicMembershipService,
   ) {}
 
   @Post()
@@ -111,11 +113,17 @@ export class SymptomLogController {
   @ApiResponse({ status: 200, type: [SymptomLogResponseDTO] })
   async listByPatient(
     @Param('patientId') patientId: string,
+    @Query('unitId') unitId: string | undefined,
     @Request() req: RequestWithUser,
   ): Promise<SymptomLogResponseDTO[]> {
+    const scopedUnitId = await this.clinicMembershipService.resolveDoctorListUnitId(
+      req.user,
+      unitId,
+    );
     const logs = await this.listSymptomLogsUseCase.executeForDoctor(
       patientId,
       req.user,
+      scopedUnitId,
     );
 
     return plainToInstance(SymptomLogResponseDTO, logs, {
@@ -132,6 +140,7 @@ export class SymptomLogController {
   async monthlyReport(
     @Param('patientId') patientId: string,
     @Query('month') month: string | undefined,
+    @Query('unitId') unitId: string | undefined,
     @Request() req: RequestWithUser,
   ) {
     const resolvedMonth =
@@ -139,10 +148,16 @@ export class SymptomLogController {
         ? month.trim()
         : new Date().toISOString().slice(0, 7);
 
+    const scopedUnitId = await this.clinicMembershipService.resolveDoctorListUnitId(
+      req.user,
+      unitId,
+    );
+
     return this.generateSymptomMonthlyReportUseCase.execute(
       patientId,
       resolvedMonth,
       req.user,
+      scopedUnitId,
     );
   }
 }

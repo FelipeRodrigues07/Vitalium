@@ -16,7 +16,6 @@ import {
   prescriptionsApi,
   type Prescription,
 } from "@/services/api/prescriptions"
-import { GetDoctorByIdService } from "@/services/api/doctors/GetDoctorById"
 import {
   getLinkedPersonDisplayName,
   patientDoctorApi,
@@ -24,15 +23,20 @@ import {
 } from "@/services/api/patient-doctors/patientsByDoctor"
 import { PrescriptionFormDialog } from "@/components/prescriptions/prescription-form-dialog"
 import { useAuth } from "@/providers/auth-provider"
+import { useDoctorActiveUnit } from "@/components/doctor/doctor-unit-provider"
 
 export function DoctorPrescriptions() {
   const { user } = useAuth()
   const searchParams = useSearchParams()
   const patientFromQuery = searchParams.get("patientId")
+  const {
+    doctorId,
+    activeUnitId: unitId,
+    activeUnit,
+    isLoading: loadingDoctor,
+  } = useDoctorActiveUnit()
 
   const [patients, setPatients] = useState<PatientDoctorLink[]>([])
-  const [doctorId, setDoctorId] = useState<string | null>(null)
-  const [unitId, setUnitId] = useState<string | null>(null)
   const [selectedPatientId, setSelectedPatientId] = useState("")
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([])
   const [loadingPatients, setLoadingPatients] = useState(true)
@@ -52,23 +56,16 @@ export function DoctorPrescriptions() {
   }, [patients])
 
   const loadPatients = useCallback(async () => {
-    if (!user?.id) return
+    if (!user?.id || loadingDoctor || !unitId) return
 
     try {
       setLoadingPatients(true)
       setError(null)
-      const links = await patientDoctorApi.listPatientsByUserDoctor(user.id)
+      const links = await patientDoctorApi.listPatientsByUserDoctor(
+        user.id,
+        unitId,
+      )
       setPatients(links)
-
-      const resolvedDoctorId = links[0]?.doctorId ?? null
-      setDoctorId(resolvedDoctorId)
-
-      if (resolvedDoctorId) {
-        const doctor = await GetDoctorByIdService.getById(resolvedDoctorId)
-        setUnitId(doctor.units?.[0]?.id ?? null)
-      } else {
-        setUnitId(null)
-      }
 
       const preferred =
         (patientFromQuery &&
@@ -80,15 +77,13 @@ export function DoctorPrescriptions() {
     } catch {
       setError("Não foi possível carregar seus pacientes.")
       setPatients([])
-      setDoctorId(null)
-      setUnitId(null)
     } finally {
       setLoadingPatients(false)
     }
-  }, [user?.id, patientFromQuery])
+  }, [user?.id, patientFromQuery, unitId, loadingDoctor])
 
   const loadPrescriptions = useCallback(async (patientId: string) => {
-    if (!patientId) {
+    if (!patientId || !unitId) {
       setPrescriptions([])
       return
     }
@@ -96,7 +91,7 @@ export function DoctorPrescriptions() {
     try {
       setLoadingPrescriptions(true)
       setError(null)
-      const list = await prescriptionsApi.listByPatient(patientId)
+      const list = await prescriptionsApi.listByPatient(patientId, unitId)
       setPrescriptions(
         [...list].sort(
           (a, b) =>
@@ -110,7 +105,7 @@ export function DoctorPrescriptions() {
     } finally {
       setLoadingPrescriptions(false)
     }
-  }, [])
+  }, [unitId])
 
   useEffect(() => {
     void loadPatients()
@@ -119,6 +114,8 @@ export function DoctorPrescriptions() {
   useEffect(() => {
     if (selectedPatientId) {
       void loadPrescriptions(selectedPatientId)
+    } else {
+      setPrescriptions([])
     }
   }, [selectedPatientId, loadPrescriptions])
 
@@ -132,7 +129,7 @@ export function DoctorPrescriptions() {
     )
   }
 
-  if (loadingPatients) {
+  if (loadingPatients || loadingDoctor) {
     return (
       <div className="flex items-center justify-center gap-2 py-16 text-muted-foreground">
         <Loader2 className="h-5 w-5 animate-spin" />
@@ -165,19 +162,26 @@ export function DoctorPrescriptions() {
         </div>
 
         {doctorId && unitId && selectedPatientId ? (
-          <PrescriptionFormDialog
-            mode="create"
-            doctorId={doctorId}
-            unitId={unitId}
-            patients={patients}
-            initialPatientId={selectedPatientId}
-            onSaved={upsertPrescription}
-          >
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              Nova prescrição
-            </Button>
-          </PrescriptionFormDialog>
+          <div className="flex flex-col items-stretch gap-1 sm:items-end">
+            <PrescriptionFormDialog
+              mode="create"
+              doctorId={doctorId}
+              unitId={unitId}
+              patients={patients}
+              initialPatientId={selectedPatientId}
+              onSaved={upsertPrescription}
+            >
+              <Button className="gap-2">
+                <Plus className="h-4 w-4" />
+                Nova prescrição
+              </Button>
+            </PrescriptionFormDialog>
+            {activeUnit && (
+              <p className="text-xs text-muted-foreground">
+                Prescrevendo em {activeUnit.name}
+              </p>
+            )}
+          </div>
         ) : (
           <Button disabled className="gap-2">
             <Plus className="h-4 w-4" />
@@ -191,7 +195,7 @@ export function DoctorPrescriptions() {
       {!doctorId && (
         <Card className="border-emerald-200">
           <CardContent className="py-10 text-center text-muted-foreground">
-            Vincule pacientes a você para começar a prescrever.
+            Não encontramos seu perfil de médico. Peça ao admin para concluir o cadastro.
           </CardContent>
         </Card>
       )}

@@ -11,7 +11,6 @@ export class SearchDoctorUseCase {
     private readonly DoctorRepository: IDoctorRepository,
   ) {}
 
-  // Buscar usuário por ID
   async findById(id: string): Promise<Doctor> {
     if (!id) {
       throw new ValidationException([
@@ -27,6 +26,26 @@ export class SearchDoctorUseCase {
 
     if (!doctor) {
       throw new DoctorNotFoundException(`ID: ${id}`);
+    }
+
+    return doctor;
+  }
+
+  async findByUserId(userId: string): Promise<Doctor> {
+    if (!userId) {
+      throw new ValidationException([
+        {
+          field: 'userId',
+          value: userId,
+          constraints: ['ID do usuário é obrigatório'],
+        },
+      ]);
+    }
+
+    const doctor = await this.DoctorRepository.findByUserId(userId);
+
+    if (!doctor || !doctor.isActive) {
+      throw new DoctorNotFoundException(`userId: ${userId}`);
     }
 
     return doctor;
