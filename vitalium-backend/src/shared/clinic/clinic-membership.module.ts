@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { PrismaModule } from '../../infrastructure/database/prisma.module';
 import { DoctorRepository } from '../../infrastructure/repositories/doctor/doctor.repository';
 import { PatientRepository } from '../../infrastructure/repositories/patient/patient.repository';
+import { SecretaryRepository } from '../../infrastructure/repositories/secretary/secretary.repository';
 import { ClinicMembershipService } from './clinic-membership.service';
 
 @Module({
@@ -15,6 +16,10 @@ import { ClinicMembershipService } from './clinic-membership.service';
     {
       provide: 'IDoctorRepository',
       useClass: DoctorRepository,
+    },
+    {
+      provide: 'ISecretaryRepository',
+      useClass: SecretaryRepository,
     },
   ],
   exports: [ClinicMembershipService],

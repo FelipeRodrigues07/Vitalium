@@ -77,6 +77,9 @@ export const appointmentsApi = {
       .get<Appointment[]>(`/appointments/patient/${patientId}`)
       .then((r) => r.data),
 
+  listByUnit: (unitId: string): Promise<Appointment[]> =>
+    api.get<Appointment[]>(`/appointments/unit/${unitId}`).then((r) => r.data),
+
   getById: (id: string, unitId?: string | null): Promise<Appointment> =>
     api
       .get<Appointment>(`/appointments/${id}`, {

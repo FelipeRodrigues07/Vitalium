@@ -49,7 +49,7 @@ export class AppointmentController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiAppointmentOperations.create()
-  @Roles(Role.DOCTOR, Role.ADMIN)
+  @Roles(Role.DOCTOR, Role.ADMIN, Role.SECRETARY)
   async create(
     @Body() dto: CreateAppointmentDTO,
   ): Promise<AppointmentResponseDTO> {
@@ -62,7 +62,7 @@ export class AppointmentController {
   @Get('patient/:patientId')
   @HttpCode(HttpStatus.OK)
   @ApiAppointmentOperations.findByPatient()
-  @Roles(Role.DOCTOR, Role.ADMIN, Role.NURSE, Role.PATIENT)
+  @Roles(Role.DOCTOR, Role.ADMIN, Role.NURSE, Role.PATIENT, Role.SECRETARY)
   async findByPatient(
     @Param('patientId') patientId: string,
     @Query('unitId') unitId: string | undefined,
@@ -85,7 +85,7 @@ export class AppointmentController {
   @Get('doctor/:doctorId')
   @HttpCode(HttpStatus.OK)
   @ApiAppointmentOperations.findByDoctor()
-  @Roles(Role.DOCTOR, Role.ADMIN)
+  @Roles(Role.DOCTOR, Role.ADMIN, Role.SECRETARY)
   async findByDoctor(
     @Param('doctorId') doctorId: string,
     @Query('unitId') unitId: string | undefined,
@@ -108,12 +108,12 @@ export class AppointmentController {
   @Get('unit/:unitId')
   @HttpCode(HttpStatus.OK)
   @ApiAppointmentOperations.findByUnit()
-  @Roles(Role.DOCTOR, Role.ADMIN, Role.NURSE)
+  @Roles(Role.DOCTOR, Role.ADMIN, Role.NURSE, Role.SECRETARY)
   async findByUnit(
     @Param('unitId') unitId: string,
     @Request() req: RequestWithUser,
   ): Promise<AppointmentResponseDTO[]> {
-    await this.clinicMembershipService.assertDoctorLinkedToUnit(
+    await this.clinicMembershipService.assertStaffCanAccessUnit(
       req.user,
       unitId,
     );
@@ -127,7 +127,7 @@ export class AppointmentController {
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   @ApiAppointmentOperations.findById()
-  @Roles(Role.DOCTOR, Role.ADMIN, Role.NURSE, Role.PATIENT)
+  @Roles(Role.DOCTOR, Role.ADMIN, Role.NURSE, Role.PATIENT, Role.SECRETARY)
   async findOne(
     @Param('id') id: string,
     @Query('unitId') unitId: string | undefined,
@@ -147,7 +147,7 @@ export class AppointmentController {
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
   @ApiAppointmentOperations.update()
-  @Roles(Role.DOCTOR, Role.ADMIN)
+  @Roles(Role.DOCTOR, Role.ADMIN, Role.SECRETARY)
   async update(
     @Param('id') id: string,
     @Body() dto: UpdateAppointmentDTO,

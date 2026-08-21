@@ -220,6 +220,40 @@ export class PatientRepository implements IPatientRepository {
     );
   }
 
+  async findAllByUnitId(unitId: string): Promise<Patient[]> {
+    const patients = await this.prisma.patient.findMany({
+      where: {
+        isActive: true,
+        units: {
+          some: {
+            unitId,
+            isActive: true,
+          },
+        },
+      },
+      include: {
+        user: true,
+        units: {
+          where: { isActive: true },
+          include: { unit: true },
+        },
+        patientDoctors: {
+          include: {
+            doctor: { include: { user: true } },
+          },
+        },
+      },
+      orderBy: { user: { firstName: 'asc' } },
+    });
+
+    return patients.map((p) =>
+      plainToInstance(Patient, {
+        ...p,
+        units: p.units.map((pu) => pu.unit),
+      }),
+    );
+  }
+
   async findFirstByPatientId(patientId: string): Promise<Patient | null> {
     const patient = await this.prisma.patient.findFirst({
       where: { id: patientId, isActive: true },

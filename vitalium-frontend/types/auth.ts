@@ -1,4 +1,4 @@
-export type UserRole = 'PATIENT' | 'DOCTOR' | 'NURSE' | 'CAREGIVER' | 'ADMIN';
+export type UserRole = 'PATIENT' | 'DOCTOR' | 'NURSE' | 'CAREGIVER' | 'ADMIN' | 'SECRETARY';
 
 export type AdminRole = 'SUPER_ADMIN' | 'HOSPITAL_ADMIN' | 'CLINIC_ADMIN';
 

@@ -42,6 +42,12 @@ const navigation = [
     roles: ["doctor"],
   },
   {
+    name: "Dashboard Secretaria",
+    href: "/work/secretary/dashboard",
+    icon: Calendar,
+    roles: ["secretary"],
+  },
+  {
     name: "Plataforma",
     href: "/work/admin/platform",
     icon: Shield,
@@ -60,6 +66,18 @@ const navigation = [
     href: "/work/chat",
     icon: MessageCircle,
     roles: ["patient", "doctor"],
+  },
+  {
+    name: "Agenda da unidade",
+    href: "/work/secretary/appointments",
+    icon: Calendar,
+    roles: ["secretary"],
+  },
+  {
+    name: "Pacientes",
+    href: "/work/secretary/patients",
+    icon: Users,
+    roles: ["secretary"],
   },
   {
     name: "Gerenciar agendamentos",
@@ -108,7 +126,7 @@ const navigation = [
     name: "Configurações",
     href: "/work/settings",
     icon: Settings,
-    roles: ["patient", "doctor", "admin"],
+    roles: ["patient", "doctor", "admin", "secretary"],
   },
 ]
 

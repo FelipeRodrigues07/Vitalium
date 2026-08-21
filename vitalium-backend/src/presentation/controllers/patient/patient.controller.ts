@@ -50,7 +50,7 @@ export class PatientController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiPatientOperations.createPatient()
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.SECRETARY)
   async create(
     @Body() createPatientDTO: CreatePatientDTO,
   ): Promise<PatientResponseDTO> {
@@ -64,7 +64,7 @@ export class PatientController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @ApiPatientOperations.findAllPatients()
-  @Roles(Role.ADMIN, Role.DOCTOR, Role.NURSE)
+  @Roles(Role.ADMIN, Role.DOCTOR, Role.NURSE, Role.SECRETARY)
   async findAll(
     @Request() req: RequestWithUser,
     @Query('doctorId') doctorId?: string,
@@ -109,7 +109,7 @@ export class PatientController {
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   @ApiPatientOperations.findPatientById()
-  @Roles(Role.ADMIN, Role.DOCTOR, Role.NURSE)
+  @Roles(Role.ADMIN, Role.DOCTOR, Role.NURSE, Role.SECRETARY)
   async findOne(@Param('id') id: string): Promise<PatientResponseDTO> {
     const patient = await this.searchPatientUseCase.findById(id);
 
@@ -121,7 +121,7 @@ export class PatientController {
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
   @ApiPatientOperations.updatePatient()
-  @Roles(Role.ADMIN, Role.DOCTOR)
+  @Roles(Role.ADMIN, Role.DOCTOR, Role.SECRETARY)
   async update(
     @Param('id') id: string,
     @Body() updatePatientDTO: UpdatePatientDTO,

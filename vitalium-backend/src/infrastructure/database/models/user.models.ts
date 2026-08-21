@@ -4,6 +4,7 @@ import type { Caregiver } from './caregiver.models';
 import type { Doctor } from './doctor.models';
 import type { Nurse } from './nurse.models';
 import type { Patient } from './patient.models';
+import type { Secretary } from './secretary.models';
 
 export class User {
   id: string;
@@ -26,6 +27,7 @@ export class User {
   nurse?: Nurse;
   caregiver?: Caregiver;
   admin?: Admin;
+  secretary?: Secretary;
 
   /** Preenchido na listagem de pacientes (GET /users) */
   responsibleDoctorName?: string;

@@ -41,7 +41,7 @@ export class PatientUnitController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiPatientUnitOperations.create()
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.SECRETARY)
   async create(
     @Body() dto: CreatePatientUnitDTO,
   ): Promise<PatientUnitResponseDTO> {
@@ -54,7 +54,7 @@ export class PatientUnitController {
   @Get('patient/:patientId')
   @HttpCode(HttpStatus.OK)
   @ApiPatientUnitOperations.findByPatient()
-  @Roles(Role.ADMIN, Role.DOCTOR, Role.NURSE)
+  @Roles(Role.ADMIN, Role.DOCTOR, Role.NURSE, Role.SECRETARY)
   async findByPatient(
     @Param('patientId') patientId: string,
   ): Promise<PatientUnitResponseDTO[]> {
@@ -67,7 +67,7 @@ export class PatientUnitController {
   @Get('unit/:unitId')
   @HttpCode(HttpStatus.OK)
   @ApiPatientUnitOperations.findByUnit()
-  @Roles(Role.ADMIN, Role.DOCTOR, Role.NURSE)
+  @Roles(Role.ADMIN, Role.DOCTOR, Role.NURSE, Role.SECRETARY)
   async findByUnit(
     @Param('unitId') unitId: string,
   ): Promise<PatientUnitResponseDTO[]> {

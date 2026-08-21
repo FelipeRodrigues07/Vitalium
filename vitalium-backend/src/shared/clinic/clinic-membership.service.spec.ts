@@ -39,6 +39,10 @@ describe('ClinicMembershipService', () => {
         ClinicMembershipService,
         { provide: 'IPatientRepository', useValue: patientRepository },
         { provide: 'IDoctorRepository', useValue: doctorRepository },
+        {
+          provide: 'ISecretaryRepository',
+          useValue: { findByUserId: jest.fn(), hasActiveUnitLink: jest.fn() },
+        },
       ],
     }).compile();
 

@@ -55,8 +55,19 @@ export class SearchPatientUseCase {
       return this.findAllByDoctorUserId(authUser.sub, unitId);
     }
 
+    if (authUser?.role === Role.SECRETARY) {
+      if (!unitId) {
+        return [];
+      }
+      return this.patientRepository.findAllByUnitId(unitId);
+    }
+
     if (doctorId) {
       return this.findAllByDoctorId(doctorId, unitId);
+    }
+
+    if (unitId) {
+      return this.patientRepository.findAllByUnitId(unitId);
     }
 
     return this.findAll();

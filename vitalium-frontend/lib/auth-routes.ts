@@ -18,6 +18,8 @@ export function getRoleHomePath(role?: string | null): string {
       return '/work/doctor/dashboard';
     case 'patient':
       return '/work/patient/dashboard';
+    case 'secretary':
+      return '/work/secretary/dashboard';
     case 'nurse':
     case 'caregiver':
       return '/work';

@@ -20,6 +20,7 @@ import { CreateUserService, CreateUserPayload } from '@/services/api/users/Creat
 import { CreateDoctorService, CreateDoctorPayload } from '@/services/api/doctors/CreateDoctor';
 import { CreateDoctorUnitService } from '@/services/api/doctor-units/CreateDoctorUnit';
 import { CreatePatientService } from '@/services/api/patients/CreatePatient';
+import { CreateSecretaryService, CreateSecretaryUnitService } from '@/services/api/secretaries';
 import { GetSpecializationsService } from '@/services/api/specializations/GetSpecializations';
 import { CreateDoctorSpecializationService } from '@/services/api/doctor-specializations/CreateDoctorSpecialization';
 import { useSession } from '@/services/auth/use-session';
@@ -42,7 +43,7 @@ interface FormData {
   phone: string;
   email: string;
   password: string;
-  role: 'DOCTOR' | 'PATIENT' | 'NURSE' | 'CAREGIVER' | 'ADMIN' | '';
+  role: 'DOCTOR' | 'PATIENT' | 'NURSE' | 'CAREGIVER' | 'ADMIN' | 'SECRETARY' | '';
   cpf: string;
   birthDate: string;
   gender: 'MALE' | 'FEMALE' | 'OTHER';
@@ -82,6 +83,7 @@ export function NewUserForm({ onClose, onUserCreated }: NewUserFormProps) {
 
   const isDoctor = formData.role === 'DOCTOR';
   const isPatient = formData.role === 'PATIENT';
+  const isSecretary = formData.role === 'SECRETARY';
   const linkUnitId = activeUnitId ?? undefined;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -111,7 +113,7 @@ export function NewUserForm({ onClose, onUserCreated }: NewUserFormProps) {
   }, [isDoctor]);
 
   const handleRoleChange = (value: string) => {
-    const validRoles = ['DOCTOR', 'PATIENT', 'NURSE', 'CAREGIVER', 'ADMIN', ''];
+    const validRoles = ['DOCTOR', 'PATIENT', 'NURSE', 'CAREGIVER', 'ADMIN', 'SECRETARY', ''];
     const newRole = validRoles.includes(value as FormData['role']) ? value as FormData['role'] : '';
 
     setFormData(prev => ({ ...prev, role: newRole }));
@@ -209,6 +211,25 @@ export function NewUserForm({ onClose, onUserCreated }: NewUserFormProps) {
             ? `Paciente ${createdUser.firstName} criado e vinculado à unidade ativa.`
             : `Paciente ${createdUser.firstName} criado. Vincule-o a uma unidade para aparecer na listagem.`,
         );
+      } else if (isSecretary) {
+        const secretary = await CreateSecretaryService.createSecretary({
+          userId: createdUser.id,
+          isActive: true,
+        });
+
+        if (linkUnitId) {
+          await CreateSecretaryUnitService.createSecretaryUnit({
+            secretaryId: secretary.id,
+            unitId: linkUnitId,
+            isPrimary: true,
+          });
+        }
+
+        alert(
+          linkUnitId
+            ? `Secretaria ${createdUser.firstName} criada e vinculada à unidade ativa.`
+            : `Secretaria ${createdUser.firstName} criada. Vincule-a a uma unidade para acessar a agenda.`,
+        );
       } else {
         alert(`Usuário ${createdUser.firstName} (${createdUser.role}) criado com sucesso!`);
       }
@@ -293,6 +314,7 @@ export function NewUserForm({ onClose, onUserCreated }: NewUserFormProps) {
               <SelectContent>
                 <SelectItem value="DOCTOR">Médico</SelectItem>
                 <SelectItem value="PATIENT">Paciente</SelectItem>
+                <SelectItem value="SECRETARY">Secretaria</SelectItem>
                 <SelectItem value="NURSE">Enfermeira</SelectItem>
                 <SelectItem value="CAREGIVER">Cuidador</SelectItem>
                 <SelectItem value="ADMIN">Administrador</SelectItem>

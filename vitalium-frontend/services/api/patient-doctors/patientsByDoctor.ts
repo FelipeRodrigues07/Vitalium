@@ -85,4 +85,11 @@ export const patientDoctorApi = {
     api
       .get<PatientDoctorLink[]>(`/patient-doctors/patient/by-user/${userId}`)
       .then((r) => r.data),
+
+  create: (payload: {
+    patientId: string;
+    doctorId: string;
+    unitId?: string;
+  }): Promise<PatientDoctorLink> =>
+    api.post<PatientDoctorLink>("/patient-doctors", payload).then((r) => r.data),
 };

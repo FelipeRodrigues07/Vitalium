@@ -12,6 +12,8 @@ import { useSession } from "@/services/auth/use-session"
 import { UnitContextBar } from "@/components/admin/unit-context-bar"
 import { DoctorUnitSwitcher } from "@/components/doctor/doctor-unit-switcher"
 import { DoctorUnitProvider } from "@/components/doctor/doctor-unit-provider"
+import { SecretaryUnitProvider } from "@/components/secretary/secretary-unit-provider"
+import { SecretaryUnitSwitcher } from "@/components/secretary/secretary-unit-switcher"
 import { getPostLoginPath } from "@/lib/auth-routes"
 import { needsUnitSelection, isUnitScopedAdmin } from "@/lib/admin-auth"
 
@@ -33,6 +35,8 @@ function getRoleHomePath(role?: string | null) {
       return "/work/doctor/dashboard"
     case "patient":
       return "/work/patient/dashboard"
+    case "secretary":
+      return "/work/secretary/dashboard"
     default:
       return "/work"
   }
@@ -100,6 +104,7 @@ export function AppLayout({ children, userRole, showSidebar = true }: AppLayoutP
 
   return (
     <DoctorUnitProvider>
+      <SecretaryUnitProvider>
       <div className="min-h-screen bg-background">
         <Sidebar userRole={userRole} />
 
@@ -118,6 +123,7 @@ export function AppLayout({ children, userRole, showSidebar = true }: AppLayoutP
               <div className="flex items-center gap-2 sm:gap-3">
                 <UnitContextBar />
                 <DoctorUnitSwitcher />
+                <SecretaryUnitSwitcher />
                 <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10">
                   <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
                   <span className="sr-only">Notificações</span>
@@ -129,6 +135,7 @@ export function AppLayout({ children, userRole, showSidebar = true }: AppLayoutP
           <main className="flex-1 p-3 sm:p-4 lg:p-6">{children}</main>
         </div>
       </div>
+      </SecretaryUnitProvider>
     </DoctorUnitProvider>
   )
 }

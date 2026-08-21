@@ -1,7 +1,5 @@
-import type { DoctorUnitModel } from '@/services/api/doctors/GetDoctorById';
-
 export function resolveDoctorActiveUnitId(
-  units: DoctorUnitModel[],
+  units: { id: string }[],
   storedUnitId?: string | null,
 ): string | null {
   const unitIds = units.map((unit) => unit.id).filter(Boolean);

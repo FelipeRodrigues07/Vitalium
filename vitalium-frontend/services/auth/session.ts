@@ -5,6 +5,7 @@ const REFRESH_TOKEN_KEY = 'refreshToken';
 const AUTH_USER_KEY = 'authUser';
 const ACTIVE_UNIT_KEY = 'activeUnitId';
 const DOCTOR_ACTIVE_UNIT_KEY = 'doctorActiveUnitId';
+const SECRETARY_ACTIVE_UNIT_KEY = 'secretaryActiveUnitId';
 
 let onSessionCleared: (() => void) | null = null;
 let onAccessTokenUpdated: ((token: string) => void) | null = null;
@@ -108,6 +109,21 @@ export function clearDoctorActiveUnitId(): void {
   window.localStorage.removeItem(DOCTOR_ACTIVE_UNIT_KEY);
 }
 
+export function getSecretaryActiveUnitId(): string | null {
+  if (!isBrowser()) return null;
+  return window.localStorage.getItem(SECRETARY_ACTIVE_UNIT_KEY);
+}
+
+export function setSecretaryActiveUnitId(unitId: string): void {
+  if (!isBrowser()) return;
+  window.localStorage.setItem(SECRETARY_ACTIVE_UNIT_KEY, unitId);
+}
+
+export function clearSecretaryActiveUnitId(): void {
+  if (!isBrowser()) return;
+  window.localStorage.removeItem(SECRETARY_ACTIVE_UNIT_KEY);
+}
+
 export function clearAuthSession(): void {
   if (!isBrowser()) return;
 
@@ -116,5 +132,6 @@ export function clearAuthSession(): void {
   window.localStorage.removeItem(AUTH_USER_KEY);
   window.localStorage.removeItem(ACTIVE_UNIT_KEY);
   window.localStorage.removeItem(DOCTOR_ACTIVE_UNIT_KEY);
+  window.localStorage.removeItem(SECRETARY_ACTIVE_UNIT_KEY);
   onSessionCleared?.();
 }

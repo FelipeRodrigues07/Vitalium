@@ -97,6 +97,7 @@ export default function LoginPage() {
                   <SelectContent>
                     <SelectItem value="patient">Paciente</SelectItem>
                     <SelectItem value="doctor">Médico</SelectItem>
+                    <SelectItem value="secretary">Secretaria</SelectItem>
                     <SelectItem value="admin">Administrador</SelectItem>
                     <SelectItem value="nurse">Enfermeira</SelectItem>
                     <SelectItem value="caregiver">Cuidador</SelectItem>

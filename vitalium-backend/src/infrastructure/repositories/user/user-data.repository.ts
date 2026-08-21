@@ -102,6 +102,13 @@ export class UserDataRepository implements IUserRepository {
               },
             },
           },
+          {
+            secretary: {
+              units: {
+                some: { unitId: { in: unitIds }, isActive: true },
+              },
+            },
+          },
         ],
       },
       include: this.patientDoctorInclude(unitIds),

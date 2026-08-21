@@ -83,7 +83,10 @@ describe('UserController', () => {
     it('should create a user successfully', async () => {
       createUserUseCase.execute.mockResolvedValue(mockUser);
 
-      const result = await controller.create(createUserDTO);
+      const result = await controller.create(
+        { user: { role: Role.ADMIN } } as never,
+        createUserDTO,
+      );
 
       expect(createUserUseCase.execute).toHaveBeenCalledWith(createUserDTO);
       expect(result).toBeDefined();
@@ -96,7 +99,10 @@ describe('UserController', () => {
     it('should not return password in response', async () => {
       createUserUseCase.execute.mockResolvedValue(mockUser);
 
-      const result = await controller.create(createUserDTO);
+      const result = await controller.create(
+        { user: { role: Role.ADMIN } } as never,
+        createUserDTO,
+      );
 
       expect(result.password).toBeUndefined();
     });
@@ -124,7 +130,10 @@ describe('UserController', () => {
 
       createUserUseCase.execute.mockResolvedValue(minimalUser);
 
-      const result = await controller.create(minimalDTO);
+      const result = await controller.create(
+        { user: { role: Role.ADMIN } } as never,
+        minimalDTO,
+      );
 
       expect(result).toBeDefined();
       expect(result.email).toBe('maria@example.com');
@@ -135,7 +144,9 @@ describe('UserController', () => {
         new ConflictException('Email já está em uso'),
       );
 
-      await expect(controller.create(createUserDTO)).rejects.toThrow(
+      await expect(
+        controller.create({ user: { role: Role.ADMIN } } as never, createUserDTO),
+      ).rejects.toThrow(
         ConflictException,
       );
     });
@@ -145,7 +156,9 @@ describe('UserController', () => {
         new Error('Unexpected error'),
       );
 
-      await expect(controller.create(createUserDTO)).rejects.toThrow(
+      await expect(
+        controller.create({ user: { role: Role.ADMIN } } as never, createUserDTO),
+      ).rejects.toThrow(
         'Unexpected error',
       );
     });

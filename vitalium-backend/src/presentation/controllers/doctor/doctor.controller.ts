@@ -61,7 +61,7 @@ export class DoctorController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @ApiDoctorOperations.findAllDoctors()
-  @Roles(Role.ADMIN, Role.NURSE)
+  @Roles(Role.ADMIN, Role.NURSE, Role.SECRETARY)
   async findAll(
     @Query('unitId') unitId?: string,
   ): Promise<DoctorResponseDTO[]> {

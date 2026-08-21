@@ -1,6 +1,6 @@
 import { api } from '@/services/api/api';
 
-export type UserRole = 'DOCTOR' | 'PATIENT' | 'NURSE' | 'ADMIN' | 'CAREGIVER';
+export type UserRole = 'DOCTOR' | 'PATIENT' | 'NURSE' | 'ADMIN' | 'CAREGIVER' | 'SECRETARY';
 
 export interface ListedUserModel {
   id: string;

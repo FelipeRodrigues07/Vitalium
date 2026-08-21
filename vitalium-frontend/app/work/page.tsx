@@ -12,6 +12,8 @@ function getRoleHomePath(role?: string | null) {
       return "/work/doctor/dashboard"
     case "patient":
       return "/work/patient/dashboard"
+    case "secretary":
+      return "/work/secretary/dashboard"
     default:
       return "/login"
   }

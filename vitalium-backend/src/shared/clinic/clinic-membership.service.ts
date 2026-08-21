@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import type { IDoctorRepository } from '../../domain/interfaces/repositories/doctor/doctor.repository.interface';
 import type { IPatientRepository } from '../../domain/interfaces/repositories/patient/patient.repository.interface';
+import type { ISecretaryRepository } from '../../domain/interfaces/repositories/secretary/secretary.repository.interface';
 import { isUnitScopedAdmin } from '../auth/auth-scope.helper';
 import { Role } from '../enums/role.enum';
 import {
@@ -21,6 +22,8 @@ export class ClinicMembershipService {
     private readonly patientRepository: IPatientRepository,
     @Inject('IDoctorRepository')
     private readonly doctorRepository: IDoctorRepository,
+    @Inject('ISecretaryRepository')
+    private readonly secretaryRepository: ISecretaryRepository,
   ) {}
 
   async assertDoctorAndPatientInUnit(
@@ -66,10 +69,14 @@ export class ClinicMembershipService {
     authUser: AuthJwtPayload,
     unitId?: string,
   ): Promise<string | undefined> {
-    const resolved = this.requireUnitIdIfDoctor(authUser, unitId);
+    const resolved = this.requireUnitIdIfScopedStaff(authUser, unitId);
 
     if (authUser.role === Role.DOCTOR && resolved) {
       await this.assertDoctorLinkedToUnit(authUser, resolved);
+    }
+
+    if (authUser.role === Role.SECRETARY && resolved) {
+      await this.assertSecretaryLinkedToUnit(authUser, resolved);
     }
 
     return resolved;
@@ -81,8 +88,19 @@ export class ClinicMembershipService {
     requestedUnitId?: string,
   ): Promise<void> {
     if (authUser.role === Role.DOCTOR) {
-      const unitId = this.requireUnitIdIfDoctor(authUser, requestedUnitId);
+      const unitId = this.requireUnitIdIfScopedStaff(authUser, requestedUnitId);
       await this.assertDoctorLinkedToUnit(authUser, unitId as string);
+
+      if (recordUnitId !== unitId) {
+        throw new NotFoundException('Registro não encontrado nesta unidade');
+      }
+
+      return;
+    }
+
+    if (authUser.role === Role.SECRETARY) {
+      const unitId = this.requireUnitIdIfScopedStaff(authUser, requestedUnitId);
+      await this.assertSecretaryLinkedToUnit(authUser, unitId as string);
 
       if (recordUnitId !== unitId) {
         throw new NotFoundException('Registro não encontrado nesta unidade');
@@ -129,13 +147,64 @@ export class ClinicMembershipService {
     }
   }
 
+  async assertSecretaryLinkedToUnit(
+    authUser: AuthJwtPayload,
+    unitId: string,
+  ): Promise<void> {
+    if (authUser.role !== Role.SECRETARY) {
+      return;
+    }
+
+    const secretary = await this.secretaryRepository.findByUserId(authUser.sub);
+
+    if (!secretary) {
+      throw new ForbiddenException('Perfil de secretária(o) não encontrado');
+    }
+
+    const linked = await this.secretaryRepository.hasActiveUnitLink(
+      secretary.id,
+      unitId,
+    );
+
+    if (!linked) {
+      throw new ValidationException([
+        {
+          field: 'unitId',
+          value: unitId,
+          constraints: ['Secretária(o) não está vinculada(o) a esta unidade'],
+        },
+      ]);
+    }
+  }
+
+  async assertStaffCanAccessUnit(
+    authUser: AuthJwtPayload,
+    unitId: string,
+  ): Promise<void> {
+    if (authUser.role === Role.DOCTOR) {
+      await this.assertDoctorLinkedToUnit(authUser, unitId);
+      return;
+    }
+
+    if (authUser.role === Role.SECRETARY) {
+      await this.assertSecretaryLinkedToUnit(authUser, unitId);
+    }
+  }
+
   requireUnitIdIfDoctor(
+    authUser: AuthJwtPayload,
+    unitId?: string,
+  ): string | undefined {
+    return this.requireUnitIdIfScopedStaff(authUser, unitId);
+  }
+
+  requireUnitIdIfScopedStaff(
     authUser: AuthJwtPayload,
     unitId?: string,
   ): string | undefined {
     const normalized = this.normalizeUnitId(unitId);
 
-    if (authUser.role !== Role.DOCTOR) {
+    if (authUser.role !== Role.DOCTOR && authUser.role !== Role.SECRETARY) {
       return normalized;
     }
 

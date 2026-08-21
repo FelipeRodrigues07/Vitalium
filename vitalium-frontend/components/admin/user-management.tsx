@@ -120,6 +120,10 @@ export function UserManagement({ searchQuery }: any) {
         return (
           <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">Cuidador</Badge>
         )
+      case "secretary":
+        return (
+          <Badge className="bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200">Secretaria</Badge>
+        )
       default:
         return <Badge variant="secondary">{role}</Badge>
     }
@@ -228,6 +232,7 @@ export function UserManagement({ searchQuery }: any) {
                 <SelectItem value="all">Todos os tipos</SelectItem>
                 <SelectItem value="doctor">Médicos</SelectItem>
                 <SelectItem value="patient">Pacientes</SelectItem>
+                <SelectItem value="secretary">Secretarias</SelectItem>
                 <SelectItem value="nurse">Enfermeiras</SelectItem>
                 <SelectItem value="caregiver">Cuidadores</SelectItem>
                 <SelectItem value="admin">Administradores</SelectItem>

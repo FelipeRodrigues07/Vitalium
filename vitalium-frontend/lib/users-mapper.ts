@@ -5,7 +5,8 @@ export type DashboardUserRole =
   | 'patient'
   | 'nurse'
   | 'admin'
-  | 'caregiver';
+  | 'caregiver'
+  | 'secretary';
 
 export type DashboardUserStatus = 'active' | 'inactive';
 
@@ -35,6 +36,8 @@ export function mapRoleToApi(role: DashboardUserRole): ListedUserModel['role'] {
       return 'NURSE';
     case 'admin':
       return 'ADMIN';
+    case 'secretary':
+      return 'SECRETARY';
     case 'caregiver':
     default:
       return 'CAREGIVER';
@@ -51,6 +54,8 @@ export function mapRole(role: ListedUserModel['role']): DashboardUserRole {
       return 'nurse';
     case 'ADMIN':
       return 'admin';
+    case 'SECRETARY':
+      return 'secretary';
     case 'CAREGIVER':
     default:
       return 'caregiver';
@@ -81,6 +86,7 @@ export const roleLabels: Record<DashboardUserRole, string> = {
   admin: 'Administrador',
   nurse: 'Enfermeira',
   caregiver: 'Cuidador',
+  secretary: 'Secretaria',
 };
 
 export const statusLabels: Record<DashboardUserStatus, string> = {

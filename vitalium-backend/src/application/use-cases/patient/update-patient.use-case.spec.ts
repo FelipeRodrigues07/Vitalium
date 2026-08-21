@@ -27,6 +27,8 @@ describe('UpdatePatientUseCase', () => {
     findByCpf: jest.fn(),
     findByUserId: jest.fn(),
     findAll: jest.fn(),
+    findAllByDoctorId: jest.fn(),
+    findAllByUnitId: jest.fn(),
     findFirstByPatientId: jest.fn(),
     findByWhatsappPhone: jest.fn(),
     update: jest.fn(),

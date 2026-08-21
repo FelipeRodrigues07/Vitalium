@@ -381,6 +381,8 @@ export class GetAdminDashboardUseCase {
         return 'administrador';
       case UserRole.CAREGIVER:
         return 'cuidador';
+      case UserRole.SECRETARY:
+        return 'secretaria';
       default:
         return 'usuario';
     }

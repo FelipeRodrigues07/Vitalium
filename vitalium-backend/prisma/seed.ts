@@ -43,6 +43,7 @@ async function main() {
     clinicAdminUser,
     doctorUsers,
     nurseUsers,
+    secretaryUsers,
     patientUsers,
     caregiverUsers,
   } = await createUsers();
@@ -66,6 +67,10 @@ async function main() {
   // Criar enfermeiras
   console.log('👩‍⚕️ Criando enfermeiras...');
   await createNurses(nurseUsers, hospitalUnit, clinicUnit);
+
+  // Criar secretárias
+  console.log('🗂️ Criando secretárias...');
+  await createSecretaries(secretaryUsers, hospitalUnit, clinicUnit);
 
   // Criar pacientes
   console.log('👨‍🦽 Criando pacientes...');
@@ -115,8 +120,8 @@ async function main() {
   console.log('✅ Seed concluído com sucesso!');
   console.log('');
   console.log('📌 Vínculos por unidade (para testar admin):');
-  console.log(`   Hospital (${hospitalUnit.name}): medico1-2, paciente1-3, enfermeira1`);
-  console.log(`   Clínica (${clinicUnit.name}): medico3, paciente4-5, enfermeira2`);
+  console.log(`   Hospital (${hospitalUnit.name}): medico1-2, paciente1-3, enfermeira1, secretaria1`);
+  console.log(`   Clínica (${clinicUnit.name}): medico3, paciente4-5, enfermeira2, secretaria2`);
   console.log('   medico1 também atende na Clínica (trocar unidade no header)');
   console.log('   Paciente ↔ médico: mesmo vínculo de unidade (PatientDoctor)');
 }
@@ -136,6 +141,7 @@ async function cleanDatabase() {
     await prisma.doctorSpecialization.deleteMany();
     await prisma.doctorUnit.deleteMany();
     await prisma.nurseUnit.deleteMany();
+    await prisma.secretaryUnit.deleteMany();
     await prisma.businessEventLog.deleteMany();
     await prisma.securityLog.deleteMany();
     await prisma.errorLog.deleteMany();
@@ -143,6 +149,7 @@ async function cleanDatabase() {
     await prisma.databaseLog.deleteMany();
     await prisma.admin.deleteMany();
     await prisma.nurse.deleteMany();
+    await prisma.secretary.deleteMany();
     await prisma.caregiver.deleteMany();
     await prisma.patient.deleteMany();
     await prisma.doctor.deleteMany();
@@ -280,6 +287,22 @@ async function createUsers() {
     nurseUsers.push(nurse);
   }
 
+  const secretaryUsers = [];
+  for (let i = 1; i <= 2; i++) {
+    const secretary = await prisma.user.create({
+      data: {
+        email: `secretaria${i}@vitalium.com`,
+        password: await hashPassword('secretaria123456'),
+        firstName: `Secretaria`,
+        lastName: `${i}`,
+        phone: `(11) 99999-040${i}`,
+        role: UserRole.SECRETARY,
+        isActive: true,
+      },
+    });
+    secretaryUsers.push(secretary);
+  }
+
   const patientUsers = [];
   for (let i = 1; i <= 5; i++) {
     const patient = await prisma.user.create({
@@ -318,6 +341,7 @@ async function createUsers() {
     clinicAdminUser,
     doctorUsers,
     nurseUsers,
+    secretaryUsers,
     patientUsers,
     caregiverUsers,
   };
@@ -466,6 +490,31 @@ async function createNurses(nurseUsers, hospitalUnit, clinicUnit) {
       },
     });
   }
+}
+
+async function createSecretaries(secretaryUsers, hospitalUnit, clinicUnit) {
+  const unitAssignments = [hospitalUnit, clinicUnit];
+
+  for (let i = 0; i < secretaryUsers.length; i++) {
+    const secretary = await prisma.secretary.create({
+      data: {
+        userId: secretaryUsers[i].id,
+        isActive: true,
+      },
+    });
+
+    const unit = unitAssignments[i] ?? hospitalUnit;
+    await prisma.secretaryUnit.create({
+      data: {
+        secretaryId: secretary.id,
+        unitId: unit.id,
+        isPrimary: true,
+      },
+    });
+  }
+
+  console.log('   Secretaria hospital: secretaria1@vitalium.com / secretaria123456');
+  console.log('   Secretaria clínica: secretaria2@vitalium.com / secretaria123456');
 }
 
 async function createPatients(patientUsers, hospitalUnit, clinicUnit) {

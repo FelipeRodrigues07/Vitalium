@@ -29,11 +29,13 @@ describe('SearchPatientUseCase', () => {
     findByUserId: jest.fn(),
     findAll: jest.fn(),
     findAllByDoctorId: jest.fn(),
+    findAllByUnitId: jest.fn(),
     findFirstByPatientId: jest.fn(),
     findByWhatsappPhone: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
     hasActiveUnitLink: jest.fn(),
+    findPrimaryActiveUnitId: jest.fn(),
   };
 
   const doctorRepositoryMock = {

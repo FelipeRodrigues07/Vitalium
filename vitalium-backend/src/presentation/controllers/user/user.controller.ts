@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
@@ -45,10 +46,22 @@ export class UserController {
   ) {}
 
   @Post()
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.SECRETARY)
   @HttpCode(HttpStatus.CREATED)
   @ApiUserOperations.createUser()
-  async create(@Body() createUserDTO: CreateUserDTO): Promise<UserResponseDTO> {
+  async create(
+    @Request() req: RequestWithUser,
+    @Body() createUserDTO: CreateUserDTO,
+  ): Promise<UserResponseDTO> {
+    if (
+      req.user.role === Role.SECRETARY &&
+      createUserDTO.role !== Role.PATIENT
+    ) {
+      throw new ForbiddenException(
+        'Secretária(o) só pode cadastrar usuários com perfil de paciente',
+      );
+    }
+
     const user = await this.createUserUseCase.execute(createUserDTO);
 
     return plainToInstance(UserResponseDTO, user, {

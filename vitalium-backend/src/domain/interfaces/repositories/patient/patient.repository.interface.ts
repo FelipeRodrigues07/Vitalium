@@ -9,6 +9,7 @@ export interface IPatientRepository {
   findByUserId(userId: string): Promise<Patient | null>;
   findAll(): Promise<Patient[]>;
   findAllByDoctorId(doctorId: string, unitId?: string): Promise<Patient[]>;
+  findAllByUnitId(unitId: string): Promise<Patient[]>;
   findFirstByPatientId(patientId: string): Promise<Patient | null>;
   findByWhatsappPhone(phone: string): Promise<Patient | null>;
   update(id: string, updatePatientDTO: UpdatePatientDTO): Promise<Patient>;
