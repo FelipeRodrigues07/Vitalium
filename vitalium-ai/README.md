@@ -17,11 +17,23 @@ Não responde chat automaticamente e não integra com WhatsApp.
 
 ```bash
 cp .env.example .env
-# opcional: OPENAI_API_KEY=...
+# Gemini (grátis): AI_PROVIDER=gemini + GEMINI_API_KEY=...
+# OpenAI: AI_PROVIDER=openai + OPENAI_API_KEY=...
 python main.py
 ```
 
 Sem chave de LLM, o serviço gera um resumo local (fallback).
+
+### Gemini (recomendado sem cartão)
+
+1. Crie a chave em https://aistudio.google.com/apikey
+2. No `.env`:
+
+```env
+AI_PROVIDER=gemini
+GEMINI_API_KEY=sua-chave
+GEMINI_MODEL=gemini-flash-lite-latest
+```
 
 ## Docker Compose
 

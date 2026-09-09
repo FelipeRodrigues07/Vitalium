@@ -2,7 +2,6 @@
 Serviço de LLM para análise de sintomas
 """
 import logging
-from typing import List
 
 from config import Config
 
@@ -25,10 +24,21 @@ class LLMService:
             )
             return
 
-        if self.provider == "openai":
-            self._init_openai()
-        elif self.provider == "anthropic":
-            self._init_anthropic()
+        try:
+            if self.provider == "openai":
+                self._init_openai()
+            elif self.provider == "anthropic":
+                self._init_anthropic()
+            elif self.provider == "gemini":
+                self._init_gemini()
+        except Exception as error:
+            logger.error(
+                "Falha ao inicializar LLM (%s): %s — usando fallback local",
+                self.provider,
+                error,
+                exc_info=True,
+            )
+            self.client = None
 
     def _init_openai(self):
         from openai import OpenAI
@@ -48,6 +58,19 @@ class LLMService:
         self.client = Anthropic(api_key=Config.ANTHROPIC_API_KEY)
         self.model = Config.ANTHROPIC_MODEL
         logger.info(f"Anthropic configurado com modelo: {self.model}")
+
+    def _init_gemini(self):
+        try:
+            import google.generativeai as genai
+        except ImportError as exc:
+            raise ImportError(
+                "Para usar Gemini, instale: pip install google-generativeai"
+            ) from exc
+
+        genai.configure(api_key=Config.GEMINI_API_KEY)
+        self.client = genai
+        self.model = Config.GEMINI_MODEL
+        logger.info(f"Gemini configurado com modelo: {self.model}")
 
     def generate_with_system(self, system_prompt: str, user_message: str) -> str:
         if not self.client:
@@ -74,7 +97,49 @@ class LLMService:
             )
             return response.content[0].text
 
+        if self.provider == "gemini":
+            generation_config = {
+                "max_output_tokens": min(max(self.max_tokens, 1024), 2048),
+                "temperature": self.temperature,
+            }
+            # Modelos "flash" novos usam tokens de raciocínio e cortam a resposta.
+            try:
+                from google.generativeai.types import ThinkingConfig
+
+                generation_config["thinking_config"] = ThinkingConfig(
+                    thinking_budget=0
+                )
+            except Exception:
+                pass
+
+            model = self.client.GenerativeModel(
+                model_name=self.model,
+                system_instruction=system_prompt,
+                generation_config=generation_config,
+            )
+            response = model.generate_content(user_message)
+            text = self._extract_gemini_text(response)
+            if not text:
+                raise RuntimeError("Gemini retornou resposta vazia ou incompleta")
+            return text
+
         raise ValueError(f"Provider não suportado: {self.provider}")
+
+    def _extract_gemini_text(self, response) -> str:
+        try:
+            if getattr(response, "text", None):
+                return response.text.strip()
+        except Exception:
+            pass
+
+        parts: list[str] = []
+        for candidate in getattr(response, "candidates", []) or []:
+            content = getattr(candidate, "content", None)
+            for part in getattr(content, "parts", []) or []:
+                value = getattr(part, "text", None)
+                if value:
+                    parts.append(value)
+        return "\n".join(parts).strip()
 
     def health_check(self) -> bool:
         return True

@@ -18,24 +18,28 @@ class Config:
 
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
     OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o")
-    OPENAI_MAX_TOKENS = int(os.getenv("OPENAI_MAX_TOKENS", "900"))
+    OPENAI_MAX_TOKENS = int(os.getenv("OPENAI_MAX_TOKENS", "2048"))
     OPENAI_TEMPERATURE = float(os.getenv("OPENAI_TEMPERATURE", "0.3"))
 
     ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
     ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-3-5-sonnet-20241022")
 
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+    GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-flash-lite-latest")
+
     SYSTEM_PROMPT = os.getenv(
         "SYSTEM_PROMPT",
         """Você é um assistente clínico do Vitalium que resume relatos de sintomas
-escritos pelo paciente para o médico responsável.
+para o médico.
 
 Regras:
-- Resuma apenas com base nos relatos fornecidos.
-- Não faça diagnóstico definitivo.
-- Não invente sintomas que não estejam na lista.
-- Destaque frequência, padrões e possíveis sinais de alerta.
-- Use português do Brasil, claro e objetivo.
-- Estruture em: Resumo, Principais queixas, Frequência/padrões, Pontos de atenção.
+- Use só os relatos fornecidos. Não invente. Não faça diagnóstico.
+- Português do Brasil, texto simples, sem markdown.
+- Resposta CURTA (máximo 120 palavras) e COMPLETA nestas seções:
+Resumo
+Principais queixas
+Frequência/padrões
+Pontos de atenção
 """,
     )
 
@@ -48,12 +52,16 @@ Regras:
             return bool(key) and not key.startswith("sk-placeholder")
         if cls.AI_PROVIDER == "anthropic":
             return bool(cls.ANTHROPIC_API_KEY)
+        if cls.AI_PROVIDER == "gemini":
+            key = cls.GEMINI_API_KEY or ""
+            return bool(key) and not key.startswith("your-")
         return False
 
     @classmethod
     def validate(cls):
-        if cls.AI_PROVIDER not in ["openai", "anthropic"]:
+        if cls.AI_PROVIDER not in ["openai", "anthropic", "gemini"]:
             raise ValueError(
-                f"AI_PROVIDER inválido: {cls.AI_PROVIDER}. Use 'openai' ou 'anthropic'"
+                f"AI_PROVIDER inválido: {cls.AI_PROVIDER}. "
+                "Use 'openai', 'anthropic' ou 'gemini'"
             )
         return True
