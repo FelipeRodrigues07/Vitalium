@@ -1,7 +1,7 @@
-# Root secrets / local env
+# Secrets / local env (all folders)
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
 
 # OS / IDE
 .DS_Store
