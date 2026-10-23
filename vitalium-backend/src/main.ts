@@ -15,17 +15,34 @@ async function bootstrap() {
     prefix: '/uploads/',
   });
 
-  // Configurar CORS
+  // CORS
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'https://vitalium-three.vercel.app',
+    ...(process.env.CORS_ORIGINS?.split(',').map((o) => o.trim()) ?? []),
+  ];
+
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:3001'],
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    origin: (origin, callback) => {
+      // Sem Origin (curl, Postman, health check): permite
+      if (!origin) return callback(null, true);
+
+      const isAllowed =
+        allowedOrigins.includes(origin) ||
+        /^https:\/\/vitalium-.*-soutos-projects\.vercel\.app$/.test(origin);
+
+      return isAllowed
+        ? callback(null, true)
+        : callback(new Error(`Origin não permitida pelo CORS: ${origin}`));
+    },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
   });
 
-  // Configurar Swagger
   SwaggerConfig.setup(app);
 
-  // Configurar validation pipe global
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -38,9 +55,9 @@ async function bootstrap() {
   );
 
   const port = process.env.PORT || 3000;
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 
-  console.log(`🚀 Application is running on: http://localhost:${port}`);
-  console.log(`📚 Swagger documentation: http://localhost:${port}/api/docs`);
+  console.log(`🚀 Application is running on port ${port}`);
+  console.log(`📚 Swagger documentation: /api/docs`);
 }
 bootstrap();
